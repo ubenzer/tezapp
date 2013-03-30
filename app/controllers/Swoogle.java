@@ -72,12 +72,9 @@ public class Swoogle extends Controller {
         
         for(Response r: validResponses) {
           final String uri = r.getUri().toString();
-//          final byte[] ontbytes = r.asByteArray();
-//          final String ont = r.getBody();
-//          InputStream is = new ByteArrayInputStream(ontbytes);
           try {
             Model model = ModelFactory.createOntologyModel();
-            model.read(r.getBodyAsStream(), null);
+            model.read(r.getBodyAsStream(), r.getUri().toString());
           } catch (Exception e) {
             Logger.error("Error parsing file as ontology " + uri, e);
             unparsableOntCount++;
@@ -86,9 +83,12 @@ public class Swoogle extends Controller {
           
           try {
             String folder = r.getUri().getHost();
-            String name = r.getUri().getPath().replace(File.separator, "_");
+            String name = r.getUri().getPath();
+            if(name.startsWith(File.separator)) {
+              name = name.substring(1);
+            }
+            name.replace(File.separator, "_");
             File target = new File(swoogleOntologyPath + File.separator + folder + File.separator + name);
-//            target.getParentFile().mkdirs();
             FileUtils.touch(target);
 
             String md5 = FileUtils.writeAndMD5(r.getBodyAsStream(), target);
