@@ -1,0 +1,56 @@
+@scripts = {
+    <script src="@routes.Assets.at("js/application.index.js")"></script>
+}
+@main("Search Page", scripts) {
+    
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="#">Tezapp</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="active"><a href="#">Home</a></li>
+              <li><a href="#about">About</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <!-- Main herxso unit for a primary marketing message or call to action -->
+      <div class="hero-unit">
+        <h1>Tezapp</h1>
+        <p>Use boxes bellow to make searches and obtain some stats!</p>
+      </div>
+
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="span12">
+	      <div class="form-search">
+            <div class="input-append">
+                <input id="swoogle-input" type="text" class="span2 search-query">
+                <button id="swoogle-submit" class="btn-primary btn">Swoogle Baby!</button>
+            </div>
+          </div>
+	      <div id="common-busy" class="progress progress-striped active" style="display:none">
+             <div class="bar" style="width: 100%;"></div>
+	      </div>
+        </div>
+      </div>
+
+      <hr>
+
+      <footer>
+        <p>&copy; UBenzer 2013</p>
+      </footer>
+
+    </div> <!-- /container -->
+    
+}
