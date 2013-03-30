@@ -7,7 +7,6 @@ GET     /                           controllers.Application.index()
 GET     /jsRouter                   controllers.Application.javascriptRoutes
 
 GET     /watson                     controllers.Watson.index()
-GET     /swoogle                    controllers.Swoogle.index()
 POST    /swoogleSubmit              controllers.Swoogle.submit(keyword)
 
 # Map static resources from the /public folder to the /assets URL path

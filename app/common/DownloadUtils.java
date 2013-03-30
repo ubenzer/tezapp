@@ -2,7 +2,6 @@ package common;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -13,27 +12,56 @@ import play.libs.Akka;
 import play.libs.F.Promise;
 import play.libs.WS;
 import play.libs.WS.Response;
+import play.libs.WS.WSRequestHolder;
 
 public class DownloadUtils {
   public static final int DEFAULT_CONCURRENT_DOWNLOAD_COUNT = 30;
   public static final long DEFAULT_PROMISE_TIMEOUT_MS = Play.application().configuration().getInt("ws.timeout");
   
-  public static Promise<List<Response>> promiseConcurrentDownload(Collection<String> downloadList) {
+  public static Promise<Response> promiseNonExceptionalDownload(final WSRequestHolder ws) {
+    
+    Promise<Response> nonExceptionalPromise = Akka.future(new Callable<Response>() {
+      @Override
+      public Response call() throws Exception {
+        Promise<WS.Response> innerPromise = ws.get();
+        Response r = null;
+        try {
+          r = innerPromise.get(DEFAULT_PROMISE_TIMEOUT_MS);
+        } catch (Exception e) {
+          Logger.error("Inner promise exception while fetching url.", e);
+        }
+        return r;
+      }
+    });
+    
+    return nonExceptionalPromise;
+  }
+  public static Response nonExceptionalDownload(final WSRequestHolder wsrequest) {
+    Promise<WS.Response> innerPromise = wsrequest.get();
+    Response r = null;
+    try {
+      r = innerPromise.get(DEFAULT_PROMISE_TIMEOUT_MS);
+    } catch (Exception e) {
+      Logger.error("Inner promise exception while fetching an url", e);
+    }
+    return r;
+  }
+  
+  
+  public static Promise<List<Response>> promiseConcurrentDownload(Collection<WSRequestHolder> downloadList) {
     List<Promise<? extends WS.Response>> promiseList = new ArrayList<>();
 
-    for(final String url: downloadList) {
-      
-      Logger.info("Fetch started for " + url + " " + new Date().toString());
+    for(final WSRequestHolder wsrequest: downloadList) {
       
       Promise<Response> nonExceptionalPromise = Akka.future(new Callable<Response>() {
         @Override
         public Response call() throws Exception {
-          Promise<WS.Response> innerPromise = WS.url(url).get();
+          Promise<WS.Response> innerPromise = wsrequest.get();
           Response r = null;
           try {
             r = innerPromise.get(DEFAULT_PROMISE_TIMEOUT_MS);
           } catch (Exception e) {
-            Logger.error("Inner promise exception while fetching url e: " + (e.getCause() != null ? e.getCause().getClass().getCanonicalName() : e.getClass().getCanonicalName()) + " u: " + url);
+            Logger.error("Inner promise exception while fetching an url", e);
           }
           return r;
         }
@@ -44,10 +72,10 @@ public class DownloadUtils {
 
     return Promise.sequence(promiseList); 
   }
-  public static List<Response> concurrentDownload(Collection<String> uriList) {
-    List<Response> responses = new ArrayList<WS.Response>(uriList.size());
-    Set<String> bucket = new java.util.HashSet<>();
-    for(String uri: uriList) {
+  public static List<Response> concurrentDownload(Collection<WSRequestHolder> downloadList) {
+    List<Response> responses = new ArrayList<WS.Response>(downloadList.size());
+    Set<WSRequestHolder> bucket = new java.util.HashSet<>();
+    for(WSRequestHolder request: downloadList) {
       if(bucket.size() >= DownloadUtils.DEFAULT_CONCURRENT_DOWNLOAD_COUNT) {
         Promise<List<Response>> promises = DownloadUtils.promiseConcurrentDownload(bucket);
         bucket.clear();
@@ -62,7 +90,7 @@ public class DownloadUtils {
           Logger.error("Shouldn't happen! 1", e);
         }
       }
-      bucket.add(uri);
+      bucket.add(request);
     }
     if(bucket.size() > 0) {
       Promise<List<Response>> promises = DownloadUtils.promiseConcurrentDownload(bucket);
