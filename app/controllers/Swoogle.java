@@ -87,7 +87,7 @@ public class Swoogle extends Controller {
             if(name.startsWith(File.separator)) {
               name = name.substring(1);
             }
-            name.replace(File.separator, "_");
+            name = name.replace(File.separator, "_");
             File target = new File(swoogleOntologyPath + File.separator + folder + File.separator + name);
             FileUtils.touch(target);
 
