@@ -9,12 +9,13 @@ $("#swoogle-submit").click(function() {
   })
   .success(function(data) { 
     console.debug(data);
-    alert("Total: " + data.total);
-    alert("Failed: " + data.failed);
-    alert("Not 200: " + data.not200);
-    alert("Duplicate: " + data.duplicate);
-    alert("Not ontology: " + data.notOntology);
-    alert("Ok: " + data.ok);
+    alert("====STATS FOR SWOOGLE====\n" +
+        "Total: "        + data.total  + "\n" +
+        "Failed: "       + data.failed + "\n" +
+        "Not 200: "      + data.not200 + "\n" +
+        "Duplicate: "    + data.duplicate + "\n" +
+        "Not ontology: " + data.notOntology + "\n" +
+        "Ok: "           + data.ok);
     
   }).error(function(data) {
     
@@ -23,4 +24,37 @@ $("#swoogle-submit").click(function() {
     console.debug("error");
     console.debug(data);
   });
+
+});
+
+
+$("#watson-submit").click(function() {
+  var keyword = $("#watson-input").val();
+  
+  $("#common-busy").fadeIn();
+  routes.controllers.Watson.submit(keyword).ajax()
+  
+  .always(function(data) {
+    $("#common-busy").fadeOut();
+  })
+  .success(function(data) { 
+    console.debug(data);
+    alert("====STATS FOR WATSON====\n" +
+        "Total: "             + data.total  + "\n" +
+        "Failed: "            + data.failed + "\n" +
+        "Not 200: "           + data.not200 + "\n" +
+        "Duplicate: "         + data.duplicate + "\n" +
+        "Not ontology: "      + data.notOntology + "\n" +
+        "Livejournal count: " + data.liveJournal + "\n" +
+        "Deadjournal count: " + data.deadJournal + "\n" +
+        "Ok: "                + data.ok);
+    
+  }).error(function(data) {
+    
+    
+    
+    console.debug("error");
+    console.debug(data);
+  });
+  
 });

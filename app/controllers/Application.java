@@ -15,7 +15,8 @@ public class Application extends Controller {
     response().setContentType("text/javascript");
     return ok(
         Routes.javascriptRouter("routes",
-            routes.javascript.Swoogle.submit()
+            routes.javascript.Swoogle.submit(),
+            routes.javascript.Watson.submit()
         )
     );
   }
