@@ -6,7 +6,7 @@
 GET     /                           controllers.Application.index()
 GET     /jsRouter                   controllers.Application.javascriptRoutes
 
-GET     /swoogleSubmit              controllers.Watson.submit(keyword)
+POST    /watsonSubmit               controllers.Watson.submit(keyword)
 POST    /swoogleSubmit              controllers.Swoogle.submit(keyword)
 POST    /sindiceSubmit              controllers.Sindice.submit(keyword)
 
