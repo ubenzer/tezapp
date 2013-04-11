@@ -16,7 +16,8 @@ public class Application extends Controller {
     return ok(
         Routes.javascriptRouter("routes",
             routes.javascript.Swoogle.submit(),
-            routes.javascript.Watson.submit()
+            routes.javascript.Watson.submit(),
+            routes.javascript.Sindice.submit()
         )
     );
   }
