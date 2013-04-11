@@ -86,10 +86,6 @@ public class Watson extends Controller {
               deadJournalCount++;
               continue;
             }
-            if(folder.contains("livejournal.com")) {
-              liveJournalCount++;
-              continue;
-            }
             String name = r.getUri().getPath();
             if(name.startsWith(File.separator)) {
               name = name.substring(1);
