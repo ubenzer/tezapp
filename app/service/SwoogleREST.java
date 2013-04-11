@@ -76,6 +76,7 @@ public class SwoogleREST {
 
     // https://groups.google.com/forum/?fromgroups=#!topic/play-framework/1YE-y7d0L8Q interesting...
     List<Response> responses = DownloadUtils.concurrentDownload(requestList);
+    responses.add(response);
 
     for(Response r: responses) {
       try {
