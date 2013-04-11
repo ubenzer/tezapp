@@ -70,17 +70,12 @@ public class Swoogle extends Controller {
         
         Set<String> md5s = new HashSet<>();
         
-        for(Response r: validResponses) {
+        List<Response> validOntologyResponses = ValidationUtils.removeUnparsableFiles(validResponses);
+        unparsableOntCount = validResponses.size() - validOntologyResponses.size();
+        
+        for(Response r: validOntologyResponses) {
           final String uri = r.getUri().toString();
-          try {
-            Model model = ModelFactory.createOntologyModel();
-            model.read(r.getBodyAsStream(), r.getUri().toString());
-          } catch (Exception e) {
-            Logger.error("Error parsing file as ontology " + uri, e);
-            unparsableOntCount++;
-            continue;
-          }
-          
+
           try {
             String folder = r.getUri().getHost();
             String name = r.getUri().getPath();
