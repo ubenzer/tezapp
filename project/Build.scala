@@ -12,10 +12,10 @@ object ApplicationBuild extends Build {
     javaCore,
     javaJdbc,
     javaEbean,
-    "org.apache.commons" % "commons-io" % "1.3.2",
-    "org.apache.jena" % "jena-arq" % "2.9.3" excludeAll(ExclusionRule(organization = "org.slf4j")),
+    "commons-io" % "commons-io" % "2.4",
     "commons-validator" % "commons-validator" % "1.4.0",
-    "org.apache.jena" % "jena-core" % "2.10.0" excludeAll(ExclusionRule(organization = "org.slf4j"))
+    "xerces" % "xercesImpl" % "2.11.0",
+    "org.apache.jena" % "jena-core" % "2.10.0" excludeAll(ExclusionRule(organization = "org.slf4j"), ExclusionRule(organization = "xerces"))
   )
 
   // Only compile the bootstrap bootstrap.less file and any other *.less file in the stylesheets directory 
