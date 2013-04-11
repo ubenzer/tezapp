@@ -20,11 +20,10 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import service.SwoogleREST;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 import common.DownloadUtils;
 import common.FileUtils;
 import common.Utils;
+import common.ValidationUtils;
 
 public class Swoogle extends Controller {
   private static final String swoogleOntologyPath = initPath();
@@ -53,7 +52,7 @@ public class Swoogle extends Controller {
         Set<String> tbDownloaded = SwoogleREST.searchOntologySync(keyword);
         List<WSRequestHolder> wsList = new ArrayList<WSRequestHolder>();
         for(String downl: tbDownloaded) {
-          wsList.add(WS.url(downl));
+          wsList.add(WS.url(downl).setHeader("Accept", "application/rdf+xml, application/xml;q=0.6, text/xml;q=0.6"));
         }
         List<Response> responses = DownloadUtils.concurrentDownload(wsList);
         List<Response> validResponses = DownloadUtils.removeBadResponses(responses);
