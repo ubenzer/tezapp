@@ -15,7 +15,7 @@ import play.libs.WS.Response;
 import play.libs.WS.WSRequestHolder;
 
 public class DownloadUtils {
-  public static final int DEFAULT_CONCURRENT_DOWNLOAD_COUNT = 50;
+  public static final int DEFAULT_CONCURRENT_DOWNLOAD_COUNT = 100;
   public static final long DEFAULT_PROMISE_TIMEOUT_MS = Play.application().configuration().getInt("ws.timeout");
   
   public static Promise<Response> promiseNonExceptionalDownload(final WSRequestHolder ws) {
