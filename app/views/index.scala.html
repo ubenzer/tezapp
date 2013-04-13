@@ -1,4 +1,7 @@
 @scripts = {
+    <script src="@routes.Assets.at("js/jquery.flot-0.8.0.min.js")"></script>
+    <script src="@routes.Assets.at("js/jquery.flot.resize-0.8.0.min.js")"></script>
+    <script src="@routes.Assets.at("js/jquery.flot.pie-0.8.0.min.js")"></script>
     <script src="@routes.Assets.at("js/application.index.js")"></script>
 }
 @main("Search Page", scripts) {
@@ -14,63 +17,82 @@
           <a class="brand" href="#">Tezapp</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
-              <li class="active"><a href="#">Home</a></li>
-              <li><a href="#about">About</a></li>
+              <li class="active"><a href="/">Home</a></li>
             </ul>
-          </div><!--/.nav-collapse -->
+          </div>
         </div>
       </div>
     </div>
 
     <div class="container">
 
-      <!-- Main herxso unit for a primary marketing message or call to action -->
       <div class="hero-unit">
         <h1>Tezapp</h1>
         <p>Use boxes bellow to make searches and obtain some stats!</p>
       </div>
 
-      <!-- Example row of columns -->
       <div class="row">
-        <div class="span4">
+        <div class="span4 ontology-search-element" data-endpoint="Swoogle" data-id-prefix="swoogle">
 	      <div class="form-search">
             <div class="input-append">
-                <input id="swoogle-input" type="text" class="span2 search-query">
-                <button id="swoogle-submit" class="btn-primary btn">Swoogle Baby!</button>
+              <input id="swoogle-input" type="text" class="span2 search-query">
+              <button id="swoogle-submit" class="btn-primary btn">Swoogle Baby!</button>
             </div>
           </div>
+          <div id="swoogle-busy" style="margin-top: 10px; display:none;" class="progress progress-striped active" >
+             <div class="bar" style="width: 100%;"></div>
+          </div>
+          <div id="swoogle-chart">
+
+          </div>
+          <div id="swoogle-chart-desc" style="text-align: center;">
+
+          </div>
         </div>
-        <div class="span4">
+        <div class="span4 ontology-search-element" data-endpoint="Watson" data-id-prefix="watson">
 	      <div class="form-search">
             <div class="input-append">
-                <input id="watson-input" type="text" class="span2 search-query">
-                <button id="watson-submit" class="btn-primary btn">Watson Baby!</button>
+              <input id="watson-input" type="text" class="span2 search-query">
+              <button id="watson-submit" class="btn-primary btn">Watson Baby!</button>
             </div>
           </div>
+          <div id="watson-busy" style="margin-top: 10px; display:none;" class="progress progress-striped active">
+             <div class="bar" style="width: 100%;"></div>
+          </div>
+          <div id="watson-chart">
+
+          </div>
+          <div id="watson-chart-desc" style="text-align: center;">
+
+          </div>
         </div>
-        <div class="span4">
+        <div class="span4 ontology-search-element" data-endpoint="Sindice" data-id-prefix="sindice">
 	      <div class="form-search">
             <div class="input-append">
                 <input id="sindice-input" type="text" class="span2 search-query">
                 <button id="sindice-submit" class="btn-primary btn">Sindice Me!</button>
             </div>
           </div>
+          <div id="sindice-busy" style="margin-top: 10px; display:none" class="progress progress-striped active">
+             <div class="bar" style="width: 100%;"></div>
+          </div>
+          <div id="sindice-chart">
+
+          </div>
+          <div id="sindice-chart-desc" style="text-align: center;">
+
+          </div>
         </div>
      </div>
      <div class="row">
-        <div class="span12">
-	      <div id="common-busy" class="progress progress-striped active" style="display:none">
-             <div class="bar" style="width: 100%;"></div>
-	      </div>
+        <div class="span12" id="overall-chart">
+
         </div>
-      </div>
+     </div>
 
-      <hr>
-
-      <footer>
-        <p>&copy; UBenzer 2013</p>
-      </footer>
-
-    </div> <!-- /container -->
-    
+     <hr>
+     <footer>
+       <p>&copy; UBenzer 2013</p>
+     </footer>
+    </div>
 }
