@@ -1,4 +1,4 @@
-package service
+package service.ontologyFetcher
 
 import play.api.Logger
 import scala.concurrent.{Await, Future}
@@ -7,25 +7,15 @@ import scala.concurrent.duration._
 import scala.xml.Elem
 import play.api.libs.concurrent.Execution.Implicits._
 
-trait SwoogleFetcher {
+trait SwoogleFetcher extends OntologyFetcher {
   private final val ACCESS_KEY: String = "52fc0c56ec4942e2a5268356d0b8af23"
   private final val SEARCH_ONTOLOGY_API_URL: String = "http://sparql.cs.umbc.edu/swoogle31/q"
   private final val SWOOGLE_MAX_RESULT: Int = 1000
   private final val SWOOGLE_RESULT_PER_PAGE: Int = 10
 
-  def getOntologyList(searchQuery: String): Option[Set[String]] = {
-    val firstPagePromise = fetchAPage(searchQuery, 1)
-
-    def getXMLSync(future: Future[Response]): Option[Elem] = {
-      try {
-        Some(Await.result(future, 10 seconds).xml)
-      } catch {
-        case e: Exception => {
-          Logger.error("Can't get results.", e)
-          return None
-        }
-      }
-    }
+  @throws[Exception]("On connection problem")
+  def getOntologyListFuture(keyword: String): Future[Option[Set[String]]] = {
+    val firstPagePromise = fetchAPage(keyword, 1)
 
     def getNormalizedSearchResultCount(xml: Elem): Int = {
       val resultCount = try { (xml \\ "QueryResponse" \\ "hasSearchTotalResults").text.toInt; } catch { case e: Throwable => 0 }
@@ -39,11 +29,10 @@ trait SwoogleFetcher {
       }
       case None => {
         Logger.error("There is no XML to parse!")
-        return None
+        throw new Exception
       }
     })
-    if(resultCount == 0) return None
-
+    if(resultCount == 0) new Exception
 
     def toUrlList(toBeMapped: Future[Response]): Future[Set[String]] = {
       val mapped: Future[Set[String]] = toBeMapped.map {
@@ -61,21 +50,24 @@ trait SwoogleFetcher {
     }
 
     val pageFutureSet: Seq[Future[Set[String]]] =
-      (for (i: Int <- 1 until (scala.math.floor (resultCount / SWOOGLE_RESULT_PER_PAGE) + (if (resultCount % SWOOGLE_RESULT_PER_PAGE > 0) 1 else 0)).toInt) yield toUrlList(fetchAPage(searchQuery, ((i * SWOOGLE_RESULT_PER_PAGE) + 1)))
+      (for (i: Int <- 1 until (scala.math.floor (resultCount / SWOOGLE_RESULT_PER_PAGE) + (if (resultCount % SWOOGLE_RESULT_PER_PAGE > 0) 1 else 0)).toInt) yield toUrlList(fetchAPage(keyword, ((i * SWOOGLE_RESULT_PER_PAGE) + 1)))
         ) ++ Seq(toUrlList(firstPagePromise))
 
+    return Future.sequence(pageFutureSet).map {
+      results: Seq[Set[String]] => if(results.isEmpty) None else Some((results.flatten).toSet)
+    }
+  }
 
-    val results: Seq[Set[String]] =
-      try {
-        Await.result(Future.sequence(pageFutureSet), (pageFutureSet.size * 10) seconds)
-      } catch {
-        case e: Exception => {
-          Logger.error("Not on time!", e)
-          return None
-        }
+  def getOntologyList(keyword: String): Option[Set[String]] = {
+
+    try {
+      return Await.result(getOntologyListFuture(keyword), 10 minutes)
+    } catch {
+      case e: Exception => {
+        Logger.error("Not on time!", e)
+        return None
       }
-
-    if(results.isEmpty) None else Some((results.flatten).toSet)
+    }
   }
 
   private def fetchAPage(searchQuery: String, startResult: Int): Future[Response] = {
