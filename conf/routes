@@ -4,6 +4,9 @@
 
 # Home page
 GET     /                           controllers.Application.index()
+
+GET     /scala                      controllers.SwoogleScala.submit(keyword)
+
 GET     /jsRouter                   controllers.Application.javascriptRoutes
 
 POST    /watsonSubmit               controllers.Watson.submit(keyword)
