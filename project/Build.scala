@@ -5,6 +5,7 @@ import play.Project._
 object ApplicationBuild extends Build {
 
   resolvers += Resolver.sonatypeRepo("snapshots")
+  scalacOptions ++= Seq("-unchecked", "-deprecation","-feature","-warning")
 
   val appName         = "tezapp"
   val appVersion      = "1.0-SNAPSHOT"
@@ -12,12 +13,12 @@ object ApplicationBuild extends Build {
   val appDependencies = Seq(
     // Add your project dependencies here,
     javaCore,
+    "org.openrdf.sesame" % "sesame-runtime" % "2.7.0",
     "commons-io" % "commons-io" % "2.4",
     "commons-validator" % "commons-validator" % "1.4.0",
     "xerces" % "xercesImpl" % "2.11.0",
     "org.apache.jena" % "jena-core" % "2.10.0" excludeAll(ExclusionRule(organization = "org.slf4j"), ExclusionRule(organization = "xerces")),
-    "se.radley" % "play-plugins-salat_2.10" % "1.2",
-    "org.openrdf.sesame" % "sesame-rio" % "2.7.0"
+    "se.radley" % "play-plugins-salat_2.10" % "1.2"
   )
 
   // Only compile the bootstrap bootstrap.less file and any other *.less file in the stylesheets directory 
