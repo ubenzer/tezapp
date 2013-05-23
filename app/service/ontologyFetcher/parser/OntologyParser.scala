@@ -9,12 +9,12 @@ import play.api.libs.ws.Response
 
 abstract class OntologyParser protected {
 
-  def parseResponseAsOntology(response: Response)(afterParseCallback: ((Resource, URI, Value) => _) = null): Status.Value = {
+  def parseResponseAsOntology(response: Response, source: Option[String] = None)(afterParseCallback: ((Resource, URI, Value) => _) = null): Status.Value = {
     import service.ontologyFetcher.parser.OntologyParserImplicits._
     val inferredType: RDFFormat = inferType(response.header("Content-Type"))
-    parseStreamAsOntology(response.body, response.getAHCResponse.getUri, inferredType)(afterParseCallback)
+    parseStreamAsOntology(response.body, response.getAHCResponse.getUri, inferredType, source)(afterParseCallback)
   }
-  def parseStreamAsOntology(tbParsed: InputStream, baseUri: String, format: RDFFormat)(afterParseCallback: ((Resource, URI, Value) => _) = null): Status.Value
+  def parseStreamAsOntology(tbParsed: InputStream, baseUri: String, format: RDFFormat, source: Option[String] = None)(afterParseCallback: ((Resource, URI, Value) => _) = null): Status.Value
 
   def inferType(contentType: Option[String]): RDFFormat = {
 

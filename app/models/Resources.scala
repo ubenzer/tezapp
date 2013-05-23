@@ -5,12 +5,40 @@ import com.novus.salat.dao._
 import com.mongodb.casbah.Imports._
 import se.radley.plugin.salat._
 import mongoContext._
+import org.joda.time._
 
-case class Resources (
-  id: ObjectId = new ObjectId,
-  name: String
+case class DBResource (
+  id          : ObjectId = new ObjectId,
+  uri         : String
 )
+case class OntologyFiles (
+  id          : ObjectId = new ObjectId,
+  uri         : String,
+  source      : SourceType,
+  createDate  : DateTime
+)
+case class DBTriple (
+  id         : ObjectId = new ObjectId,
+  resources  : Array[ObjectId],
 
-object Resources extends ModelCompanion[Resources, ObjectId] {
-  val dao = new SalatDAO[Resources, ObjectId](collection = mongoCollection("resources")) {}
+  subject    : ObjectRes,
+  predicate  : ObjectRes,
+  `object`   : LightResource
+)
+class LightResource
+case class ObjectRes(uri: String, id: ObjectId)   extends LightResource
+case class VariableRes(value: String) extends LightResource
+
+
+class SourceType()
+case class Swoogle() extends SourceType
+case class Watson() extends SourceType
+
+object DBTriples extends ModelCompanion[DBTriple, ObjectId] {
+  mongoCollection("triples").ensureIndex(DBObject("resources" -> 1), "res_idx", true)
+  val dao = new SalatDAO[DBTriple, ObjectId](collection = mongoCollection("triples")) {}
+}
+object DBResources extends ModelCompanion[DBResource, ObjectId] {
+  mongoCollection("resources").ensureIndex(DBObject("uri" -> 1), "uri_idx", true)
+  val dao = new SalatDAO[DBResource, ObjectId](collection = mongoCollection("resources")) {}
 }

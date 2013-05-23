@@ -9,6 +9,8 @@ import play.api.libs.concurrent.Execution.Implicits._
 import service.parser.RIOParser
 import service.storer.SalatStorer
 import play.libs
+import java.net.ConnectException
+import java.util.concurrent.TimeoutException
 
 trait OntologyFetcher {
   val MAX_TIME_PER_ONTOLOGY_DOWNLOAD = 10 seconds
@@ -55,8 +57,16 @@ trait OntologyFetcher {
           }
         }
       } recover {
+        case ex: TimeoutException => {
+          Logger.debug("Fetch failed because of a timeout  for url " + url, ex)
+          Right(Status.ConnectionProblem)
+        }
+        case ex: ConnectException => {
+          Logger.debug("Fetch failed because of conncetion problem for url " + url, ex)
+          Right(Status.ConnectionProblem)
+        }
         case ex: Exception => {
-          Logger.error("Fetch failed for url" + url, ex)
+          Logger.error("Fetch failed for url " + url, ex)
           Right(Status.ConnectionProblem)
         }
       }
