@@ -6,15 +6,16 @@ import java.io.{ByteArrayInputStream, InputStream}
 import org.openrdf.model.{URI, Value, Resource}
 import service.ontologyFetcher.Status
 import play.api.libs.ws.Response
+import models.SourceType
 
 abstract class OntologyParser protected {
 
-  def parseResponseAsOntology(response: Response, source: Option[String] = None)(afterParseCallback: ((Resource, URI, Value) => _) = null): Status.Value = {
+  def parseResponseAsOntology(response: Response, source: SourceType)(afterParseCallback: ((String, SourceType, Resource, URI, Value) => _) = null): Status.Value = {
     import service.ontologyFetcher.parser.OntologyParserImplicits._
     val inferredType: RDFFormat = inferType(response.header("Content-Type"))
     parseStreamAsOntology(response.body, response.getAHCResponse.getUri, inferredType, source)(afterParseCallback)
   }
-  def parseStreamAsOntology(tbParsed: InputStream, baseUri: String, format: RDFFormat, source: Option[String] = None)(afterParseCallback: ((Resource, URI, Value) => _) = null): Status.Value
+  def parseStreamAsOntology(tbParsed: InputStream, baseUri: String, format: RDFFormat, source: SourceType)(afterParseCallback: ((String, SourceType, Resource, URI, Value) => _) = null): Status.Value
 
   def inferType(contentType: Option[String]): RDFFormat = {
 

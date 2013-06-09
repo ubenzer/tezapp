@@ -1,16 +1,16 @@
 @(title: String, scripts: Html = Html(""))(content: Html)<!DOCTYPE html>
 <html>
   <head>
-    <title>@title</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>@title</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <link href="@routes.Assets.at("css/bootstrap/bootstrap.css")" rel="stylesheet" media="screen">
-    <link href="@routes.Assets.at("css/bootstrap/responsive.css")" rel="stylesheet" media="screen">
+      <link href="@routes.Assets.at("css/bootstrap/bootstrap.css")" rel="stylesheet" media="screen">
+      <link href="@routes.Assets.at("css/bootstrap/responsive.css")" rel="stylesheet" media="screen">
   </head>
   <body>
     @content
-    <script src="@routes.Assets.at("js/jquery-2.0.0-pre.js")"></script>
-    <script src="@routes.Assets.at("js/bootstrap.js")"></script>
+    <script src="@routes.Assets.at("js/lib/jquery-2.0.0-pre.js")"></script>
+    <script src="@routes.Assets.at("js/lib/bootstrap.js")"></script>
     <script src="@routes.Application.javascriptRoutes()"></script>
     @if(!common.Utils.isBlank(scripts.body)) {
         @scripts

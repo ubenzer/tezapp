@@ -29,17 +29,17 @@ object ApplicationBuild extends Build {
       (base / "app" / "assets" / "css" / "bootstrap" * "responsive.less") +++ 
       (base / "app" / "assets" / "css" * "*.less")
   )
+  def customJSEntryPoints(base: File): PathFinder = (
+    base / "app" / "assets" / "js" ** "*.js"
+  )
   
   val main = play.Project(appName, appVersion, appDependencies).settings(
     lessEntryPoints <<= baseDirectory(customLessEntryPoints),
+    javascriptEntryPoints <<= baseDirectory(customJSEntryPoints),
     routesImport += "se.radley.plugin.salat.Binders._",
     templatesImport += "org.bson.types.ObjectId",
     resolvers += "Maven Central" at "http://repo1.maven.org/maven2",
     resolvers += "Typesafe Repository 2" at "http://repo.typesafe.com/typesafe/repo/",
-
-    //requireJs += "app.build.js",
-    requireJsFolder := "js",
-    //requireJsShim := "js"
 
     templatesImport += "_root_.views.helper.JSDependency"
   )

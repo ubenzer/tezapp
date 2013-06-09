@@ -11,7 +11,7 @@ package object mongoContext {
   implicit val context = {
     val context = new Context {
       val name = "global"
-      override val typeHintStrategy = StringTypeHintStrategy(when = TypeHintFrequency.WhenNecessary, typeHint = "_t")
+      override val typeHintStrategy = StringTypeHintStrategy(when = TypeHintFrequency.Always, typeHint = "_t")
     }
     context.registerGlobalKeyOverride(remapThis = "id", toThisInstead = "_id")
     context.registerClassLoader(Play.classloader)

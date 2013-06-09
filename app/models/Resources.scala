@@ -7,38 +7,43 @@ import se.radley.plugin.salat._
 import mongoContext._
 import org.joda.time._
 
-case class DBResource (
-  id          : ObjectId = new ObjectId,
-  uri         : String
+case class OntologyDocument (
+  id          : String, // uri of document
+  hasElements : Array[String],
+  hasTriples  : Array[ObjectId],
+  uDate       : DateTime,
+  appearsOn   : Array[SourceType]  // Swoogle, Watson etc.
 )
-case class OntologyFiles (
-  id          : ObjectId = new ObjectId,
-  uri         : String,
-  source      : SourceType,
-  createDate  : DateTime
-)
-case class DBTriple (
-  id         : ObjectId = new ObjectId,
-  resources  : Array[ObjectId],
 
-  subject    : ObjectRes,
-  predicate  : ObjectRes,
-  `object`   : LightResource
+case class BasicOntologyElement (
+  id          : String    // uri of element
 )
-class LightResource
-case class ObjectRes(uri: String, id: ObjectId)   extends LightResource
-case class VariableRes(value: String) extends LightResource
+case class OntologyElement (
+  id          : String,   //uri of element
+  uDate       : DateTime
+)
 
+case class OntologyTriple (
+  id          : ObjectId = new ObjectId,
+  subject     : BasicOntologyElement,
+  predicate   : BasicOntologyElement,
+  objectO     : Option[BasicOntologyElement],
+  objectD     : Option[String],
+  elementUris : Array[String]
+)
 
 class SourceType()
 case class Swoogle() extends SourceType
 case class Watson() extends SourceType
 
-object DBTriples extends ModelCompanion[DBTriple, ObjectId] {
-  mongoCollection("triples").ensureIndex(DBObject("resources" -> 1), "res_idx", true)
-  val dao = new SalatDAO[DBTriple, ObjectId](collection = mongoCollection("triples")) {}
+object OntologyDocument extends ModelCompanion[OntologyDocument, String] {
+  val dao = new SalatDAO[OntologyDocument, String](collection = mongoCollection("OntologyDocument")) {}
 }
-object DBResources extends ModelCompanion[DBResource, ObjectId] {
-  mongoCollection("resources").ensureIndex(DBObject("uri" -> 1), "uri_idx", true)
-  val dao = new SalatDAO[DBResource, ObjectId](collection = mongoCollection("resources")) {}
+object OntologyElement extends ModelCompanion[OntologyElement, String] {
+  val dao = new SalatDAO[OntologyElement, String](collection = mongoCollection("OntologyElement")) {}
+}
+object OntologyTriple extends ModelCompanion[OntologyTriple, ObjectId] {
+  mongoCollection("OntologyTriple").ensureIndex(DBObject("elementUris" -> 1), "elementAvailabilityIdx")
+  mongoCollection("OntologyTriple").ensureIndex(DBObject("subject" -> 1, "predicate" -> 1, "objectO" -> 1), DBObject({"sparse" -> true}, {"name" -> "tripleIdx"}))
+  val dao = new SalatDAO[OntologyTriple, ObjectId](collection = mongoCollection("OntologyTriple")) {}
 }
