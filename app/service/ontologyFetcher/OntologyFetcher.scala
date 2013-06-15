@@ -10,14 +10,13 @@ import service.parser.RIOParser
 import service.storer.SalatStorer
 import java.net.ConnectException
 import java.util.concurrent.TimeoutException
-import models.SourceType
 
 trait OntologyFetcher {
   val MAX_TIME_PER_ONTOLOGY_DOWNLOAD = 10 seconds
   def getOntologyList(keyword: String): Option[Set[String]]
   def getOntologyListFuture(keyword: String): Future[Option[Set[String]]]
 
-  def doOntologyFetchingFor(keyword: String, source: SourceType): Map[Status.Value, Int] = {
+  def doOntologyFetchingFor(keyword: String, source: String): Map[Status.Value, Int] = {
 
     /* Step 1: Fetch ontology list to be fetched. */
     val ontologyList = getOntologyList(keyword)
@@ -84,7 +83,7 @@ trait OntologyFetcher {
 }
 object OntologyFetcher {
   lazy val SwoogleFetcher = new Object with SwoogleFetcher
-  def RIOParserWithSalatSaver(r: Response, s: SourceType): Status.Value = RIOParser.parseResponseAsOntology(r, s)(SalatStorer.saveTriple _)
+  def RIOParserWithSalatSaver(r: Response, s: String): Status.Value = RIOParser.parseResponseAsOntology(r, s)(SalatStorer.saveTriple _)
 }
 object Status extends Enumeration {
   type Status = Value

@@ -7,16 +7,16 @@ import service.ontologyFetcher.Status
 import service.ontologyFetcher.parser.OntologyParser
 import play.Logger
 import org.openrdf.model.{Value, URI, Resource, Statement}
-import models.SourceType
 
 object RIOParser extends OntologyParser {
 
-  override def parseStreamAsOntology(tbParsed: InputStream, baseUri: String, format: RDFFormat, source: SourceType)(afterParseCallback: ((String, SourceType, Resource, URI, Value) => _) = null): Status.Value = {
-    val rdfParser = Rio.createParser(format)
-    if(afterParseCallback != null) {
-      rdfParser.setRDFHandler(new RIOCustomHandler(afterParseCallback, baseUri, source))
-    }
+  override def parseStreamAsOntology(tbParsed: InputStream, baseUri: String, format: RDFFormat, source: String)(afterParseCallback: ((String, String, Resource, URI, Value) => _) = null): Status.Value = {
+
     try {
+      val rdfParser = Rio.createParser(format)
+      if(afterParseCallback != null) {
+        rdfParser.setRDFHandler(new RIOCustomHandler(afterParseCallback, baseUri, source))
+      }
       rdfParser.parse(tbParsed, baseUri);
     } catch {
       case ex: RDFParseException => {
@@ -36,7 +36,7 @@ object RIOParser extends OntologyParser {
   }
 
 }
-class RIOCustomHandler(saveHandler: (String, SourceType, Resource, URI, Value) => _, baseUri: String, source: SourceType) extends RDFHandlerBase {
+class RIOCustomHandler(saveHandler: (String, String, Resource, URI, Value) => _, baseUri: String, source: String) extends RDFHandlerBase {
 
   override def handleStatement(st: Statement):Unit = {
 

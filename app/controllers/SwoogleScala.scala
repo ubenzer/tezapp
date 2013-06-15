@@ -2,7 +2,6 @@ package controllers
 
 import play.api.mvc._
 import service.ontologyFetcher.{OntologyFetcher}
-import models.{Swoogle => Swgl}
 
 object SwoogleScala extends Controller {
 
@@ -12,7 +11,7 @@ object SwoogleScala extends Controller {
 
     val theFetcher = OntologyFetcher.SwoogleFetcher
 
-    val stats = theFetcher.doOntologyFetchingFor(keyword, Swgl())
+    val stats = theFetcher.doOntologyFetchingFor(keyword, "swoogle")
 
     println(stats.toString)
 

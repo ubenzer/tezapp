@@ -12,7 +12,7 @@ case class OntologyDocument (
   hasElements : Array[String],
   hasTriples  : Array[ObjectId],
   uDate       : DateTime,
-  appearsOn   : Array[SourceType]  // Swoogle, Watson etc.
+  appearsOn   : Array[String]  // Swoogle, Watson etc.
 )
 
 case class BasicOntologyElement (
@@ -32,10 +32,6 @@ case class OntologyTriple (
   elementUris : Array[String]
 )
 
-class SourceType()
-case class Swoogle() extends SourceType
-case class Watson() extends SourceType
-
 object OntologyDocument extends ModelCompanion[OntologyDocument, String] {
   val dao = new SalatDAO[OntologyDocument, String](collection = mongoCollection("OntologyDocument")) {}
 }
@@ -44,6 +40,7 @@ object OntologyElement extends ModelCompanion[OntologyElement, String] {
 }
 object OntologyTriple extends ModelCompanion[OntologyTriple, ObjectId] {
   mongoCollection("OntologyTriple").ensureIndex(DBObject("elementUris" -> 1), "elementAvailabilityIdx")
-  mongoCollection("OntologyTriple").ensureIndex(DBObject("subject" -> 1, "predicate" -> 1, "objectO" -> 1), DBObject({"sparse" -> true}, {"name" -> "tripleIdx"}))
+  mongoCollection("OntologyTriple").ensureIndex(DBObject("predicate" -> 1, "subject" -> 1, "objectO" -> 1), DBObject({"sparse" -> true}, {"name" -> "tripleIdxPSO"}))
+  mongoCollection("OntologyTriple").ensureIndex(DBObject("predicate" -> 1, "objectO" -> 1), DBObject({"sparse" -> true}, {"name" -> "tripleIdxPO"}))
   val dao = new SalatDAO[OntologyTriple, ObjectId](collection = mongoCollection("OntologyTriple")) {}
 }

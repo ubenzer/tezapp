@@ -1,114 +1,77 @@
 package service.storer
 
 import service.ontologyFetcher.storer.OntologyStorer
-import org.openrdf.model.{Value, URI, Resource}
+import org.openrdf.model.{BNode, Value, URI, Resource}
 import models._
 import org.joda.time.DateTime
 import com.mongodb.casbah.Imports._
+import play.api.Logger
+import com.mongodb.casbah.Imports
+import scala.Some
 
 object SalatStorer extends OntologyStorer {
 
   private def saveElement(uri: Value) {
-    OntologyElement.update(
+    if(uri.isInstanceOf[BNode]) return
+    OntologyElement.dao.collection.update(
       MongoDBObject({"_id" -> uri.stringValue}),
-      MongoDBObject({"_id" -> uri.stringValue}, {"uDate" -> new DateTime()})
-      , true, false)
+      MongoDBObject({"_id" -> uri.stringValue}, {"uDate" -> new DateTime()}),
+      upsert = true)
   }
-  private def saveDocument(uri: String, sourceToAppend: List[SourceType] = Nil, elementsToAppend: List[String] = Nil, triplesToAppend: List[ObjectId] = Nil) {
+  private def saveDocument(uri: String, sourceToAppend: List[String] = Nil, elementsToAppend: List[String] = Nil, triplesToAppend: List[ObjectId] = Nil) {
 
-    val update1: DBObject =
-      MongoDBObject("_id" -> uri.toString) ++
-      MongoDBObject("uDate" -> new DateTime)
+    val query = MongoDBObject({"_id" -> uri.toString})
 
-    val update2: DBObject = $addToSet("appearsOn") $each(sourceToAppend:_*)
+    val update: DBObject =
+      $set("uDate" -> new DateTime) ++
+      $addToSet("appearsOn"   -> MongoDBObject("$each" -> MongoDBList(sourceToAppend:_*   )),
+                "hasElements" -> MongoDBObject("$each" -> MongoDBList(elementsToAppend:_* )),
+                "hasTriples"  -> MongoDBObject("$each" -> MongoDBList(triplesToAppend:_*  )))
 
-    val update3 = $addToSet("hasElements") $each(elementsToAppend.toArray:_*)
-
-    val update4 = $addToSet("hasTriples") $each (triplesToAppend.toArray:_*)
-
-    /* Find and replace here! */
-    OntologyDocument.dao.collection.findAndModify(
-      query = MongoDBObject({"_id" -> uri.toString}),
-      update = update1,
-      upsert = true,
-      fields = null,
-      sort = null,
-      remove = false,
-      returnNew = true
-    )
-
-    OntologyDocument.dao.collection.findAndModify(
-      query = MongoDBObject({"_id" -> uri.toString}),
-      update = update2,
-      upsert = true,
-      fields = null,
-      sort = null,
-      remove = false,
-      returnNew = true
-    )
-
-    OntologyDocument.dao.collection.findAndModify(
-      query = MongoDBObject({"_id" -> uri.toString}),
-      update = update3,
-      upsert = true,
-      fields = null,
-      sort = null,
-      remove = false,
-      returnNew = true
-    )
-
-    OntologyDocument.dao.collection.findAndModify(
-      query = MongoDBObject({"_id" -> uri.toString}),
-      update = update4,
-      upsert = true,
-      fields = null,
-      sort = null,
-      remove = false,
-      returnNew = true
-    )
+    OntologyDocument.dao.collection.update(query, update, upsert = true)
   }
-  def saveTriple(sourceDocument: String, source: SourceType, subject: Resource, predicate: URI, objekt: Value) {
+  def saveTriple(sourceDocument: String, source: String, subject: Resource, predicate: URI, objekt: Value) {
 
     saveElement(subject)
     saveElement(predicate)
     objekt match { case r: Resource => saveElement(r); case r => }
 
-    val subjectQ   = {"subject" -> subject.toString}
-    val predicateQ = {"predicate" -> predicate.toString}
+    val subjectQ   = if(!subject.isInstanceOf[BNode]) { Some(MongoDBObject("subject" -> subject.toString)) } else { None }
+    val predicateQ = MongoDBObject("predicate" -> predicate.toString)
     val objectkQ   =
         objekt match {
-          case r: Resource => {
-            { "objectO" -> Some(r.toString) }
-          }
-          case r => {
-            { "objectD" -> Some(r.stringValue) }
-          }
+          case r: BNode => None
+          case r: Resource => Some(MongoDBObject("objectO" -> Some(r.toString)))
+          case r => Some(MongoDBObject("objectD" -> Some(r.stringValue)))
         }
 
-    val query = MongoDBObject(subjectQ :: predicateQ :: objectkQ :: Nil)
+    var queryQ = predicateQ
+    if(subjectQ.isDefined) queryQ = queryQ ++ subjectQ.get
+    if(objectkQ.isDefined) queryQ = queryQ ++ objectkQ.get
 
     val objectUQ = objekt match {
       case r: Resource => {
-        (List({ "objectO" -> Some(r.toString) }, { "objectD" -> None }), r.toString :: Nil)
+        (List({ "objectO" -> Some(r.stringValue) }, { "objectD" -> None }), Some(r))
       }
       case r => {
-        (List({ "objectD" -> Some(r.stringValue) }, { "objectO" -> None }), Nil)
+        (List({ "objectD" -> Some(r.stringValue) }, { "objectO" -> None }), None)
       }
     }
 
-    val elementUris:Array[String] = (subject.toString :: predicate.toString :: objectUQ._2) toArray
-
+    var objectAppendList = List(predicate.toString)
+    if(!subject.isInstanceOf[BNode]) objectAppendList ::= subject.stringValue
+    if(objectUQ._2.isDefined && !objectUQ._2.get.isInstanceOf[BNode]) objectAppendList ::= objectUQ._2.get.stringValue
 
     val update = MongoDBObject(
-      {"elementUris" -> elementUris } ::
-      {"subject"   -> subject.toString} ::
-      {"predicate" -> predicate.toString} ::
+      {"elementUris" -> objectAppendList.toArray } ::
+      {"subject"   -> subject.stringValue} ::
+      {"predicate" -> predicate.stringValue} ::
       objectUQ._1
     )
 
     /* Find and replace here! */
     val result = OntologyTriple.dao.collection.findAndModify(
-      query = query,
+      query = queryQ,
       update = update,
       upsert = true,
       fields = null,
@@ -117,7 +80,6 @@ object SalatStorer extends OntologyStorer {
       returnNew = true
     )
 
-    val objectAppendList = (subject.toString :: predicate.toString :: objectUQ._2)
     var tripleAppendList: List[ObjectId] = Nil
     if(result.isDefined) {
       tripleAppendList = result.get.get("_id").asInstanceOf[ObjectId] :: Nil
