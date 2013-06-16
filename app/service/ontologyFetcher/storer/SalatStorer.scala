@@ -12,7 +12,7 @@ import scala.Some
 object SalatStorer extends OntologyStorer {
 
   private def saveElement(uri: Value) {
-    if(uri.isInstanceOf[BNode]) return
+    /*if(uri.isInstanceOf[BNode]) return */
     OntologyElement.dao.collection.update(
       MongoDBObject({"_id" -> uri.stringValue}),
       MongoDBObject({"_id" -> uri.stringValue}, {"uDate" -> new DateTime()}),
@@ -36,11 +36,11 @@ object SalatStorer extends OntologyStorer {
     saveElement(predicate)
     objekt match { case r: Resource => saveElement(r); case r => }
 
-    val subjectQ   = if(!subject.isInstanceOf[BNode]) { Some(MongoDBObject("subject" -> subject.toString)) } else { None }
+    val subjectQ   = /*if(!subject.isInstanceOf[BNode]) {*/ Some(MongoDBObject("subject" -> subject.toString)) /*} else { None }   */
     val predicateQ = MongoDBObject("predicate" -> predicate.toString)
     val objectkQ   =
         objekt match {
-          case r: BNode => None
+          /*case r: BNode => None  */
           case r: Resource => Some(MongoDBObject("objectO" -> Some(r.toString)))
           case r => Some(MongoDBObject("objectD" -> Some(r.stringValue)))
         }
@@ -59,8 +59,8 @@ object SalatStorer extends OntologyStorer {
     }
 
     var objectAppendList = List(predicate.toString)
-    if(!subject.isInstanceOf[BNode]) objectAppendList ::= subject.stringValue
-    if(objectUQ._2.isDefined && !objectUQ._2.get.isInstanceOf[BNode]) objectAppendList ::= objectUQ._2.get.stringValue
+    /*if(!subject.isInstanceOf[BNode])*/ objectAppendList ::= subject.stringValue
+    if(objectUQ._2.isDefined /*&& !objectUQ._2.get.isInstanceOf[BNode]*/) objectAppendList ::= objectUQ._2.get.stringValue
 
     val update = MongoDBObject(
       {"elementUris" -> objectAppendList.toArray } ::
