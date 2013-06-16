@@ -39,9 +39,7 @@ object ApplicationBuild extends Build {
     routesImport += "se.radley.plugin.salat.Binders._",
     templatesImport += "org.bson.types.ObjectId",
     resolvers += "Maven Central" at "http://repo1.maven.org/maven2",
-    resolvers += "Typesafe Repository 2" at "http://repo.typesafe.com/typesafe/repo/",
-
-    templatesImport += "_root_.views.helper.JSDependency"
+    resolvers += "Typesafe Repository 2" at "http://repo.typesafe.com/typesafe/repo/"
   )
   
 }
