@@ -10,8 +10,9 @@ import service.parser.RIOParser
 import service.storer.SalatStorer
 import java.net.ConnectException
 import java.util.concurrent.TimeoutException
+import service.ontologyFetcher.parser.OntologyParser
 
-trait OntologyFetcher {
+abstract class OntologyFetcher(parser: OntologyParser) {
   val MAX_TIME_PER_ONTOLOGY_DOWNLOAD = 10 seconds
   def getOntologyList(keyword: String): Option[Set[String]]
   def getOntologyListFuture(keyword: String): Future[Option[Set[String]]]
@@ -28,7 +29,7 @@ trait OntologyFetcher {
       for(tbDownloadedOntology <- tbDownloadedOntologiesFuture) yield {
         tbDownloadedOntology.map {
           either => either match {
-            case Left(r) => OntologyFetcher.RIOParserWithSalatSaver(r, source)
+            case Left(r) => parser.parseResponseAsOntology(r, source)
             case Right(r) => r
           }
         }
@@ -61,7 +62,7 @@ trait OntologyFetcher {
           Right(Status.ConnectionProblem)
         }
         case ex: ConnectException => {
-          Logger.debug("Fetch failed because of conncetion problem for url " + url, ex)
+          Logger.debug("Fetch failed because of connection problem for url " + url, ex)
           Right(Status.ConnectionProblem)
         }
         case ex: Exception => {
@@ -82,8 +83,8 @@ trait OntologyFetcher {
   }
 }
 object OntologyFetcher {
-  lazy val SwoogleFetcher = new Object with SwoogleFetcher
-  def RIOParserWithSalatSaver(r: Response, s: String): Status.Value = RIOParser.parseResponseAsOntology(r, s)(SalatStorer.saveTriple _)
+  lazy val defaultParser = new RIOParser(new SalatStorer())
+  lazy val SwoogleFetcher = new SwoogleFetcher(defaultParser)
 }
 object Status extends Enumeration {
   type Status = Value

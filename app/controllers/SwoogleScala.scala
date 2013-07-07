@@ -8,14 +8,8 @@ object SwoogleScala extends Controller {
   def submit(keyword: String) = Action {
     if(keyword.length < 1) BadRequest
 
+    val stats = OntologyFetcher.SwoogleFetcher.doOntologyFetchingFor(keyword)
 
-    val theFetcher = OntologyFetcher.SwoogleFetcher
-
-    val stats = theFetcher.doOntologyFetchingFor(keyword, "swoogle")
-
-    println(stats.toString)
-
-
-    NotFound
+    Ok(stats.toString)
   }
 }

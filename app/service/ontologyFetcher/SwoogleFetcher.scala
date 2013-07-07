@@ -6,12 +6,15 @@ import play.api.libs.ws.{Response, WS}
 import scala.concurrent.duration._
 import scala.xml.Elem
 import play.api.libs.concurrent.Execution.Implicits._
+import service.ontologyFetcher.parser.OntologyParser
 
-trait SwoogleFetcher extends OntologyFetcher {
+class SwoogleFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
   private final val ACCESS_KEY: String = "52fc0c56ec4942e2a5268356d0b8af23"
   private final val SEARCH_ONTOLOGY_API_URL: String = "http://sparql.cs.umbc.edu/swoogle31/q"
   private final val SWOOGLE_MAX_RESULT: Int = 1000
   private final val SWOOGLE_RESULT_PER_PAGE: Int = 10
+
+  def doOntologyFetchingFor(keyword: String): Map[Status.Value, Int] = super.doOntologyFetchingFor(keyword, "swoogle")
 
   @throws[Exception]("On connection problem")
   def getOntologyListFuture(keyword: String): Future[Option[Set[String]]] = {
@@ -59,7 +62,6 @@ trait SwoogleFetcher extends OntologyFetcher {
   }
 
   def getOntologyList(keyword: String): Option[Set[String]] = {
-
     try {
       return Await.result(getOntologyListFuture(keyword), 10 minutes)
     } catch {

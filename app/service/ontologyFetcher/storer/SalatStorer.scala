@@ -9,7 +9,7 @@ import play.api.Logger
 import com.mongodb.casbah.Imports
 import scala.Some
 
-object SalatStorer extends OntologyStorer {
+class SalatStorer() extends OntologyStorer {
 
   private def saveElement(uri: Value) {
     /*if(uri.isInstanceOf[BNode]) return */
