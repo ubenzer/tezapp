@@ -5,32 +5,38 @@ import org.openrdf.model.{BNode, Value, URI, Resource}
 import models._
 import org.joda.time.DateTime
 import com.mongodb.casbah.Imports._
-import java.io.InputStream
-import common.CryptoUtils
 import service.persist.MongoDBUtils._
 
 class SalatStorer() extends OntologyStorer {
 
-   def saveElement(elementUri: Value) {
+  override def addSourceToOntology(ontologyUri: String, sourceToAppend: List[String]) = {
+    val query = MongoDBObject({"_id" -> ontologyUri})
+
+    val update: DBObject =
+      $set("uDate" -> new DateTime) ++
+        $addToSet("appearsOn"   -> MongoDBObject("$each" -> MongoDBList(sourceToAppend:_*   )))
+
+    OntologyDocument.collection.update(query, update)
+  }
+  override def saveElement(elementUri: Value) {
     if(elementUri.isInstanceOf[BNode]) return
     OntologyElement.collection.update(
       MongoDBObject({"_id" -> elementUri.stringValue}),
       MongoDBObject({"_id" -> elementUri.stringValue}, {"uDate" -> new DateTime()}),
       upsert = true)
   }
-  def saveDocument(uri: String, sourceToAppend: List[String] = Nil, elementsToAppend: List[String] = Nil, triplesToAppend: List[ObjectId] = Nil) {
+  override def saveDocument(uri: String, md5: String, sourceToAppend: List[String] = Nil, elementsToAppend: List[String] = Nil, triplesToAppend: List[ObjectId] = Nil) {
     val query = MongoDBObject({"_id" -> uri.toString})
 
     val update: DBObject =
-      $set("uDate" -> new DateTime) ++
+      $set("uDate" -> new DateTime) ++ $set("md5" -> md5) ++
       $addToSet("appearsOn"   -> MongoDBObject("$each" -> MongoDBList(sourceToAppend:_*   )),
                 "hasElements" -> MongoDBObject("$each" -> MongoDBList(elementsToAppend:_* )),
                 "hasTriples"  -> MongoDBObject("$each" -> MongoDBList(triplesToAppend:_*  )))
 
     OntologyDocument.collection.update(query, update, upsert = true)
   }
-
-  def saveTriple(sourceDocument: String, subject: Resource, predicate: URI, objekt: Value): ObjectId = {
+  override def saveTriple(sourceDocument: String, subject: Resource, predicate: URI, objekt: Value): ObjectId = {
     val subjectQ   = Some(MongoDBObject("subject" -> subject.toString))
     val predicateQ = MongoDBObject("predicate" -> predicate.toString)
     val objectkQ   =
@@ -79,12 +85,11 @@ class SalatStorer() extends OntologyStorer {
   }
 
   def checkOntologyExists(ontologyUri: String): Boolean = OntologyDocument.collection.findOneByID(ontologyUri).isDefined
-  def checkOntologyModified(ontologyUri: String, content: InputStream): Boolean = {
-    val document = OntologyDocument.collection.findOne(MongoDBObject("_id" -> "ontologyUri"))
+  def checkOntologyModified(ontologyUri: String, md5: String): Boolean = {
+    val document = OntologyDocument.collection.findOne(MongoDBObject("_id" -> ontologyUri))
     if(!document.isDefined) return true
-    val md5: String = document.get.get("md5").asInstanceOf[String]
-    val calculatedMd5: String = CryptoUtils.md5(content)
-    md5 == calculatedMd5
+    val dbmd5: String = document.get.get("md5").asInstanceOf[String]
+    md5 != dbmd5
   }
   def deleteOntology(ontologyUri: String): Unit = {
     val maybeDocument = OntologyDocument.collection.findOneByID(ontologyUri)
