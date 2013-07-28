@@ -12,15 +12,11 @@ object ApplicationBuild extends Build {
 
   val appDependencies = Seq(
     // Add your project dependencies here,
-    javaCore,
-    "org.mongodb" %% "casbah-gridfs" % "2.6.1",
-    "com.github.nscala-time" %% "nscala-time" % "0.4.0",
-    "se.radley" %% "play-plugins-salat" % "1.2",
+    "org.mongodb" %% "casbah" % "2.6.2",
+    //"com.github.nscala-time" %% "nscala-time" % "0.4.0",
     "org.openrdf.sesame" % "sesame-runtime" % "2.7.0",
     "commons-io" % "commons-io" % "2.4",
-    "commons-validator" % "commons-validator" % "1.4.0",
-    "xerces" % "xercesImpl" % "2.11.0",
-    "org.apache.jena" % "jena-core" % "2.10.0" excludeAll(ExclusionRule(organization = "org.slf4j"), ExclusionRule(organization = "xerces"))
+    "commons-validator" % "commons-validator" % "1.4.0"
   )
 
   // Only compile the bootstrap bootstrap.less file and any other *.less file in the stylesheets directory 
@@ -35,11 +31,8 @@ object ApplicationBuild extends Build {
   
   val main = play.Project(appName, appVersion, appDependencies).settings(
     lessEntryPoints <<= baseDirectory(customLessEntryPoints),
-    javascriptEntryPoints <<= baseDirectory(customJSEntryPoints),
-    routesImport += "se.radley.plugin.salat.Binders._",
-    templatesImport += "org.bson.types.ObjectId",
-    resolvers += "Maven Central" at "http://repo1.maven.org/maven2",
-    resolvers += "Typesafe Repository 2" at "http://repo.typesafe.com/typesafe/repo/"
+    javascriptEntryPoints <<= baseDirectory(customJSEntryPoints)
+    //templatesImport += "org.bson.types.ObjectId",
   )
   
 }

@@ -5,13 +5,9 @@
 # Home page
 GET     /                           controllers.Application.index
 
-GET     /scala                      controllers.SwoogleScala.submit(keyword)
+GET     /scala                      controllers.Swoogle.submit(keyword)
 
 GET     /jsRouter                   controllers.Application.javascriptRoutes
-
-POST    /watsonSubmit               controllers.Watson.submit(keyword)
-POST    /swoogleSubmit              controllers.Swoogle.submit(keyword)
-POST    /sindiceSubmit              controllers.Sindice.submit(keyword)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

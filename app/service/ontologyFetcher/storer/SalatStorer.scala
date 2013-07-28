@@ -5,21 +5,20 @@ import org.openrdf.model.{BNode, Value, URI, Resource}
 import models._
 import org.joda.time.DateTime
 import com.mongodb.casbah.Imports._
-import play.api.Logger
-import com.mongodb.casbah.Imports
-import scala.Some
+import java.io.InputStream
+import common.CryptoUtils
+import service.persist.MongoDBUtils._
 
 class SalatStorer() extends OntologyStorer {
 
-  private def saveElement(uri: Value) {
-    /*if(uri.isInstanceOf[BNode]) return */
-    OntologyElement.dao.collection.update(
-      MongoDBObject({"_id" -> uri.stringValue}),
-      MongoDBObject({"_id" -> uri.stringValue}, {"uDate" -> new DateTime()}),
+   def saveElement(elementUri: Value) {
+    if(elementUri.isInstanceOf[BNode]) return
+    OntologyElement.collection.update(
+      MongoDBObject({"_id" -> elementUri.stringValue}),
+      MongoDBObject({"_id" -> elementUri.stringValue}, {"uDate" -> new DateTime()}),
       upsert = true)
   }
-  private def saveDocument(uri: String, sourceToAppend: List[String] = Nil, elementsToAppend: List[String] = Nil, triplesToAppend: List[ObjectId] = Nil) {
-
+  def saveDocument(uri: String, sourceToAppend: List[String] = Nil, elementsToAppend: List[String] = Nil, triplesToAppend: List[ObjectId] = Nil) {
     val query = MongoDBObject({"_id" -> uri.toString})
 
     val update: DBObject =
@@ -28,15 +27,11 @@ class SalatStorer() extends OntologyStorer {
                 "hasElements" -> MongoDBObject("$each" -> MongoDBList(elementsToAppend:_* )),
                 "hasTriples"  -> MongoDBObject("$each" -> MongoDBList(triplesToAppend:_*  )))
 
-    OntologyDocument.dao.collection.update(query, update, upsert = true)
+    OntologyDocument.collection.update(query, update, upsert = true)
   }
-  def saveTriple(sourceDocument: String, source: String, subject: Resource, predicate: URI, objekt: Value) {
 
-    saveElement(subject)
-    saveElement(predicate)
-    objekt match { case r: Resource => saveElement(r); case r => }
-
-    val subjectQ   = /*if(!subject.isInstanceOf[BNode]) {*/ Some(MongoDBObject("subject" -> subject.toString)) /*} else { None }   */
+  def saveTriple(sourceDocument: String, subject: Resource, predicate: URI, objekt: Value): ObjectId = {
+    val subjectQ   = Some(MongoDBObject("subject" -> subject.toString))
     val predicateQ = MongoDBObject("predicate" -> predicate.toString)
     val objectkQ   =
         objekt match {
@@ -70,7 +65,7 @@ class SalatStorer() extends OntologyStorer {
     )
 
     /* Find and replace here! */
-    val result = OntologyTriple.dao.collection.findAndModify(
+    val result = OntologyTriple.collection.findAndModify(
       query = queryQ,
       update = update,
       upsert = true,
@@ -80,11 +75,39 @@ class SalatStorer() extends OntologyStorer {
       returnNew = true
     )
 
-    var tripleAppendList: List[ObjectId] = Nil
-    if(result.isDefined) {
-      tripleAppendList = result.get.get("_id").asInstanceOf[ObjectId] :: Nil
+    result.get.get("_id").asInstanceOf[ObjectId]
+  }
+
+  def checkOntologyExists(ontologyUri: String): Boolean = OntologyDocument.collection.findOneByID(ontologyUri).isDefined
+  def checkOntologyModified(ontologyUri: String, content: InputStream): Boolean = {
+    val document = OntologyDocument.collection.findOne(MongoDBObject("_id" -> "ontologyUri"))
+    if(!document.isDefined) return true
+    val md5: String = document.get.get("md5").asInstanceOf[String]
+    val calculatedMd5: String = CryptoUtils.md5(content)
+    md5 == calculatedMd5
+  }
+  def deleteOntology(ontologyUri: String): Unit = {
+    val maybeDocument = OntologyDocument.collection.findOneByID(ontologyUri)
+    if(!maybeDocument.isDefined) return
+
+    val document = maybeDocument.get
+
+    val elementList = document.getStringSet("hasElements")
+    val tripleList = document.getObjectIdSet("hasTriples")
+
+    val reducedElementList = elementList.filter {
+      element =>
+        val query: DBObject = ("_id" $ne ontologyUri) ++ DBObject("hasElements" -> element)
+        OntologyDocument.collection.find(query).size == 0
+    }
+    val reducedTripleList = tripleList.filter {
+      triple =>
+        val query: DBObject = ("_id" $ne ontologyUri) ++ DBObject("hasTriples" -> triple)
+        OntologyDocument.collection.find(query).size == 0
     }
 
-    saveDocument(sourceDocument, List(source), objectAppendList, tripleAppendList)
+    OntologyDocument.collection.remove(MongoDBObject("_id" -> ontologyUri))
+    if(reducedElementList.size > 0) OntologyElement.collection.remove("_id" $in reducedElementList)
+    if(reducedTripleList.size > 0) OntologyTriple.collection.remove("_id" $in reducedTripleList)
   }
 }

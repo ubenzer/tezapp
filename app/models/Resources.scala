@@ -1,11 +1,8 @@
 package models
 
-import play.api.Play.current
-import com.novus.salat.dao._
 import com.mongodb.casbah.Imports._
-import se.radley.plugin.salat._
-import mongoContext._
 import org.joda.time._
+import service.persist.MongoDB
 
 case class OntologyDocument (
   id          : String, // uri of document
@@ -32,15 +29,15 @@ case class OntologyTriple (
   elementUris : Array[String]
 )
 
-object OntologyDocument extends ModelCompanion[OntologyDocument, String] {
-  val dao = new SalatDAO[OntologyDocument, String](collection = mongoCollection("OntologyDocument")) {}
+object OntologyDocument {
+  val collection = MongoDB.db("OntologyDocument")
 }
-object OntologyElement extends ModelCompanion[OntologyElement, String] {
-  val dao = new SalatDAO[OntologyElement, String](collection = mongoCollection("OntologyElement")) {}
+object OntologyElement {
+  val collection = MongoDB.db("OntologyElement")
 }
-object OntologyTriple extends ModelCompanion[OntologyTriple, ObjectId] {
-  mongoCollection("OntologyTriple").ensureIndex(DBObject("elementUris" -> 1), "elementAvailabilityIdx")
-  mongoCollection("OntologyTriple").ensureIndex(DBObject("predicate" -> 1, "subject" -> 1, "objectO" -> 1), DBObject({"sparse" -> true}, {"name" -> "tripleIdxPSO"}))
-  mongoCollection("OntologyTriple").ensureIndex(DBObject("predicate" -> 1, "objectO" -> 1), DBObject({"sparse" -> true}, {"name" -> "tripleIdxPO"}))
-  val dao = new SalatDAO[OntologyTriple, ObjectId](collection = mongoCollection("OntologyTriple")) {}
+object OntologyTriple {
+  val collection = MongoDB.db("OntologyTriple")
+  collection.ensureIndex(DBObject("elementUris" -> 1), "elementAvailabilityIdx")
+  collection.ensureIndex(DBObject("predicate" -> 1, "subject" -> 1, "objectO" -> 1), DBObject({"sparse" -> true}, {"name" -> "tripleIdxPSO"}))
+  collection.ensureIndex(DBObject("predicate" -> 1, "objectO" -> 1), DBObject({"sparse" -> true}, {"name" -> "tripleIdxPO"}))
 }

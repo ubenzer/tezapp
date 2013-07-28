@@ -10,11 +10,12 @@ object Application extends Controller {
   }
 
   def javascriptRoutes = Action { implicit request =>
-    import routes.javascript._
-    Ok(play.api.Routes.javascriptRouter("routes")(
-      Swoogle.submit,
-      Watson.submit,
-      Sindice.submit)
-    ).as("text/javascript")
+  /*import routes.javascript._
+  Ok(play.api.Routes.javascriptRouter("routes")(
+    Swoogle.submit,
+    Watson.submit,
+    Sindice.submit)
+  ).as("text/javascript")  */
+    Ok("")
   }
 }

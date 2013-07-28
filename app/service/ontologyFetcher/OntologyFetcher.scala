@@ -58,11 +58,11 @@ abstract class OntologyFetcher(parser: OntologyParser) {
         }
       } recover {
         case ex: TimeoutException => {
-          Logger.debug("Fetch failed because of a timeout  for url " + url, ex)
+          Logger.info("Fetch failed because of a timeout  for url " + url, ex)
           Right(Status.ConnectionProblem)
         }
         case ex: ConnectException => {
-          Logger.debug("Fetch failed because of connection problem for url " + url, ex)
+          Logger.info("Fetch failed because of connection problem for url " + url, ex)
           Right(Status.ConnectionProblem)
         }
         case ex: Exception => {
