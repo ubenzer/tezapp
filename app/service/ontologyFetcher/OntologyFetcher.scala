@@ -7,7 +7,7 @@ import play.api.Logger
 import scala.concurrent.duration._
 import play.api.libs.concurrent.Execution.Implicits._
 import service.parser.RIOParser
-import service.storer.SalatStorer
+import service.storer.SalatStorageEngine
 import java.net.ConnectException
 import java.util.concurrent.TimeoutException
 import service.ontologyFetcher.parser.OntologyParser
@@ -83,7 +83,7 @@ abstract class OntologyFetcher(parser: OntologyParser) {
   }
 }
 object OntologyFetcher {
-  lazy val defaultParser = new RIOParser(new SalatStorer())
+  lazy val defaultParser = new RIOParser(new SalatStorageEngine())
   lazy val SwoogleFetcher = new SwoogleFetcher(defaultParser)
 }
 object Status extends Enumeration {

@@ -5,10 +5,10 @@ import java.net.{URI=>JURI}
 import java.io.{ByteArrayInputStream, InputStream}
 import service.ontologyFetcher.Status
 import play.api.libs.ws.Response
-import service.ontologyFetcher.storer.OntologyStorer
+import service.ontologyFetcher.storer.OntologyStorageEngine
 import common.RewindableByteArrayInputStream
 
-abstract class OntologyParser(storer: OntologyStorer) {
+abstract class OntologyParser(storer: OntologyStorageEngine) {
 
   final def parseResponseAsOntology(response: Response, source: String): Status.Value = {
     import service.ontologyFetcher.parser.OntologyParserImplicits._

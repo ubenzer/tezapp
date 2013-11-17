@@ -6,11 +6,10 @@ import service.ontologyFetcher.Status
 import service.ontologyFetcher.parser.OntologyParser
 import play.Logger
 import org.openrdf.model._
-import service.ontologyFetcher.storer.OntologyStorer
+import service.ontologyFetcher.storer.OntologyStorageEngine
 import common.{RewindableByteArrayInputStream, CryptoUtils}
-import com.mongodb.casbah.Imports._
 
-class RIOParser(storer: OntologyStorer) extends OntologyParser(storer) {
+class RIOParser(storer: OntologyStorageEngine) extends OntologyParser(storer) {
 
   override def parseStreamAsOntology(tbParsed: RewindableByteArrayInputStream, ontologyUri: String, format: RDFFormat, source: String): Status.Value = {
 
@@ -23,21 +22,20 @@ class RIOParser(storer: OntologyStorer) extends OntologyParser(storer) {
       if(isOntologyModified) {
         storer.deleteOntology(ontologyUri) // If modified clean old ontology
       } else {
-        storer.addSourceToOntology(ontologyUri, source :: Nil) // We don't need to parse it again, just update results.
+        storer.saveDocument(ontologyUri, md5, source) // We don't need to parse it again, just update results.
         return Status.Ok
       }
     }
 
     try {
-      val handler = new RIOCustomHandler(storer, ontologyUri)
+      val handler = new RIOCustomHandler(storer, ontologyUri, source)
       val rdfParser = Rio.createParser(format)
       rdfParser.setRDFHandler(handler)
 
       // Save elements, triples and update document on demand. (we cant handle all list in one turn, if ontology is big.)
       rdfParser.parse(tbParsed, ontologyUri)
 
-      val parseInfo = handler.getParseInfo
-      storer.saveDocument(ontologyUri, md5, source :: Nil, parseInfo._1, parseInfo._2)
+      storer.saveDocument(ontologyUri, md5, source)
 
     } catch {
       case ex: RDFParseException => {
@@ -57,12 +55,7 @@ class RIOParser(storer: OntologyStorer) extends OntologyParser(storer) {
   }
 
 }
-class RIOCustomHandler(storer: OntologyStorer, baseUri: String) extends RDFHandlerBase {
-
-  private var elementList: List[String] = Nil
-  private var tripleList: List[ObjectId] = Nil
-
-  def getParseInfo: (List[String], List[ObjectId]) = (elementList, tripleList)
+class RIOCustomHandler(storer: OntologyStorageEngine, baseUri: String, source: String) extends RDFHandlerBase {
 
   override def handleStatement(st: Statement):Unit = {
 
@@ -70,22 +63,9 @@ class RIOCustomHandler(storer: OntologyStorer, baseUri: String) extends RDFHandl
     val predicate: URI = st.getPredicate
     val objekt: Value = st.getObject
 
-    /* Save elements, we don't like blank node here */
-    if(!subject.isInstanceOf[BNode]) {
-      storer.saveElement(subject)
-      elementList ::= subject.stringValue()
-    }
+    val bNodeLookup = collection.mutable.Map[String, String]()
 
-    storer.saveElement(predicate)
-    elementList ::= predicate.stringValue()
-
-    if(objekt.isInstanceOf[Resource] && !objekt.isInstanceOf[BNode]) {
-      storer.saveElement(objekt)
-      elementList ::= objekt.stringValue()
-    }
-
-    val savedId = storer.saveTriple(baseUri, subject, predicate, objekt)
-    tripleList ::= savedId
+    storer.saveTriple(baseUri, subject, predicate, objekt, source)(bNodeLookup)
   }
 }
 

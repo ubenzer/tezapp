@@ -5,28 +5,28 @@ import org.joda.time._
 import service.persist.MongoDB
 
 case class OntologyDocument (
-  id          : String, // uri of document
-  hasElements : Array[String],
-  hasTriples  : Array[ObjectId],
-  uDate       : DateTime,
-  appearsOn   : Array[String]  // Swoogle, Watson etc.
+  id            : String, // uri of document
+  uDate         : DateTime,
+  appearsOn     : Seq[String]  // Swoogle, Watson etc.
 )
 
-case class BasicOntologyElement (
-  id          : String    // uri of element
-)
 case class OntologyElement (
-  id          : String,   //uri of element
-  uDate       : DateTime
+  id            : String,   //uri of element
+  uDate         : DateTime,
+  sourceOntology: Seq[String]
 )
 
 case class OntologyTriple (
-  id          : ObjectId = new ObjectId,
-  subject     : BasicOntologyElement,
-  predicate   : BasicOntologyElement,
-  objectO     : Option[BasicOntologyElement],
-  objectD     : Option[String],
-  elementUris : Array[String]
+  id            : ObjectId = new ObjectId,
+  subject       : String,
+  predicate     : String,
+  objectO       : Option[String],
+  objectD       : Option[String],
+
+  sourceOntology: Seq[String],
+
+  // lets add some redundancy
+  elementUris   : Array[String]
 )
 
 object OntologyDocument {
