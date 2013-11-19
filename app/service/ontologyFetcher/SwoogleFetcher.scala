@@ -5,8 +5,8 @@ import scala.concurrent.{Await, Future}
 import play.api.libs.ws.{Response, WS}
 import scala.concurrent.duration._
 import scala.xml.Elem
-import play.api.libs.concurrent.Execution.Implicits._
 import service.ontologyFetcher.parser.OntologyParser
+import common.ExecutionContexts.internetIOOps
 
 class SwoogleFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
   private final val ACCESS_KEY: String = "52fc0c56ec4942e2a5268356d0b8af23"
@@ -25,7 +25,7 @@ class SwoogleFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
       if (resultCount > SWOOGLE_MAX_RESULT) SWOOGLE_MAX_RESULT else resultCount
     }
 
-    val resultCount = (
+    val resultCount =
       getXMLSync(firstPagePromise) match {
       case Some(xml) => {
          getNormalizedSearchResultCount(xml)
@@ -34,7 +34,7 @@ class SwoogleFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
         Logger.error("There is no XML to parse!")
         throw new Exception
       }
-    })
+    }
     if(resultCount == 0) new Exception
 
     def toUrlList(toBeMapped: Future[Response]): Future[Set[String]] = {

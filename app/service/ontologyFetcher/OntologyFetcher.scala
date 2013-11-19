@@ -4,16 +4,16 @@ import scala.concurrent.{Await, Future}
 import play.api.libs.ws.{WS, Response}
 import scala.xml.Elem
 import play.api.Logger
-import scala.concurrent.duration._
-import play.api.libs.concurrent.Execution.Implicits._
 import service.parser.RIOParser
 import service.storer.SalatStorageEngine
 import java.net.ConnectException
-import java.util.concurrent.TimeoutException
+import java.util.concurrent.{TimeUnit, TimeoutException}
 import service.ontologyFetcher.parser.OntologyParser
+import scala.concurrent.duration.Duration
+import common.ExecutionContexts
 
 abstract class OntologyFetcher(parser: OntologyParser) {
-  val MAX_TIME_PER_ONTOLOGY_DOWNLOAD = 10 seconds
+  val MAX_TIME_PER_ONTOLOGY_DOWNLOAD = 240000L
   def getOntologyList(keyword: String): Option[Set[String]]
   def getOntologyListFuture(keyword: String): Future[Option[Set[String]]]
 
@@ -21,7 +21,7 @@ abstract class OntologyFetcher(parser: OntologyParser) {
 
     /* Step 1: Fetch ontology list to be fetched. */
     val ontologyList = getOntologyList(keyword)
-    if(!ontologyList.isDefined) Map.empty
+    if(!ontologyList.isDefined) return Map.empty
 
     val tbDownloadedOntologiesFuture: Seq[Future[Either[Response, Status.Value]]] = downloadOntologiesFuture(ontologyList.get.toSeq: _*)
 
@@ -32,11 +32,12 @@ abstract class OntologyFetcher(parser: OntologyParser) {
             case Left(r) => parser.parseResponseAsOntology(r, source)
             case Right(r) => r
           }
-        }
+        }(ExecutionContexts.verySlowOps)
       }
 
+    import ExecutionContexts.fastOps
     val results = try {
-      Await.result(Future.sequence(tbParsedAndStoredOntologiesFuture), MAX_TIME_PER_ONTOLOGY_DOWNLOAD * tbDownloadedOntologiesFuture.size)
+      Await.result(Future.sequence(tbParsedAndStoredOntologiesFuture), Duration(MAX_TIME_PER_ONTOLOGY_DOWNLOAD * tbDownloadedOntologiesFuture.size, TimeUnit.MILLISECONDS))
     } catch {
       case ex: Throwable => Logger.error("Some error occurred while waiting for ontology fetching.", ex)
       return Map.empty
@@ -46,7 +47,8 @@ abstract class OntologyFetcher(parser: OntologyParser) {
   }
 
   def downloadOntologiesFuture(urlList: String*): Seq[Future[Either[Response, Status.Value]]] = {
-    for(url <- urlList) yield
+    import ExecutionContexts.internetIOOps
+    for(url <- urlList) yield {
       WS.url(url).withHeaders(("Accept", "application/rdf+xml, application/xml;q=0.6, text/xml;q=0.6")).get().map {
         r: Response => {
 
@@ -70,10 +72,11 @@ abstract class OntologyFetcher(parser: OntologyParser) {
           Right(Status.ConnectionProblem)
         }
       }
+    }
   }
   protected def getXMLSync(future: Future[Response]): Option[Elem] = {
     try {
-      Some(Await.result(future, MAX_TIME_PER_ONTOLOGY_DOWNLOAD).xml)
+      Some(Await.result(future, Duration(MAX_TIME_PER_ONTOLOGY_DOWNLOAD, TimeUnit.MILLISECONDS)).xml)
     } catch {
       case e: Exception => {
         Logger.error("Can't get results.", e)

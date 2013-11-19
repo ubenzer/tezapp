@@ -18,12 +18,14 @@ class RIOParser(storer: OntologyStorageEngine) extends OntologyParser(storer) {
     val md5 = CryptoUtils.md5(tbParsed)
 
     if(isOntologyExists) {
+      val hasLock = storer.checkLock(ontologyUri)
+      if(hasLock) { return Status.Duplicate }
       val isOntologyModified = storer.checkOntologyModified(ontologyUri, md5)  // Check if ontology modified
       if(isOntologyModified) {
         storer.deleteOntology(ontologyUri) // If modified clean old ontology
       } else {
         storer.saveDocument(ontologyUri, md5, source) // We don't need to parse it again, just update results.
-        return Status.Ok
+        return Status.Duplicate
       }
     }
 

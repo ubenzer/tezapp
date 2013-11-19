@@ -6,11 +6,13 @@ import org.openrdf.model._
 import models._
 import org.joda.time.DateTime
 import com.mongodb.casbah.Imports._
-import service.persist.MongoDBUtils._
 import scala.Some
 
 class SalatStorageEngine() extends OntologyStorageEngine {
 
+  override def checkLock(ontologyURI: String): Boolean = {
+    OntologyDocument.collection.find(DBObject("_id" -> ontologyURI, "locked" -> true)).size > 0
+  }
   override def saveDocument(ontologyUri: String, md5: String, source: String) {
     val query = MongoDBObject({"_id" -> ontologyUri})
 
@@ -66,13 +68,14 @@ class SalatStorageEngine() extends OntologyStorageEngine {
       $set({"subject"             -> subjectId   })  ++
       $set({"predicate"           -> predicateId })  ++
       $set({"uDate"               -> new DateTime})  ++
-      $addToSet("appearsOn"       -> source)         ++
-      $addToSet("sourceOntology"  -> sourceDocument) ++
       (if(objectIsData) {
-        $set({ "objectD" -> Some(objectId) }, { "objectO" -> None })
+        $set({ "objectD" -> Some(objectId) }) ++ $set({ "objectO" -> None })
       } else {
-        $set({ "objectO" -> Some(objectId) }, { "objectD" -> None })
-      })
+        $set({ "objectO" -> Some(objectId) }) ++ $set({ "objectD" -> None })
+      }) ++
+      $addToSet("appearsOn"       -> source)         ++
+      $addToSet("sourceOntology"  -> sourceDocument)
+
 
     /* Find and replace here! */
     val maybeAddTripleActionResult = OntologyTriple.collection.findAndModify(
@@ -90,10 +93,24 @@ class SalatStorageEngine() extends OntologyStorageEngine {
 
     /* Save element, too */
     OntologyElement.collection.update(
-        $set({"_id" -> sourceDocument}),
-        $set({"_id" -> sourceDocument}) ++ $set({"uDate" -> new DateTime()}) ++
+        DBObject({"_id" -> subjectId}),
+        $set({"uDate" -> new DateTime()}) ++
         $addToSet("appearsOn" -> source) ++ $addToSet("sourceOntology" -> sourceDocument),
       upsert = true)
+
+    OntologyElement.collection.update(
+        DBObject({"_id" -> predicateId}),
+        $set({"uDate" -> new DateTime()}) ++
+        $addToSet("appearsOn" -> source) ++ $addToSet("sourceOntology" -> sourceDocument),
+      upsert = true)
+
+    if(!objectIsData) {
+      OntologyElement.collection.update(
+        DBObject({"_id" -> objectId}),
+        $set({"uDate" -> new DateTime()}) ++
+          $addToSet("appearsOn" -> source) ++ $addToSet("sourceOntology" -> sourceDocument),
+        upsert = true)
+    }
 
     addTripleActionResult.get("_id").asInstanceOf[ObjectId]
   }
@@ -103,30 +120,56 @@ class SalatStorageEngine() extends OntologyStorageEngine {
     val document = OntologyDocument.collection.findOne(MongoDBObject("_id" -> ontologyUri))
     if(!document.isDefined) return true
     val dbmd5: String = document.get.get("md5").asInstanceOf[String]
+    play.api.Logger.info("Ontology " + ontologyUri + " is modified: " + (md5 != dbmd5))
     md5 != dbmd5
   }
   def deleteOntology(ontologyUri: String): Unit = {
     val maybeDocument = OntologyDocument.collection.findOneByID(ontologyUri)
     if(!maybeDocument.isDefined) return
 
-    val document = maybeDocument.get
+    play.api.Logger.info("Removing " + ontologyUri)
 
-    val elementList = document.getStringSet("hasElements")
-    val tripleList = document.getObjectIdSet("hasTriples")
+    // Lock if we are going to delete it.
+    OntologyDocument.collection.update(DBObject("_id" -> ontologyUri), DBObject("locked" -> true))
 
-    val reducedElementList = elementList.filter {
-      element =>
-        val query: DBObject = ("_id" $ne ontologyUri) ++ DBObject("hasElements" -> element)
-        OntologyDocument.collection.find(query).size == 0
-    }
-    val reducedTripleList = tripleList.filter {
-      triple =>
-        val query: DBObject = ("_id" $ne ontologyUri) ++ DBObject("hasTriples" -> triple)
-        OntologyDocument.collection.find(query).size == 0
-    }
+    OntologyElement.collection.findAndModify(
+      query  = DBObject("sourceOntology" -> ontologyUri) ++ ("sourceOntology" $gt 1),
+      update = $pull("sourceOntology" -> ontologyUri),
+      upsert = false,
+      fields = null,
+      sort = null,
+      remove = false,
+      returnNew = false
+    )
+    OntologyElement.collection.findAndModify(
+      query  = DBObject("sourceOntology" -> ontologyUri),
+      update = null,
+      upsert = false,
+      fields = null,
+      sort = null,
+      remove = true,
+      returnNew = false
+    )
+
+    OntologyTriple.collection.findAndModify(
+      query  = DBObject("sourceOntology" -> ontologyUri) ++ ("sourceOntology" $gt 1),
+      update = $pull("sourceOntology" -> ontologyUri),
+      upsert = false,
+      fields = null,
+      sort = null,
+      remove = false,
+      returnNew = false
+    )
+    OntologyTriple.collection.findAndModify(
+      query  = DBObject("sourceOntology" -> ontologyUri),
+      update = null,
+      upsert = false,
+      fields = null,
+      sort = null,
+      remove = true,
+      returnNew = false
+    )
 
     OntologyDocument.collection.remove(MongoDBObject("_id" -> ontologyUri))
-    if(reducedElementList.size > 0) OntologyElement.collection.remove("_id" $in reducedElementList)
-    if(reducedTripleList.size > 0) OntologyTriple.collection.remove("_id" $in reducedTripleList)
   }
 }

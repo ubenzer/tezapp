@@ -37,7 +37,5 @@ object OntologyElement {
 }
 object OntologyTriple {
   val collection = MongoDB.db("OntologyTriple")
-  collection.ensureIndex(DBObject("elementUris" -> 1), "elementAvailabilityIdx")
   collection.ensureIndex(DBObject("predicate" -> 1, "subject" -> 1, "objectO" -> 1), DBObject({"sparse" -> true}, {"name" -> "tripleIdxPSO"}))
-  collection.ensureIndex(DBObject("predicate" -> 1, "objectO" -> 1), DBObject({"sparse" -> true}, {"name" -> "tripleIdxPO"}))
 }
