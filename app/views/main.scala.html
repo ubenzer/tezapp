@@ -1,19 +1,23 @@
-@(title: String, scripts: Html = Html(""))(content: Html)<!DOCTYPE html>
+@(title: String)(content: Html)<!DOCTYPE html>
 <html>
   <head>
-      <title>@title</title>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="description" content="">
+      <meta name="author" content="">
+
+      <title>@title</title>
     
       <link href="@routes.Assets.at("css/bootstrap/bootstrap.css")" rel="stylesheet" media="screen">
-      <link href="@routes.Assets.at("css/bootstrap/responsive.css")" rel="stylesheet" media="screen">
   </head>
   <body>
     @content
-    <script src="@routes.Assets.at("js/lib/jquery-2.0.0-pre.js")"></script>
-    <script src="@routes.Assets.at("js/lib/bootstrap.js")"></script>
+    <script src="@routes.Assets.at("js/lib/angular/angular.js")"></script>
+    <script src="@routes.Assets.at("js/lib/angular/angular-animate.js")"></script>
+    <script src="@routes.Assets.at("js/lib/angular/ui-bootstrap.js")"></script>
+    <script src="@routes.Assets.at("js/lib/angular/ui-router.js")"></script>
     <script src="@routes.Application.javascriptRoutes()"></script>
-    @if(!common.Utils.isBlank(scripts.body)) {
-        @scripts
-    }
+    <script src="@routes.Assets.at("js/app/index.js")"></script>
   </body>
 </html>

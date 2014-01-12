@@ -5,7 +5,6 @@ import play.Project._
 object ApplicationBuild extends Build {
 
   resolvers += Resolver.sonatypeRepo("snapshots")
-  scalacOptions ++= Seq("-unchecked", "-deprecation","-feature","-warning")
 
   val appName         = "tezapp"
   val appVersion      = "1.0-SNAPSHOT"
@@ -21,7 +20,6 @@ object ApplicationBuild extends Build {
   // Only compile the bootstrap bootstrap.less file and any other *.less file in the stylesheets directory 
   def customLessEntryPoints(base: File): PathFinder = ( 
       (base / "app" / "assets" / "css" / "bootstrap" * "bootstrap.less") +++
-      (base / "app" / "assets" / "css" / "bootstrap" * "responsive.less") +++ 
       (base / "app" / "assets" / "css" * "*.less")
   )
   def customJSEntryPoints(base: File): PathFinder = (
