@@ -1,4 +1,4 @@
-@(title: String)(content: Html)<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
   <head>
       <meta charset="utf-8">
@@ -7,17 +7,36 @@
       <meta name="description" content="">
       <meta name="author" content="">
 
-      <title>@title</title>
+      <title></title>
     
       <link href="@routes.Assets.at("css/bootstrap/bootstrap.css")" rel="stylesheet" media="screen">
   </head>
   <body>
-    @content
-    <script src="@routes.Assets.at("js/lib/angular/angular.js")"></script>
-    <script src="@routes.Assets.at("js/lib/angular/angular-animate.js")"></script>
-    <script src="@routes.Assets.at("js/lib/angular/ui-bootstrap.js")"></script>
-    <script src="@routes.Assets.at("js/lib/angular/ui-router.js")"></script>
+    <div ui-view>Loading...</div>
     <script src="@routes.Application.javascriptRoutes()"></script>
-    <script src="@routes.Assets.at("js/app/index.js")"></script>
+    <script src="@routes.Assets.at("js/lib/require.js")"></script>
+    <script>
+      require({
+        baseUrl: '/assets/js',
+        paths: {
+          'ngDefine'        : 'lib/angular/ngDefine',
+          'angular-animate' : 'lib/angular/angular-animate',
+          'angular'         : 'lib/angular/angular',
+          'ui-bootstrap'    : 'lib/angular/ui-bootstrap',
+          'ui-router'       : 'lib/angular/ui-router'
+        },
+        packages: [
+          { name: 'app', location: 'app' }
+        ],
+        shim: {
+          'angular' : { exports: 'angular' }
+        }
+      });
+      require([ 'ngDefine', 'angular'], function(ngDefine, angular) {
+        require(['app'], function() {
+          angular.bootstrap(document.body, ['app']);
+        });
+      });
+    </script>
   </body>
 </html>

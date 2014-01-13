@@ -6,7 +6,7 @@ import play.i18n.Lang
 
 object Application extends Controller {
   def index = Action {
-    Ok(views.html.index.render())
+    Ok(views.html.main.render())
   }
 
   def javascriptRoutes = Action { implicit request =>
