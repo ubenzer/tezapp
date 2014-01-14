@@ -1,1 +1,20 @@
-...search... {{ foo }}
+<div class="container space-top-large">
+  <div class="jumbotron">
+    <h1>The Ontology Kickstarter</h1>
+    <p>Easily start your project. Write some keywords to create your starter ontology.</p>
+    <div class="row">
+      <div class="col-md-9">
+        <tags-input
+          ng-model="formData.searchTerms"
+          add-on-comma="false"
+          min-length="1"
+          placeholder="Type here"
+          replace-spaces-with-dashes="false"
+        ></tags-input>
+      </div>
+      <div class="col-md-3">
+        <button type="button" class="btn btn-primary" style="vertical-align: top;">Generate</button>
+      </div>
+    </div>
+  </div>
+</div>
