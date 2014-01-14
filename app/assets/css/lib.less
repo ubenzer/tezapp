@@ -1,0 +1,124 @@
+@import "bootstrap/variables.less";
+
+// Common constants which are not part of bootstrap
+@spacer_mini: 2px;
+@spacer_small: 5px;
+@spacer_default: 10px;
+@spacer_large: 20px;
+@spacer_xlarge: 50px;
+
+
+/* Uninitialized angular things are invisible on page load */
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none!important;
+}
+
+.inline-block {
+  display: inline-block;
+}
+.text-small {
+  font-size: .9em
+}
+
+/* Animation related utilities */
+.inline-animation {
+  display: -moz-inline-stack;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+  vertical-align: top;
+}
+
+/* Generic Spacers */
+.space-left-mini {
+  margin-left: @spacer_mini;
+}
+.space-left-small {
+  margin-left: @spacer_small;
+}
+.space-left {
+  margin-left: @spacer_default;
+}
+.space-left-large {
+  margin-left: @spacer_large;
+}
+.space-left-xlarge {
+  margin-left: @spacer_xlarge;
+}
+
+.space-horizontal-mini {
+  margin-left: @spacer_mini;
+  margin-right: @spacer_mini;
+}
+.space-horizontal-small {
+  margin-left: @spacer_small;
+  margin-right: @spacer_small;
+}
+.space-horizontal {
+  margin-left: @spacer_default;
+  margin-right: @spacer_default;
+}
+.space-horizontal-large {
+  margin-left: @spacer_large;
+  margin-right: @spacer_large;
+}
+.space-horizontal-xlarge {
+  margin-left: @spacer_xlarge;
+  margin-right: @spacer_xlarge;
+}
+
+.space-right-mini {
+  margin-right: @spacer_mini;
+}
+.space-right-small {
+  margin-right: @spacer_small;
+}
+.space-right {
+  margin-right: @spacer_default;
+}
+.space-right-large {
+  margin-right: @spacer_large;
+}
+.space-right-xlarge {
+  margin-right: @spacer_xlarge;
+}
+
+.space-top-mini {
+  margin-top: @spacer_mini;
+}
+.space-top-small {
+  margin-top: @spacer_small;
+}
+.space-top {
+  margin-top: @spacer_default;
+}
+.space-top-large {
+  margin-top: @spacer_large;
+}
+.space-top-xlarge {
+  margin-top: @spacer_xlarge;
+}
+
+.space-bottom-none {
+  margin-bottom: 0;
+}
+.space-bottom-mini {
+  margin-bottom: @spacer_mini;
+}
+.space-bottom-small {
+  margin-bottom: @spacer_small;
+}
+.space-bottom {
+  margin-bottom: @spacer_default;
+}
+.space-bottom-large {
+  margin-bottom: @spacer_large;
+}
+.space-bottom-xlarge {
+  margin-bottom: @spacer_xlarge;
+}
+
+
+/* Reference to other libraries */
+@import "lib/ng-tags-input.less";
+

@@ -4,6 +4,7 @@ ngDefine "app", [
   "angular-animate"
   "module:ui.bootstrap:ui-bootstrap"
   "module:ui.router:ui-router"
+  "module:ngTagsInput:ng-tags-input"
 
   # My app
   "module:app.search"

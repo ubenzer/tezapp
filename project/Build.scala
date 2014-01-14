@@ -18,13 +18,13 @@ object ApplicationBuild extends Build {
   )
 
   // Only compile the bootstrap bootstrap.less file and any other *.less file in the stylesheets directory 
-  def customLessEntryPoints(base: File): PathFinder = ( 
+  def customLessEntryPoints(base: File): PathFinder =
       (base / "app" / "assets" / "css" / "bootstrap" * "bootstrap.less") +++
       (base / "app" / "assets" / "css" * "*.less")
-  )
-  def customJSEntryPoints(base: File): PathFinder = (
+
+  def customJSEntryPoints(base: File): PathFinder =
     base / "app" / "assets" / "js" ** "*.js"
-  )
+
   
   val main = play.Project(appName, appVersion, appDependencies).settings(
     lessEntryPoints <<= baseDirectory(customLessEntryPoints),
