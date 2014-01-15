@@ -1,5 +1,5 @@
 "use strict"
-ngDefine "app", [
+ngDefine "main", [
   # 3rd party
   "angular-animate"
   "module:ui.bootstrap:ui-bootstrap"
@@ -7,8 +7,14 @@ ngDefine "app", [
   "module:ngTagsInput:ng-tags-input"
 
   # My app
-  "module:app.search"
-  "module:app.results"
+
+  # Controllers
+  "module:controllers.search"
+  "module:controllers.results"
+
+  # Services
+  "module:services.searchSerializer"
+
 ], (module) ->
 
   module.constant("UrlConfig", {
@@ -16,16 +22,15 @@ ngDefine "app", [
   })
 
   module.config ($urlRouterProvider, $stateProvider, UrlConfig) ->
-
     $urlRouterProvider.otherwise('')
     $stateProvider
     .state 'search',
       url: ""
       templateUrl: UrlConfig.htmlBaseUrl + "/search.html"
-      controller: "app.search"
+      controller: "controllers.search"
 
     .state 'results',
-      url: "/s/:offline/:keywords"
-      templateUrl: UrlConfig.htmlBaseUrl + "/esults.html"
-      controller: "app.results"
+      url: "/s/*search"
+      templateUrl: UrlConfig.htmlBaseUrl + "/results.html"
+      controller: "controllers.results"
     return

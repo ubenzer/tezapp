@@ -18,25 +18,22 @@
     <script src="@routes.Assets.at("js/lib/require.js")"></script>
     <script>
       require({
-        baseUrl: '/assets/js',
+        baseUrl: '/assets/js/app',
         paths: {
-          'ngDefine'        : 'lib/angular/ngDefine',
-          'angular-animate' : 'lib/angular/angular-animate',
-          'angular'         : 'lib/angular/angular',
-          'ui-bootstrap'    : 'lib/angular/ui-bootstrap',
-          'ui-router'       : 'lib/angular/ui-router',
-          'ng-tags-input'   : 'lib/angular/ng-tags-input'
+          'ngDefine'        : '../lib/angular/ngDefine',
+          'angular-animate' : '../lib/angular/angular-animate',
+          'angular'         : '../lib/angular/angular',
+          'ui-bootstrap'    : '../lib/angular/ui-bootstrap',
+          'ui-router'       : '../lib/angular/ui-router',
+          'ng-tags-input'   : '../lib/angular/ng-tags-input'
         },
-        packages: [
-          { name: 'app', location: 'app' }
-        ],
         shim: {
           'angular' : { exports: 'angular' }
         }
       });
       require([ 'ngDefine', 'angular'], function(ngDefine, angular) {
-        require(['app'], function() {
-          angular.bootstrap(document.body, ['app']);
+        require(['main'], function() {
+          angular.bootstrap(document.body, ['main']);
         });
       });
     </script>

@@ -6,14 +6,13 @@
       <div class="col-md-9">
         <tags-input
           ng-model="formData.searchTerms"
-          add-on-comma="false"
           min-length="1"
           placeholder="Type here"
           replace-spaces-with-dashes="false"
         ></tags-input>
       </div>
       <div class="col-md-3">
-        <button type="button" class="btn btn-primary" style="vertical-align: top;"><i class="fa fa-lg fa-fw fa-search"></i>Generate!</button>
+        <button ng-click="doSearch()" type="button" class="btn btn-primary" style="vertical-align: top;"><i class="fa fa-lg fa-fw fa-search"></i>Generate!</button>
       </div>
     </div>
   </div>
