@@ -2,7 +2,7 @@
   <div class="jumbotron">
     <h1>The Ontology Kickstarter</h1>
     <p>Easily start your project. Write some keywords to create your starter ontology.</p>
-    <div class="row">
+    <div class="row default-font-sizes">
       <div class="col-md-9">
         <tags-input
           ng-model="formData.searchTerms"
@@ -13,6 +13,18 @@
       </div>
       <div class="col-md-3">
         <button ng-click="doSearch()" type="button" class="btn btn-primary" style="vertical-align: top;"><i class="fa fa-lg fa-fw fa-search"></i>Generate!</button>
+      </div>
+    </div>
+    <div class="row default-font-sizes">
+      <div class="col-md-12">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="formData.offline">
+            <span>Make an offline search
+              <i class="text-info fa fa-lg fa-question-circle" tooltip="When enabled your search will be done using our local cache. This is faster but may return incomplete results."></i>
+            </span>
+          </label>
+        </div>
       </div>
     </div>
   </div>
