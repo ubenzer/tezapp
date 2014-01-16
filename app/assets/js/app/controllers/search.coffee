@@ -8,9 +8,7 @@ ngDefine "controllers.search", (module) ->
     }
     $scope.doSearch = () ->
       if($scope.formData.searchTerms.length == 0) then return
-
-      serializedSearch = searchSerializer.serialize($scope.formData.searchTerms)
-
-      $state.go("results", {search: serializedSearch})
+      serializedSearch = searchSerializer.serialize($scope.formData.searchTerms, $scope.formData.offline)
+      $state.go("results", {searchParams: serializedSearch})
     return
   return

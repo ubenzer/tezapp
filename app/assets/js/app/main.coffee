@@ -22,15 +22,15 @@ ngDefine "main", [
   })
 
   module.config ($urlRouterProvider, $stateProvider, UrlConfig) ->
-    $urlRouterProvider.otherwise('')
+    $urlRouterProvider.otherwise('/')
     $stateProvider
     .state 'search',
-      url: ""
+      url: "/"
       templateUrl: UrlConfig.htmlBaseUrl + "/search.html"
       controller: "controllers.search"
 
     .state 'results',
-      url: "/s/*search"
+      url: "/s/*searchParams"
       templateUrl: UrlConfig.htmlBaseUrl + "/results.html"
       controller: "controllers.results"
     return
