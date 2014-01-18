@@ -7,6 +7,19 @@
 @spacer_large: 20px;
 @spacer_xlarge: 50px;
 
+/* Override bootstrap container for full-width */
+.container.full-width {
+  @media (min-width: @screen-md) {
+    width: auto;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  @media (min-width: @screen-lg-min) {
+    width: auto;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
 
 /* Uninitialized angular things are invisible on page load */
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
