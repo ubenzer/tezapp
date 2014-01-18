@@ -1,7 +1,9 @@
 "use strict"
-ngDefine "controllers.results", (module) ->
+ngDefine "controllers.results", [
+  "module:controllers.results.header"
+], (module) ->
 
-  module.controller "controllers.results", ($scope, $state, $stateParams, searchSerializer, UrlConfig) ->
+  module.controller "results", ($scope, $state, $stateParams, searchSerializer, UrlConfig) ->
     $scope.searchConfig = searchSerializer.deserialize($stateParams.searchParams)
     if(!$scope.searchConfig)
       $state.go("search")

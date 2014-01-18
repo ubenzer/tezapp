@@ -1,7 +1,7 @@
 "use strict"
 ngDefine "controllers.search", (module) ->
 
-  module.controller "controllers.search", ($scope, $state, searchSerializer) ->
+  module.controller "search", ($scope, $state, searchSerializer) ->
     $scope.formData = {
       searchTerms: []
       offline: false

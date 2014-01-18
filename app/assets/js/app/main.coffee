@@ -27,10 +27,10 @@ ngDefine "main", [
     .state 'search',
       url: "/"
       templateUrl: UrlConfig.htmlBaseUrl + "/search.html"
-      controller: "controllers.search"
+      controller: "search"
 
     .state 'results',
       url: "/s/*searchParams"
       templateUrl: UrlConfig.htmlBaseUrl + "/results.html"
-      controller: "controllers.results"
+      controller: "results"
     return
