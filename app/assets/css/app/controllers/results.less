@@ -1,7 +1,6 @@
 @import "../../bootstrap/variables.less";
 
 body.results {
-  padding-top: 70px;
 
   /* Header related styles */
   @media screen and (max-width: @screen-sm-min) {
@@ -19,9 +18,15 @@ body.results {
       width: 600px;
     }
   }
-  .navbar-nav.navbar-right:last-child {
-    margin: 0;
+  .navbar {
+    margin-left: (@spacer_large * -1);
+    margin-right: (@spacer_large * -1);
+
+    .navbar-nav.navbar-right:last-child {
+      margin: 0;
+    }
   }
+
 
 
 
