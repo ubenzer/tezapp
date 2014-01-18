@@ -21,7 +21,8 @@ ngDefine "main", [
     htmlBaseUrl: "/assets/html"
   })
 
-  module.config ($urlRouterProvider, $stateProvider, UrlConfig) ->
+  module
+  .config ($urlRouterProvider, $stateProvider, UrlConfig) ->
     $urlRouterProvider.otherwise('/')
     $stateProvider
     .state 'search',
@@ -34,3 +35,6 @@ ngDefine "main", [
       templateUrl: UrlConfig.htmlBaseUrl + "/results.html"
       controller: "results"
     return
+  .controller "app", ($rootScope, $state) ->
+      $rootScope.$state = $state
+      return

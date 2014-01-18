@@ -13,7 +13,7 @@
       <link href="@routes.Assets.at("css/lib.css")" rel="stylesheet" media="screen">
       <link href="@routes.Assets.at("css/app.css")" rel="stylesheet" media="screen">
   </head>
-  <body>
+  <body ng-controller="app" ng-class="$state.current.name">
     <div ui-view>Loading...</div>
     <script src="@routes.Application.javascriptRoutes()"></script>
     <script src="@routes.Assets.at("js/lib/require.js")"></script>
