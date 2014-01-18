@@ -26,11 +26,24 @@ body.results {
       margin: 0;
     }
   }
+  /* Loading */
+  #searchInProgress {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9000;
 
+    background: rgba(255,255,255, .9);
+    padding-top: 150px;
 
+    i {
+      font-size: 150px;
+    }
 
-
-
-
-
+    .lead {
+      margin-top: 30px;
+    }
+  }
 }
