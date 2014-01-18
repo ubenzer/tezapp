@@ -3,8 +3,8 @@ ngDefine "controllers.results", [
   "module:controllers.results.header"
 ], (module) ->
 
-  module.controller "results", ($scope, $state, $stateParams, searchSerializer, UrlConfig) ->
-    $scope.searchConfig = searchSerializer.deserialize($stateParams.searchParams)
+  module.controller "results", ($scope, $state, $stateParams, SearchSerializer, UrlConfig) ->
+    $scope.searchConfig = SearchSerializer.deserialize($stateParams.searchParams)
     if(!$scope.searchConfig)
       $state.go("search")
       return
