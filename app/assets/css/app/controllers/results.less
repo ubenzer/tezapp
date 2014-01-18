@@ -1,8 +1,21 @@
 @import "../../bootstrap/variables.less";
 
-@media screen and (min-width: @screen-sm-min) {
-  .ngTagsInput {
-    width: 700px;
+  /* Header related styles */
+  @media screen and (max-width: @screen-sm-min) {
+    .ngTagsInput {
+      width: 100%;
+    }
+  }
+  @media screen and (min-width: @screen-sm-min) {
+    .ngTagsInput {
+      width: 350px;
+    }
+  }
+  @media screen and (min-width: @screen-md-min) {
+    .ngTagsInput {
+      width: 600px;
+    }
+  }
   }
 
 
