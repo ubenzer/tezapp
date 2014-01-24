@@ -1,4 +1,4 @@
-<mockup version="1.0" skin="wireframe" fontFace="Balsamiq Sans" measuredW="1087" measuredH="613" mockupW="1087" mockupH="574">
+<mockup version="1.0" skin="wireframe" fontFace="Balsamiq Sans" measuredW="960" measuredH="613" mockupW="960" mockupH="574">
   <controls>
     <control controlID="0" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="87" y="39" w="873" h="574" measuredW="450" measuredH="400" zOrder="0" locked="false" isInGroup="-1"/>
     <control controlID="1" controlTypeID="com.balsamiq.mockups::Label" x="95" y="117" w="-1" h="-1" measuredW="41" measuredH="28" zOrder="1" locked="false" isInGroup="-1">
@@ -28,18 +28,7 @@
         <text>Search%20Results%2C%20Pizza%20Hut%20%28x%29%2C%20Delivery%20%28x%29</text>
       </controlProperties>
     </control>
-    <control controlID="7" controlTypeID="com.balsamiq.mockups::Canvas" x="917" y="187" w="33" h="411" measuredW="100" measuredH="70" zOrder="6" locked="false" isInGroup="-1">
-      <controlProperties>
-        <color>0</color>
-      </controlProperties>
-    </control>
-    <control controlID="8" controlTypeID="com.balsamiq.mockups::Icon" x="921" y="367" w="-1" h="-1" measuredW="24" measuredH="24" zOrder="7" locked="false" isInGroup="-1">
-      <controlProperties>
-        <color>16777215</color>
-        <icon>CircledPlusIcon%7Csmall</icon>
-      </controlProperties>
-    </control>
-    <control controlID="10" controlTypeID="com.balsamiq.mockups::Canvas" x="109" y="202" w="213" h="66" measuredW="100" measuredH="70" zOrder="8" locked="false" isInGroup="-1">
+    <control controlID="10" controlTypeID="com.balsamiq.mockups::Canvas" x="590" y="202" w="213" h="66" measuredW="100" measuredH="70" zOrder="9" locked="false" isInGroup="-1">
       <controlProperties>
         <borderColor>16750848</borderColor>
         <borderStyle>roundedSolid</borderStyle>
@@ -47,45 +36,40 @@
         <verticalScrollbar>false</verticalScrollbar>
       </controlProperties>
     </control>
-    <control controlID="11" controlTypeID="com.balsamiq.mockups::Label" x="109" y="202" w="-1" h="-1" measuredW="34" measuredH="21" zOrder="9" locked="false" isInGroup="-1">
+    <control controlID="11" controlTypeID="com.balsamiq.mockups::Label" x="590" y="202" w="-1" h="-1" measuredW="34" measuredH="21" zOrder="10" locked="false" isInGroup="-1">
       <controlProperties>
         <text>Class</text>
       </controlProperties>
     </control>
-    <control controlID="12" controlTypeID="com.balsamiq.mockups::Label" x="192" y="222" w="-1" h="-1" measuredW="47" measuredH="26" zOrder="10" locked="false" isInGroup="-1">
+    <control controlID="12" controlTypeID="com.balsamiq.mockups::Label" x="673" y="222" w="-1" h="-1" measuredW="47" measuredH="26" zOrder="11" locked="false" isInGroup="-1">
       <controlProperties>
         <size>18</size>
         <text>Pizza</text>
       </controlProperties>
     </control>
-    <control controlID="13" controlTypeID="com.balsamiq.mockups::Label" x="109" y="248" w="-1" h="-1" measuredW="78" measuredH="21" zOrder="11" locked="false" isInGroup="-1">
+    <control controlID="13" controlTypeID="com.balsamiq.mockups::Label" x="590" y="248" w="-1" h="-1" measuredW="78" measuredH="21" zOrder="12" locked="false" isInGroup="-1">
       <controlProperties>
         <text>289%20relations</text>
       </controlProperties>
     </control>
-    <control controlID="14" controlTypeID="com.balsamiq.mockups::Tooltip" x="213" y="179" w="237" h="44" measuredW="225" measuredH="60" zOrder="12" locked="false" isInGroup="-1">
+    <control controlID="14" controlTypeID="com.balsamiq.mockups::Tooltip" x="283" y="202" w="237" h="44" measuredW="225" measuredH="0" zOrder="13" locked="false" isInGroup="-1">
       <controlProperties>
         <align>left</align>
         <text>http%3A//fullrdfaddress.com/%23pizza%0ADescription%20etc.</text>
         <tooltipDirection>SW</tooltipDirection>
       </controlProperties>
     </control>
-    <control controlID="15" controlTypeID="com.balsamiq.mockups::StickyNote" x="0" y="72" w="109" h="281" measuredW="109" measuredH="123" zOrder="13" locked="false" isInGroup="-1">
+    <control controlID="15" controlTypeID="com.balsamiq.mockups::StickyNote" x="0" y="72" w="109" h="281" measuredW="109" measuredH="123" zOrder="6" locked="false" isInGroup="-1">
       <controlProperties>
         <text>A%20brief%20information%20about%20entity.%20Connection%20count%2C%20coloured%20by%20type%2C%20hover%20on%20name%20shows%20full%20URI%20and%20description.%20Double%20clicking%20opens%20its%20connections%20in%20new%20tab.%20Clicking%20selects%20it.</text>
       </controlProperties>
     </control>
-    <control controlID="16" controlTypeID="com.balsamiq.mockups::TabBar" x="580" y="160" w="327" h="438" measuredW="283" measuredH="100" zOrder="14" locked="false" isInGroup="-1">
+    <control controlID="16" controlTypeID="com.balsamiq.mockups::TabBar" x="579" y="160" w="372" h="438" measuredW="259" measuredH="100" zOrder="7" locked="false" isInGroup="-1">
       <controlProperties>
-        <text>Quick%20View%2C%20Selected%20Entities%20%285%29</text>
+        <text>Details%2C%20Selected%20Entities%20%285%29</text>
       </controlProperties>
     </control>
-    <control controlID="17" controlTypeID="com.balsamiq.mockups::StickyNote" x="978" y="164" w="109" h="281" measuredW="109" measuredH="123" zOrder="15" locked="false" isInGroup="-1">
-      <controlProperties>
-        <text>You%20can%20create%20new%20views%20or%20close%20existing%20ones.</text>
-      </controlProperties>
-    </control>
-    <control controlID="18" controlTypeID="com.balsamiq.mockups::Tree" x="590" y="202" w="-1" h="-1" measuredW="300" measuredH="225" zOrder="16" locked="false" isInGroup="-1">
+    <control controlID="18" controlTypeID="com.balsamiq.mockups::Tree" x="109" y="192" w="447" h="391" measuredW="300" measuredH="225" zOrder="8" locked="false" isInGroup="-1">
       <controlProperties>
         <text>P%20Pizza%0A..Pizza%20Connection%201%0A....Pizza%20Connection%201%27s%20Connection%201%0A..Pizza%20Connection%202</text>
       </controlProperties>
