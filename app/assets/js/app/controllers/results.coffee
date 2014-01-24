@@ -25,7 +25,7 @@ ngDefine "controllers.results", [
     $timeout(
       () ->
         $scope.pageControls.searchInProgress = false
-    , 2000)
+    , 50)
 
 
     return
