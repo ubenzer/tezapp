@@ -2,7 +2,7 @@ package service.parser
 
 import org.openrdf.rio.{UnsupportedRDFormatException, RDFParseException, Rio, RDFFormat}
 import org.openrdf.rio.helpers.{RDFHandlerBase}
-import service.ontologyFetcher.Status
+import service.ontologyFetcher.{FetchResult}
 import service.ontologyFetcher.parser.OntologyParser
 import play.Logger
 import org.openrdf.model._
@@ -11,7 +11,7 @@ import common.{RewindableByteArrayInputStream, CryptoUtils}
 
 class RIOParser(storer: OntologyStorageEngine) extends OntologyParser(storer) {
 
-  override def parseStreamAsOntology(tbParsed: RewindableByteArrayInputStream, ontologyUri: String, format: RDFFormat, source: String): Status.Value = {
+  override def parseStreamAsOntology(tbParsed: RewindableByteArrayInputStream, ontologyUri: String, format: RDFFormat, source: String): FetchResult = {
 
     // Check if ontology exists
     val isOntologyExists = storer.checkOntologyExists(ontologyUri)
@@ -19,13 +19,13 @@ class RIOParser(storer: OntologyStorageEngine) extends OntologyParser(storer) {
 
     if(isOntologyExists) {
       val hasLock = storer.checkLock(ontologyUri)
-      if(hasLock) { return Status.Duplicate }
+      if(hasLock) { return FetchResult(duplicate = 1) }
       val isOntologyModified = storer.checkOntologyModified(ontologyUri, md5)  // Check if ontology modified
       if(isOntologyModified) {
         storer.deleteOntology(ontologyUri) // If modified clean old ontology
       } else {
         storer.saveDocument(ontologyUri, md5, source) // We don't need to parse it again, just update results.
-        return Status.Duplicate
+        return return FetchResult(duplicate = 1)
       }
     }
 
@@ -42,18 +42,18 @@ class RIOParser(storer: OntologyStorageEngine) extends OntologyParser(storer) {
     } catch {
       case ex: RDFParseException => {
         Logger.info("Couldn't parse ontology at " + ontologyUri, ex)
-        return Status.NotParsable
+        return FetchResult(failedNotParsable = 1)
       }
       case ex: UnsupportedRDFormatException => {
         Logger.info("Couldn't parse ontology because it is unsupported at " + ontologyUri, ex)
-        return Status.NotParsable
+        return FetchResult(failedNotParsable = 1)
       }
       case ex: Throwable => {
         Logger.error("Some exception occurred while parsing ontology at " + ontologyUri, ex)
-        return Status.NotParsable
+        return FetchResult(failedNotParsable = 1)
       }
     }
-    Status.Ok
+    FetchResult(success = 1)
   }
 
 }

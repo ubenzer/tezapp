@@ -3,19 +3,19 @@ package service.ontologyFetcher.parser
 import org.openrdf.rio.RDFFormat
 import java.net.{URI=>JURI}
 import java.io.{ByteArrayInputStream, InputStream}
-import service.ontologyFetcher.Status
+import service.ontologyFetcher.{FetchResult}
 import play.api.libs.ws.Response
 import service.ontologyFetcher.storer.OntologyStorageEngine
 import common.RewindableByteArrayInputStream
 
 abstract class OntologyParser(storer: OntologyStorageEngine) {
 
-  final def parseResponseAsOntology(response: Response, source: String): Status.Value = {
+  final def parseResponseAsOntology(response: Response, source: String): FetchResult = {
     import service.ontologyFetcher.parser.OntologyParserImplicits._
     val inferredType: RDFFormat = inferType(response.header("Content-Type"))
     parseStreamAsOntology(response.body, response.getAHCResponse.getUri, inferredType, source)
   }
-  def parseStreamAsOntology(tbParsed: RewindableByteArrayInputStream, baseUri: String, format: RDFFormat, source: String): Status.Value
+  def parseStreamAsOntology(tbParsed: RewindableByteArrayInputStream, baseUri: String, format: RDFFormat, source: String): FetchResult
 
   def inferType(contentType: Option[String]): RDFFormat = {
 
