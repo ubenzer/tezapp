@@ -74,6 +74,8 @@ class SwoogleFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
   private def fetchAPage(searchQuery: String, startResult: Int): Future[Response] = {
     import ExecutionContexts.internetIOOps
     Logger.info("Fetching SWOOGLE starting " + startResult)
+    Logger.info(SEARCH_ONTOLOGY_API_URL + "?queryType=search_swd_ontology&key=" + ACCESS_KEY + "&searchString=" + searchQuery + "&searchStart=" + String.valueOf(startResult))
+
     WS.url(SEARCH_ONTOLOGY_API_URL)
       .withQueryString(("queryType", "search_swd_ontology"))
       .withQueryString(("key", ACCESS_KEY))

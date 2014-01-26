@@ -16,6 +16,8 @@ abstract class OntologyFetcher(parser: OntologyParser) {
   def getOntologyList(keyword: String): Future[Set[String]]
 
   protected def search(keyword: String, source: String): Future[FetchResult] = {
+    Logger.info("Starting search for keyword '" + keyword + "'")
+
     /* Step 1: Fetch ontology list to be fetched. */
     val ontologyListF = getOntologyList(keyword)
 
