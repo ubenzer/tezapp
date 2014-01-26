@@ -12,7 +12,7 @@ object ApplicationBuild extends Build {
   val appDependencies = Seq(
     // Add your project dependencies here,
     "org.mongodb" %% "casbah" % "2.6.3",
-    "org.openrdf.sesame" % "sesame-runtime" % "2.7.5",
+    "org.openrdf.sesame" % "sesame-runtime" % "2.7.9",
     "commons-io" % "commons-io" % "2.4",
     "commons-validator" % "commons-validator" % "1.4.0"
   )
