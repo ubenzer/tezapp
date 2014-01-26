@@ -1,6 +1,6 @@
 package service.ontologyFetcher
 
-import play.api.Logger
+import play.api.{Play, Logger}
 import scala.concurrent.{Future}
 import play.api.libs.ws.{Response, WS}
 import scala.math.floor
@@ -9,9 +9,10 @@ import service.ontologyFetcher.parser.OntologyParser
 import common.ExecutionContexts
 import service.FetchResult
 import scala.util.{Success, Failure}
+import play.api.Play.current
 
 class SwoogleFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
-  private final val ACCESS_KEY: String = "52fc0c56ec4942e2a5268356d0b8af23"
+  private final val ACCESS_KEY: String = Play.configuration.getString("swoogle.apiKey").getOrElse("_")
   private final val SEARCH_ONTOLOGY_API_URL: String = "http://sparql.cs.umbc.edu/swoogle31/q"
   private final val SWOOGLE_MAX_RESULT: Int = 1000
   private final val SWOOGLE_RESULT_PER_PAGE: Int = 10
