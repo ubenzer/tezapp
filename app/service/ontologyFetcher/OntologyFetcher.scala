@@ -23,6 +23,7 @@ abstract class OntologyFetcher(parser: OntologyParser) {
     ontologyListF.flatMap {
       case ontologyList if ontologyList.isEmpty => Future.successful(FetchResult(searchEngineFailed = true))
       case ontologyList if !ontologyList.isEmpty =>
+        Logger.info("Downloading ontologies, total file count: " + ontologyList.size)
         val downloadedOntologiesF: Future[(Seq[Response], FetchResult)] = downloadOntologies(ontologyList.toSeq: _*)
         downloadedOntologiesF.map {
           tuple =>
@@ -43,6 +44,7 @@ abstract class OntologyFetcher(parser: OntologyParser) {
     import ExecutionContexts.internetIOOps
     val resultFutures = urlList.map {
       url =>
+        Logger.info("Downloading ontology: " + url)
         WS.url(url).withHeaders(("Accept", "application/rdf+xml, application/xml;q=0.6, text/xml;q=0.6")).get().map {
           response => response.status match {
             case num if 400 until 500 contains num => (None, FetchResult(failed = 1, failedNotFound = 1)) // TODO Make this better
@@ -51,11 +53,11 @@ abstract class OntologyFetcher(parser: OntologyParser) {
           }
         } recover {
           case ex: TimeoutException => {
-            Logger.info("Fetch failed because of a timeout  for url " + url, ex)
+            Logger.info("Fetch failed because of a timeout  for url " + url)
             (None, FetchResult(failed=1, failedTimeout = 1))
           }
           case ex: ConnectException => {
-            Logger.info("Fetch failed because of connection problem for url " + url, ex)
+            Logger.info("Fetch failed because of connection problem for url " + url)
             (None, FetchResult(failed=1, failedConnection = 1))
           }
           case ex: Exception => {

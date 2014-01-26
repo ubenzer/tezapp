@@ -8,6 +8,7 @@ import scala.xml.Elem
 import service.ontologyFetcher.parser.OntologyParser
 import common.ExecutionContexts
 import service.FetchResult
+import scala.util.{Success, Failure}
 
 class SwoogleFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
   private final val ACCESS_KEY: String = "52fc0c56ec4942e2a5268356d0b8af23"
@@ -17,8 +18,6 @@ class SwoogleFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
 
   def search(keyword: String): Future[FetchResult] = super.search(keyword, "swoogle")
 
-
-  @throws[Exception]("On connection problem")
   def getOntologyList(keyword: String): Future[Set[String]] = {
     import ExecutionContexts.internetIOOps
     def getNormalizedSearchResultCount(xml: Elem): Int = {
@@ -37,28 +36,23 @@ class SwoogleFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
 
     val firstPagePromise: Future[Response] = fetchAPage(keyword, 1)
 
-    // what if fails?
     val resultCount: Future[Int] = firstPagePromise.map { response =>
       val xml = response.xml
       getNormalizedSearchResultCount(xml)
-    } recover {
-      case ex: Throwable => {
-        Logger.error("There is no XML to parse!")
-        0
-      }
     }
 
     resultCount.flatMap {
       case rc if rc > 0 => {
-        val searchResultsFutures: Seq[Future[Response]] =
-          Seq(firstPagePromise) ++ {
+
+        val urlListFutures: Seq[Future[Seq[String]]] =
+          (Seq(firstPagePromise) ++ {
             for (i: Int <- 1 until (floor(rc / SWOOGLE_RESULT_PER_PAGE) + (if (rc % SWOOGLE_RESULT_PER_PAGE > 0) 1 else 0)).toInt)
             yield fetchAPage(keyword, (i * SWOOGLE_RESULT_PER_PAGE) + 1)
-          }
-
-        val urlListFutures: Seq[Future[Seq[String]]] = searchResultsFutures.map { responseFuture: Future[Response] =>
+          }).map { responseFuture: Future[Response] =>
           responseFuture.map {
             response => toUrlList(response)
+          }.recover {
+            case ex: Throwable => Seq.empty[String]
           }
         }
 
@@ -69,17 +63,29 @@ class SwoogleFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
         urlListFlatterned
       }
       case _ => Future.successful(Set.empty[String])
+    } recover {
+      case ex: Throwable => {
+        Logger.error("Search engine is totally failed.", ex)
+        Set.empty[String]
+      }
     }
   }
 
   private def fetchAPage(searchQuery: String, startResult: Int): Future[Response] = {
-    if (startResult >= SWOOGLE_MAX_RESULT) {
-      throw new IllegalArgumentException
-    }
+    import ExecutionContexts.internetIOOps
+    Logger.info("Fetching SWOOGLE starting " + startResult)
     WS.url(SEARCH_ONTOLOGY_API_URL)
       .withQueryString(("queryType", "search_swd_ontology"))
       .withQueryString(("key", ACCESS_KEY))
       .withQueryString(("searchString", searchQuery))
       .withQueryString(("searchStart", String.valueOf(startResult))).get()
+      .andThen {
+        case Failure(response) =>
+          Logger.error("Fetching SWOOGLE FAILED " + startResult)
+          response
+        case Success(response) =>
+          Logger.error("Fetching SWOOGLE completed " + startResult)
+          response
+      }
   }
 }

@@ -17,3 +17,5 @@ dist
 .DS_Store
 .cache
 ontologies
+
+lib/a_ws_patch.jar
