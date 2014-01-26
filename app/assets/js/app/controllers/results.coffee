@@ -3,7 +3,7 @@ ngDefine "controllers.results", [
   "module:controllers.results.header"
 ], (module) ->
 
-  module.controller "results", ($scope, $state, $stateParams, SearchSerializer, UrlConfig, $timeout) ->
+  module.controller "results", ($scope, $state, $stateParams, SearchSerializer, UrlConfig, $http) ->
     $scope.searchConfig = SearchSerializer.deserialize($stateParams.searchParams)
     if(!$scope.searchConfig)
       $state.go("search")
@@ -21,11 +21,15 @@ ngDefine "controllers.results", [
     }
 
 
-    # Mock loading
-    $timeout(
-      () ->
+    console.debug($scope.searchConfig)
+    $http.post("/search", $scope.searchConfig)
+
+    .success (data) ->
+      console.debug(data)
+    .error () ->
+      alert("Some error occurred. Please resubmit your search. Sorry. :/")
+    .finally () ->
         $scope.pageControls.searchInProgress = false
-    , 50)
 
 
     return
