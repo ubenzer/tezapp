@@ -42,15 +42,15 @@ class RIOParser(storer: OntologyStorageEngine) extends OntologyParser(storer) {
     } catch {
       case ex: RDFParseException => {
         Logger.info("Couldn't parse ontology at " + ontologyUri + "(" + ex.getMessage + ")")
-        return FetchResult(failedNotParsable = 1)
+        return FetchResult(notParsable = 1)
       }
       case ex: UnsupportedRDFormatException => {
         Logger.info("Couldn't parse ontology because it is unsupported at " + ontologyUri + "(" + ex.getMessage + ")")
-        return FetchResult(failedNotParsable = 1)
+        return FetchResult(notParsable = 1)
       }
       case ex: Throwable => {
         Logger.error("Some exception occurred while parsing ontology at " + ontologyUri, ex)
-        return FetchResult(failedNotParsable = 1)
+        return FetchResult(notParsable = 1)
       }
     }
     FetchResult(success = 1)

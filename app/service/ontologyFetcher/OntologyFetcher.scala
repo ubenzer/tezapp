@@ -35,7 +35,13 @@ abstract class OntologyFetcher(parser: OntologyParser) {
             val parseResults: FetchResult = responses.map {
               r => parser.parseResponseAsOntology(r, source)
             }.foldLeft(fetchResult) {
-              (result, current) => result + current
+              (result, current) =>
+                if(current.success > 0) {
+                  result + current
+                } else {
+                  val t = result + current
+                  t.copy(success = t.success-1)
+                }
             }
             parseResults
         }
@@ -49,22 +55,23 @@ abstract class OntologyFetcher(parser: OntologyParser) {
         Logger.info("Downloading ontology: " + url)
         WS.url(url).withHeaders(("Accept", "application/rdf+xml, application/xml;q=0.6, text/xml;q=0.6")).get().map {
           response => response.status match {
-            case num if 400 until 500 contains num => (None, FetchResult(failed = 1, failedNotFound = 1)) // TODO Make this better
-            case num if 500 until 600 contains num => (None, FetchResult(failed = 1, failedServerError = 1)) // This, too.
+            case num if 404 == num => (None, FetchResult(notFound = 1))
+            case num if 400 until 500 contains num => (None, FetchResult(failed400x = 1))
+            case num if 500 until 600 contains num => (None, FetchResult(failed500x = 1))
             case _ => (Some(response), FetchResult(success = 1))
           }
         } recover {
           case ex: TimeoutException => {
             Logger.info("Fetch failed because of a timeout  for url " + url)
-            (None, FetchResult(failed=1, failedTimeout = 1))
+            (None, FetchResult(timeout = 1))
           }
           case ex: ConnectException => {
             Logger.info("Fetch failed because of connection problem for url " + url)
-            (None, FetchResult(failed=1, failedConnection = 1))
+            (None, FetchResult(connection = 1))
           }
           case ex: Exception => {
             Logger.error("Fetch failed for url " + url, ex)
-            (None, FetchResult(failed=1))
+            (None, FetchResult(unknown=1))
           }
         }
     }
