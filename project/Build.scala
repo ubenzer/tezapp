@@ -4,8 +4,6 @@ import play.Project._
 
 object ApplicationBuild extends Build {
 
-  resolvers += Resolver.sonatypeRepo("snapshots")
-
   val appName         = "tezapp"
   val appVersion      = "1.0-SNAPSHOT"
 
