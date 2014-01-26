@@ -2,12 +2,12 @@ package service.parser
 
 import org.openrdf.rio.{UnsupportedRDFormatException, RDFParseException, Rio, RDFFormat}
 import org.openrdf.rio.helpers.{RDFHandlerBase}
-import service.ontologyFetcher.{FetchResult}
 import service.ontologyFetcher.parser.OntologyParser
 import play.Logger
 import org.openrdf.model._
 import service.ontologyFetcher.storer.OntologyStorageEngine
 import common.{RewindableByteArrayInputStream, CryptoUtils}
+import service.FetchResult
 
 class RIOParser(storer: OntologyStorageEngine) extends OntologyParser(storer) {
 

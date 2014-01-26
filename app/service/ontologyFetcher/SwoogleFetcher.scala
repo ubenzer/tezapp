@@ -7,6 +7,7 @@ import scala.math.floor
 import scala.xml.Elem
 import service.ontologyFetcher.parser.OntologyParser
 import common.ExecutionContexts
+import service.FetchResult
 
 class SwoogleFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
   private final val ACCESS_KEY: String = "52fc0c56ec4942e2a5268356d0b8af23"
