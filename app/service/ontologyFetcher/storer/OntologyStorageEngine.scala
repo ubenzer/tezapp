@@ -1,7 +1,9 @@
 package service.ontologyFetcher.storer
 
-import org.openrdf.model.{Value, URI, Resource}
+import org.openrdf.model._
 import com.mongodb.casbah.Imports._
+import common.Utils
+import scala.Some
 
 abstract class OntologyStorageEngine() {
   def saveDocument(ontologyUri: String, md5: String, source: String)
@@ -11,4 +13,11 @@ abstract class OntologyStorageEngine() {
   def checkOntologyExists(ontologyUri: String): Boolean
   def checkOntologyModified(ontologyUri: String, md5: String): Boolean
   def deleteOntology(ontologyUri: String)
+
+  def isBlankNode(v: Value): Boolean = {
+    v match {
+      case r: BNode => true
+      case _ => false
+    }
+  }
 }

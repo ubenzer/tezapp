@@ -94,12 +94,14 @@ class SalatStorageEngine() extends OntologyStorageEngine {
     /* Save element, too */
     OntologyElement.collection.update(
         DBObject({"_id" -> subjectId}),
+        $set({"isBlankNode" -> isBlankNode(subject)}) ++
         $set({"uDate" -> new DateTime()}) ++
         $addToSet("appearsOn" -> source) ++ $addToSet("sourceOntology" -> sourceDocument),
       upsert = true)
 
     OntologyElement.collection.update(
         DBObject({"_id" -> predicateId}),
+        $set({"isBlankNode" -> false}) ++
         $set({"uDate" -> new DateTime()}) ++
         $addToSet("appearsOn" -> source) ++ $addToSet("sourceOntology" -> sourceDocument),
       upsert = true)
@@ -107,8 +109,9 @@ class SalatStorageEngine() extends OntologyStorageEngine {
     if(!objectIsData) {
       OntologyElement.collection.update(
         DBObject({"_id" -> objectId}),
+        $set({"isBlankNode" -> isBlankNode(objekt)}) ++
         $set({"uDate" -> new DateTime()}) ++
-          $addToSet("appearsOn" -> source) ++ $addToSet("sourceOntology" -> sourceDocument),
+        $addToSet("appearsOn" -> source) ++ $addToSet("sourceOntology" -> sourceDocument),
         upsert = true)
     }
 
