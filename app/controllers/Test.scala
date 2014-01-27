@@ -18,3 +18,12 @@ object Test extends Controller {
     }
   }
 
+  def find(keyword: String) = Action.async {
+    Future {
+      Search.findElementsByKeyword(keyword)
+    }.map {
+      r =>
+        Ok(r._1.toString + " ***** " + r._2.toString)
+    }
+  }
+}
