@@ -8,7 +8,7 @@ GET     /                           controllers.Application.index
 POST    /search                     controllers.Application.search
 
 
-GET     /scala                      controllers.Swoogle.submit(keyword)
+GET     /test/swoogle               controllers.Test.swoogle(keyword)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

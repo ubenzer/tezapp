@@ -4,10 +4,11 @@ import play.api.mvc._
 import service.ontologyFetcher.{OntologyFetcher}
 import scala.concurrent.Future
 import common.ExecutionContexts.fastOps
+import service.ontologySearch.Search
 
-object Swoogle extends Controller {
+object Test extends Controller {
 
-  def submit(keyword: String) = Action.async {
+  def swoogle(keyword: String) = Action.async {
     if(keyword.length < 1) {
       Future.successful(BadRequest)
     } else {
@@ -16,4 +17,4 @@ object Swoogle extends Controller {
       }
     }
   }
-}
+
