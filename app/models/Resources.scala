@@ -34,8 +34,10 @@ object OntologyDocument {
 }
 object OntologyElement {
   val collection = MongoDB.db("OntologyElement")
+  collection.ensureIndex(DBObject("_id" -> "text"))
 }
 object OntologyTriple {
   val collection = MongoDB.db("OntologyTriple")
   collection.ensureIndex(DBObject("predicate" -> 1, "subject" -> 1, "objectO" -> 1), DBObject({"sparse" -> true}, {"name" -> "tripleIdxPSO"}))
+  collection.ensureIndex(DBObject("objectD" -> "text"))
 }
