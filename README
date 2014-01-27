@@ -1,4 +1,9 @@
-This is your new Play 2.1 application
+tezapp
 =====================================
 
-This file will be packaged with your application, when using `play dist`.
+--Running--
+
+Run mongodb with following params:
+
+mongod --setParameter textSearchEnabled=true
+
