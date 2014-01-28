@@ -5,6 +5,8 @@ import service.ontologyFetcher.{OntologyFetcher}
 import scala.concurrent.Future
 import common.ExecutionContexts.fastOps
 import service.ontologySearch.Search
+import play.api.libs.json.Json
+import models.SearchResult
 
 object Test extends Controller {
 
@@ -23,7 +25,8 @@ object Test extends Controller {
       Search.findElementsByKeyword(keyword)
     }.map {
       r =>
-        Ok(r._1.toString + " ***** " + r._2.toString)
+        implicit val fetchResultJson = Json.writes[SearchResult]
+        Ok(Json.toJson(r))
     }
   }
 }
