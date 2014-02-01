@@ -1,5 +1,9 @@
 package service
 
+/**
+ * This stores overall process of an ontology
+ * fetch, parsing and persistence flow.
+ */
 case class FetchResult(
   success: Int = 0,
 

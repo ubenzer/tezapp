@@ -27,23 +27,25 @@ abstract class OntologyFetcher(parser: OntologyParser) {
       case ontologyList if !ontologyList.isEmpty =>
         Logger.info("Downloading ontologies, total file count: " + ontologyList.size)
         val downloadedOntologiesF: Future[(Seq[Response], FetchResult)] = downloadOntologies(ontologyList.toSeq: _*)
-        downloadedOntologiesF.map {
+        downloadedOntologiesF.flatMap {
           tuple =>
             val responses: Seq[Response] = tuple._1
             val fetchResult: FetchResult = tuple._2
 
-            val parseResults: FetchResult = responses.map {
+            Future.sequence(responses.map {
               r => parser.parseResponseAsOntology(r, source)
-            }.foldLeft(fetchResult) {
-              (result, current) =>
-                if(current.success > 0) {
-                  result + current
-                } else {
-                  val t = result + current
-                  t.copy(success = t.success-1)
-                }
+            }).map {
+              fr =>
+                fr.foldLeft(fetchResult) {
+                  (result, current) =>
+                    if(current.success > 0) {
+                      result + current
+                    } else {
+                      val t = result + current
+                      t.copy(success = t.success-1)
+                    }
+              }
             }
-            parseResults
         }
     }
   }

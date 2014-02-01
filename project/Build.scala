@@ -11,8 +11,6 @@ object ApplicationBuild extends Build {
     // Add your project dependencies here,
     "org.mongodb" %% "casbah" % "2.6.3",
     "org.openrdf.sesame" % "sesame-runtime" % "2.7.9",
-    "commons-io" % "commons-io" % "2.4",
-    "commons-validator" % "commons-validator" % "1.4.0"
   )
 
   // Only compile the bootstrap bootstrap.less file and any other *.less file in the stylesheets directory 

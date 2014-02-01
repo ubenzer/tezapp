@@ -7,15 +7,16 @@ import play.api.libs.ws.Response
 import service.ontologyFetcher.storer.OntologyStorageEngine
 import common.RewindableByteArrayInputStream
 import service.FetchResult
+import scala.concurrent.Future
 
 abstract class OntologyParser(storer: OntologyStorageEngine) {
 
-  final def parseResponseAsOntology(response: Response, source: String): FetchResult = {
+  final def parseResponseAsOntology(response: Response, source: String): Future[FetchResult] = {
     import service.ontologyFetcher.parser.OntologyParserImplicits._
     val inferredType: RDFFormat = inferType(response.header("Content-Type"))
     parseStreamAsOntology(response.body, response.getAHCResponse.getUri, inferredType, source)
   }
-  def parseStreamAsOntology(tbParsed: RewindableByteArrayInputStream, baseUri: String, format: RDFFormat, source: String): FetchResult
+  def parseStreamAsOntology(tbParsed: RewindableByteArrayInputStream, baseUri: String, format: RDFFormat, source: String): Future[FetchResult]
 
   def inferType(contentType: Option[String]): RDFFormat = {
 

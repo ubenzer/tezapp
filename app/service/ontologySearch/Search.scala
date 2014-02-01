@@ -1,52 +1,81 @@
 package service.ontologySearch
 
-import models.{SearchResult, OntologyTriple, OntologyElement}
-import com.mongodb.casbah.Imports._
+import models.{SearchResult, OntologyTriple}
+import scala.concurrent.{Future}
+import common.ExecutionContexts.fastOps
+import reactivemongo.bson.{BSONArray, BSONDocument}
+import reactivemongo.core.commands.RawCommand
+import scala.util.{Success, Failure}
 
 object Search {
 
   val specialElements =
-   "http://www.w3.org/2000/01/rdf-schema#label" ::
+   "http://www.w3.org/2000/01/rdf-schema#label"   ::
    "http://www.w3.org/2000/01/rdf-schema#comment" :: Nil
 
-  def findElementsByKeyword(kw: String): Seq[SearchResult] = {
-    val searchResults: List[SearchResult] = Nil
-    val uriSearchResults: DBObject = OntologyElement.collection.db.command(DBObject("text" -> "OntologyElement") ++ DBObject("search" -> kw, "filter" -> DBObject("isBlankNode" -> false)))
-    val dataPropertySearchResults: DBObject = OntologyTriple.collection.db.command(DBObject("text" -> "OntologyTriple") ++ DBObject("search" -> kw))
+  def findElementsByKeyword(kws: String*): Future[Seq[SearchResult]] = {
+    val searchCommand = BSONDocument(
+      "text" -> OntologyTriple.collection.name,
+      "search" -> kws.mkString(" "),
+      "limit" -> 10
+    )
+    val futureResult: Future[BSONDocument] = OntologyTriple.collection.db.command(RawCommand(searchCommand))
 
-    val uriSearch = uriSearchResults.get("results").asInstanceOf[BasicDBList]
-    val dataPropertySearch = dataPropertySearchResults("results").asInstanceOf[BasicDBList]
 
+    futureResult.map {
+      bson =>
+        println(BSONDocument.pretty(bson))
+        val results = bson.getAs[BSONArray]("results").get
+        results.iterator.map {
+          case Failure(ex) => None
+          case Success((idx, value: BSONDocument)) => {
+            val score = value.getAs[Double]("score").get
+            val triple = value.getAs[OntologyTriple]("obj").get
 
-    dataPropertySearch.map {
-      case x: BasicDBObject => {
-        val score = x("score").asInstanceOf[Double]
-        val obj = x("obj").asInstanceOf[BasicDBObject]
+            if(specialElements.contains(triple.predicate)) {
+              println("Özel durum!")
 
-        val subject = obj("subject").asInstanceOf[String]
-        val predicate = obj("predicate").asInstanceOf[String]
-        val objectD = obj("objectD").asInstanceOf[String]
-
-        if(specialElements.contains(predicate)) {
-          println("Özel durum!")
-
-          Some(
-            SearchResult(subject, Some(objectD), None, "AHAHA", score)
-          )
-        } else {
-          println("Değil")
-          println(obj)
-          None
+              Some(
+                SearchResult(triple.subject, Some(triple.id.get.toString), None, "AHAHA", score)
+              )
+            } else {
+              println("Değil")
+              println(value)
+              None
+            }
+          }
+        }.foldLeft(List.empty[SearchResult]) {
+          case (previous, Some(searchResult)) => searchResult :: previous
+          case (previous, None) => previous
         }
-      }
-    }.foldLeft(List.empty[SearchResult]) {
-      case (previous, Some(searchResult)) => searchResult :: previous
-      case (previous, None) => previous
     }
   }
-  def findSubject(predicate: String, objekt: String) = {}
-  def findPredicate(predicate: String, objekt: String) = {}
-  def findObject(predicate: String, objekt: String) = {}
-
-  def recursive(limit: Int=5)() = {}
+//
+//  def findSubject(predicate: String, objekt: String) = {
+//    import reactivemongo.api._
+//    import play.modules.reactivemongo.MongoController
+//    import play.modules.reactivemongo.json.collection.JSONCollection
+//    import play.api.libs.json._
+//
+//    val cursor: Cursor[JsObject] = OntologyTriple.c.find(
+//        Json.obj("predicate" -> predicate, "objectO" -> objekt)
+//    ).cursor[JsObject]
+//
+//    // gather all the JsObjects in a list
+//    val futureResults: Future[List[JsObject]] = cursor.collect[List]()
+//
+//    // transform the list into a JsArray
+//    val futurePersonsJsonArray: Future[Seq[OntologyTriple]] = futureResults.map {
+//      resultList =>
+//        resultList.map {
+//          aResult: JsObject =>
+//            OntologyTriple(aResult("id").as)
+//        }
+//    }
+//
+//  }
+//  def findPredicate(predicate: String, objekt: String) = {}
+//  def findObject(predicate: String, objekt: String) = {}
+//
+//  def recursive(limit: Int=5)() = {}
 }

@@ -1,22 +1,24 @@
 package service.ontologyFetcher.storer
 
 import org.openrdf.model._
-import com.mongodb.casbah.Imports._
-import common.Utils
-import scala.Some
+import reactivemongo.bson.BSONObjectID
+import scala.concurrent.Future
 
 abstract class OntologyStorageEngine() {
-  def saveDocument(ontologyUri: String, md5: String, source: String)
-  def saveTriple(sourceDocument: String, subject: Resource, predicate: URI, objekt: Value, source: String)(bNodeLookup: collection.mutable.Map[String, String]): ObjectId
-  def checkLock(ontologyURI: String): Boolean
+  def saveDocument(uri: String, md5: String, source: String): Future[Boolean]
+  def saveTriple(sourceDocument: String, subject: Resource, predicate: URI, objekt: Value, source: String)(bNodeLookup: collection.mutable.Map[String, String]): Future[Option[BSONObjectID]]
 
-  def checkOntologyExists(ontologyUri: String): Boolean
-  def checkOntologyModified(ontologyUri: String, md5: String): Boolean
-  def deleteOntology(ontologyUri: String)
+  def deleteOntology(ontologyUri: String): Future[Boolean]
 
   def isBlankNode(v: Value): Boolean = {
     v match {
       case r: BNode => true
+      case _ => false
+    }
+  }
+  def isData(v: Value): Boolean = {
+    v match {
+      case r: Literal  => true
       case _ => false
     }
   }
