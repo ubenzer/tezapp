@@ -9,8 +9,8 @@ object ApplicationBuild extends Build {
 
   val appDependencies = Seq(
     // Add your project dependencies here,
-    "org.mongodb" %% "casbah" % "2.6.3",
     "org.openrdf.sesame" % "sesame-runtime" % "2.7.9",
+    "org.reactivemongo" %% "play2-reactivemongo" % "0.10.2"
   )
 
   // Only compile the bootstrap bootstrap.less file and any other *.less file in the stylesheets directory 
@@ -25,7 +25,6 @@ object ApplicationBuild extends Build {
   val main = play.Project(appName, appVersion, appDependencies).settings(
     lessEntryPoints <<= baseDirectory(customLessEntryPoints),
     javascriptEntryPoints <<= baseDirectory(customJSEntryPoints)
-    //templatesImport += "org.bson.types.ObjectId",
   )
   
 }
