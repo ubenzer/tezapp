@@ -7,7 +7,7 @@ import reactivemongo.api.indexes.{Index}
 import reactivemongo.api.indexes.IndexType.{Text, Ascending}
 import reactivemongo.api.collections.default.BSONCollection
 import scala.concurrent.Future
-import reactivemongo.core.commands.{Remove, Update, FindAndModify}
+import reactivemongo.core.commands.{RawCommand, Remove, Update, FindAndModify}
 import play.api.Logger
 import common.ExecutionContexts.verySlowOps
 import play.api.Play.current
@@ -27,6 +27,8 @@ case class OntologyTriple (
 }
 object OntologyTriple {
   val collection: BSONCollection = ReactiveMongoPlugin.db.collection[BSONCollection]("OntologyTriple")
+
+  val MAX_SEARCH_QUERY = 1000 // TODO Move to conf
 
   implicit object OntologyTripleBSONReader extends BSONDocumentReader[OntologyTriple] {
     def read(doc: BSONDocument): OntologyTriple = {
@@ -237,6 +239,25 @@ object OntologyTriple {
           Logger.warn("Uri " + subject + " has more than one " + predicate)
         }
         oSet.headOption
+    }
+  }
+
+  def stringSearch(searchString: String): Future[BSONArray] = {
+    val searchCommand = BSONDocument(
+      "text" -> OntologyTriple.collection.name,
+      "search" -> searchString,
+      "limit" -> MAX_SEARCH_QUERY
+    )
+    val futureResult: Future[BSONDocument] = OntologyTriple.collection.db.command(RawCommand(searchCommand))
+
+    futureResult.map {
+      bson =>
+        bson.getAs[BSONArray]("results").getOrElse(BSONArray.empty)
+    } recover {
+      case e:Throwable => {
+        Logger.error("stringSearch failed with searchString: " + searchString + " The error is: " + e)
+        BSONArray.empty
+      }
     }
   }
 

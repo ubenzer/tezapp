@@ -25,65 +25,58 @@ object Search {
       }
     }
 
-    val searchCommand = BSONDocument(
-      "text" -> OntologyTriple.collection.name,
-      "search" -> kws.mkString(" "),
-      "limit" -> 1000
-    )
-    val futureResult: Future[BSONDocument] = OntologyTriple.collection.db.command(RawCommand(searchCommand))
+    val theSearchF = OntologyTriple.stringSearch(kws.mkString(" "))
 
-    futureResult.flatMap {
-      bson =>
-        val results = bson.getAs[BSONArray]("results").getOrElse(BSONArray.empty)
-        val futuresOfResults = results.iterator.flatMap {
-          case Failure(ex) => None
-          case Success((idx, value: BSONDocument)) => {
-            val score = value.getAs[Double]("score").get
-            val triple = value.getAs[OntologyTriple]("obj").get
+    theSearchF.flatMap { results =>
+      val futuresOfResults = results.iterator.flatMap {
+        case Failure(ex) => None
+        case Success((idx, value: BSONDocument)) => {
+          val score = value.getAs[Double]("score").get
+          val triple = value.getAs[OntologyTriple]("obj").get
 
-            /* Determine what matched keywords */
-            val objektHitCount = getMatchCount(kws, triple.objekt)
-            val predicateHitCount = getMatchCount(kws, triple.predicate)
-            val subjectHitCount = getMatchCount(kws, triple.subject)
+          /* Determine what matched keywords */
+          val objektHitCount = getMatchCount(kws, triple.objekt)
+          val predicateHitCount = getMatchCount(kws, triple.predicate)
+          val subjectHitCount = getMatchCount(kws, triple.subject)
 
-            /* Find why we found this triple as a result */
-            val realHitElement = (objektHitCount :: predicateHitCount :: subjectHitCount :: Nil).view.sorted.reverse.head match {
-              case `objektHitCount` => triple.objekt
-              case `predicateHitCount` => triple.predicate
-              case `subjectHitCount` => triple.subject
-            }
-
-            /* Create a result object */
-            val sr: Future[SearchResult] = realHitElement match {
-              case triple.objekt => {
-                (if(triple.isObjectData) {
-                  OntologyTriple.getDisplayableElement(triple.subject)
-                } else {
-                  OntologyTriple.getDisplayableElement(triple.objekt)
-                }).map { de: DisplayableElement =>
-                  SearchResult(
-                    element = de,
-                    score = score
-                  )
-                }
-              }
-              case _ => {
-                OntologyTriple.getDisplayableElement(realHitElement).map { de =>
-                  SearchResult(
-                    element = de,
-                    score = score
-                  )
-                }
-              }
-            }
-            Some(sr)
+          /* Find why we found this triple as a result */
+          val realHitElement = (objektHitCount :: predicateHitCount :: subjectHitCount :: Nil).view.sorted.reverse.head match {
+            case `objektHitCount` => triple.objekt
+            case `predicateHitCount` => triple.predicate
+            case `subjectHitCount` => triple.subject
           }
-          case Success(_) => None
-        }
 
-        Future.sequence(futuresOfResults).map {
-          _.toSeq.distinct
+          /* Create a result object */
+          val sr: Future[SearchResult] = realHitElement match {
+            case triple.objekt => {
+              (if(triple.isObjectData) {
+                OntologyTriple.getDisplayableElement(triple.subject)
+              } else {
+                OntologyTriple.getDisplayableElement(triple.objekt)
+              }).map { de: DisplayableElement =>
+                SearchResult(
+                  element = de,
+                  score = score
+                )
+              }
+            }
+            case _ => {
+              OntologyTriple.getDisplayableElement(realHitElement).map { de =>
+                SearchResult(
+                  element = de,
+                  score = score
+                )
+              }
+            }
+          }
+          Some(sr)
         }
+        case Success(_) => None
+      }
+
+      Future.sequence(futuresOfResults).map {
+        _.toSeq.distinct
+      }
     }
   }
 }
