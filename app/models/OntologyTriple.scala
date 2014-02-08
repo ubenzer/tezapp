@@ -167,17 +167,6 @@ object OntologyTriple {
   object Label extends DescriptiveElement
   object Comment extends DescriptiveElement
 
-  def getAsDescriptiveElement(uri: String): Option[DescriptiveElement] = {
-
-    val descriptiveElementLookup: Map[String, DescriptiveElement] = Map(
-      "http://www.w3.org/2000/01/rdf-schema#label" -> Label, // todo use constants
-      "http://www.w3.org/2000/01/rdf-schema#comment" -> Comment
-    )
-
-    descriptiveElementLookup.get(uri)
-  }
-
-
   def getSubject(predicate: String, objeckt: String): Future[Set[String]] = {
     val f: Future[List[OntologyTriple]] = collection.find(
       BSONDocument(
