@@ -80,7 +80,7 @@ object Search {
         val seq = i.toSeq
         Logger.info(keywordString + " search has " + seq.size + " search result.")
         val seqD = seq.distinct
-        Logger.info(keywordString + " search has " + seq.size + " unique search result.")
+        Logger.info(keywordString + " search has " + seqD.size + " unique search result.")
         seqD
       }
     }
