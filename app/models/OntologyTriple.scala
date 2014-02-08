@@ -11,6 +11,7 @@ import reactivemongo.core.commands.{Remove, Update, FindAndModify}
 import play.api.Logger
 import common.ExecutionContexts.verySlowOps
 import play.api.Play.current
+import common.RDF
 
 case class OntologyTriple (
                             id            : Option[BSONObjectID] = None,
@@ -158,6 +159,125 @@ object OntologyTriple {
           case Some(bsonDocument) => true
         }
       }
+    }
+  }
+
+
+  sealed trait DescriptiveElement // http://stackoverflow.com/a/18595574/158523
+  object Label extends DescriptiveElement
+  object Comment extends DescriptiveElement
+
+  def getAsDescriptiveElement(uri: String): Option[DescriptiveElement] = {
+
+    val descriptiveElementLookup: Map[String, DescriptiveElement] = Map(
+      "http://www.w3.org/2000/01/rdf-schema#label" -> Label, // todo use constants
+      "http://www.w3.org/2000/01/rdf-schema#comment" -> Comment
+    )
+
+    descriptiveElementLookup.get(uri)
+  }
+
+
+  def getSubject(predicate: String, objeckt: String): Future[Set[String]] = {
+    val f: Future[List[OntologyTriple]] = collection.find(
+      BSONDocument(
+        "predicate" -> predicate,
+        "objeckt" -> objeckt
+      )
+    ).cursor[OntologyTriple].collect[List]()
+
+    f.map {
+      ot:List[OntologyTriple] => {
+        ot.map {
+          o => o.subject
+        }
+      }.toSet
+    } recover {
+      case e:Throwable => {
+        Logger.error("getSubject failed with predicate: " + predicate + " object: " + objeckt + " The error is: " + e)
+        Set.empty
+      }
+    }
+  }
+
+  def getPredicate(subject: String, objeckt: String): Future[Set[String]] = {
+    val f: Future[List[OntologyTriple]] = collection.find(
+      BSONDocument(
+        "subject" -> subject,
+        "objeckt" -> objeckt
+      )
+    ).cursor[OntologyTriple].collect[List]()
+
+    f.map {
+      ot:List[OntologyTriple] => {
+        ot.map {
+          o => o.predicate
+        }
+      }.toSet
+    } recover {
+      case e:Throwable => {
+        Logger.error("getSubject failed with subject: " + subject + " object: " + objeckt + " The error is: " + e)
+        Set.empty
+      }
+    }
+  }
+
+  def getObject(subject: String, predicate: String): Future[Set[String]] = {
+    val f: Future[List[OntologyTriple]] = collection.find(
+      BSONDocument(
+        "subject" -> subject,
+        "predicate" -> predicate
+      )
+    ).cursor[OntologyTriple].collect[List]()
+
+    f.map {
+      ot:List[OntologyTriple] => {
+        ot.map {
+          o => o.objekt
+        }
+      }.toSet
+    } recover {
+      case e:Throwable => {
+        Logger.error("getSubject failed with subject: " + subject + " predicate: " + predicate + " The error is: " + e)
+        Set.empty
+      }
+    }
+  }
+
+  def getLabel(subject: String): Future[Option[String]] = _getSingleObject(subject, RDF.Label)
+  def getComment(subject: String): Future[Option[String]] = _getSingleObject(subject, RDF.Comment)
+  private def _getSingleObject(subject: String, predicate: String): Future[Option[String]] = {
+    getObject(subject, predicate).map {
+      oSet =>
+        if(oSet.size > 1) {
+          Logger.warn("Uri " + subject + " has more than one " + predicate)
+        }
+        oSet.headOption
+    }
+  }
+
+  def getDisplayableElement(uri: String): Future[DisplayableElement] = {
+
+    /*  We need to fill label, description and kind for given uri */
+
+    val labelF = getLabel(uri)
+    val commentF = getComment(uri)
+
+    val f: Future[(Option[String], Option[String])] =
+      for {
+        f1 <- labelF
+        f2 <- commentF
+      } yield (f1,f2)
+
+
+    f.map {
+      case (label, comment) =>
+        DisplayableElement(
+          uri = uri,
+          label = label,
+          comment = comment,
+          kind = "TODO" // TODO implement this
+        )
     }
   }
 }

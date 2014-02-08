@@ -1,6 +1,6 @@
 package service.ontologySearch
 
-import models.{SearchResult, OntologyTriple}
+import models.{DisplayableElement, SearchResult, OntologyTriple}
 import scala.concurrent.{Future}
 import common.ExecutionContexts.fastOps
 import reactivemongo.bson.{BSONArray, BSONDocument}
@@ -10,9 +10,7 @@ import java.util.Locale
 
 object Search {
 
-  sealed trait DescriptiveElement // http://stackoverflow.com/a/18595574/158523
-  object Label extends DescriptiveElement
-  object Comment extends DescriptiveElement
+
 
   def findElementsByKeyword(kws: String*): Future[Seq[SearchResult]] = {
     import scala.annotation.tailrec
@@ -28,28 +26,18 @@ object Search {
         (aggr, kw) => aggr + countSubstring(tbSearchedIn.toLowerCase(Locale.ENGLISH), kw)
       }
     }
-    def getAsDescriptiveElement(uri: String): Option[DescriptiveElement] = {
-
-      val descriptiveElementLookup: Map[String, DescriptiveElement] = Map(
-        "http://www.w3.org/2000/01/rdf-schema#label" -> Label,
-        "http://www.w3.org/2000/01/rdf-schema#comment" -> Comment
-      )
-
-      descriptiveElementLookup.get(uri)
-    }
-
 
     val searchCommand = BSONDocument(
       "text" -> OntologyTriple.collection.name,
       "search" -> kws.mkString(" "),
-      "limit" -> 10
+      "limit" -> 1000
     )
     val futureResult: Future[BSONDocument] = OntologyTriple.collection.db.command(RawCommand(searchCommand))
 
-    futureResult.map {
+    futureResult.flatMap {
       bson =>
         val results = bson.getAs[BSONArray]("results").getOrElse(BSONArray.empty)
-        results.iterator.map {
+        val futuresOfResults = results.iterator.flatMap {
           case Failure(ex) => None
           case Success((idx, value: BSONDocument)) => {
             val score = value.getAs[Double]("score").get
@@ -60,82 +48,44 @@ object Search {
             val predicateHitCount = getMatchCount(kws, triple.predicate)
             val subjectHitCount = getMatchCount(kws, triple.subject)
 
+            /* Find why we found this triple as a result */
             val realHitElement = (objektHitCount :: predicateHitCount :: subjectHitCount :: Nil).view.sorted.reverse.head match {
               case `objektHitCount` => triple.objekt
               case `predicateHitCount` => triple.predicate
               case `subjectHitCount` => triple.subject
             }
 
-            val sr = realHitElement match {
+            /* Create a result object */
+            val sr: Future[SearchResult] = realHitElement match {
               case triple.objekt => {
-                val sr = SearchResult(
-                    uri = triple.objekt,
-                    kind = "TODO",
+                (if(triple.isObjectData) {
+                  OntologyTriple.getDisplayableElement(triple.subject)
+                } else {
+                  OntologyTriple.getDisplayableElement(triple.objekt)
+                }).map { de: DisplayableElement =>
+                  SearchResult(
+                    element = de,
                     score = score
-                )
-
-                getAsDescriptiveElement(triple.predicate).map {
-                  case Label => sr.copy(
-                    uri   = triple.subject,
-                    label = Some(triple.objekt)
                   )
-
-                  case Comment => sr.copy(
-                    uri     = triple.subject,
-                    comment = Some(triple.objekt)
-                  )
-                  case _ => sr
-                }.getOrElse {
-                  println("UMUT 1000 TODO")
-                  sr
                 }
               }
-              case triple.predicate => SearchResult(
-                uri = triple.predicate,
-                kind = "TODO",
-                score = score
-              )
-              case triple.subject => SearchResult(
-                uri = triple.subject,
-                kind = "TODO",
-                score = score
-              )
+              case _ => {
+                OntologyTriple.getDisplayableElement(realHitElement).map { de =>
+                  SearchResult(
+                    element = de,
+                    score = score
+                  )
+                }
+              }
             }
             Some(sr)
           }
           case Success(_) => None
-        }.foldLeft(List.empty[SearchResult]) {
-          case (previous, Some(searchResult)) => searchResult :: previous
-          case (previous, None) => previous
+        }
+
+        Future.sequence(futuresOfResults).map {
+          _.toSeq.distinct
         }
     }
   }
-//
-//  def findSubject(predicate: String, objekt: String) = {
-//    import reactivemongo.api._
-//    import play.modules.reactivemongo.MongoController
-//    import play.modules.reactivemongo.json.collection.JSONCollection
-//    import play.api.libs.json._
-//
-//    val cursor: Cursor[JsObject] = OntologyTriple.c.find(
-//        Json.obj("predicate" -> predicate, "objectO" -> objekt)
-//    ).cursor[JsObject]
-//
-//    // gather all the JsObjects in a list
-//    val futureResults: Future[List[JsObject]] = cursor.collect[List]()
-//
-//    // transform the list into a JsArray
-//    val futurePersonsJsonArray: Future[Seq[OntologyTriple]] = futureResults.map {
-//      resultList =>
-//        resultList.map {
-//          aResult: JsObject =>
-//            OntologyTriple(aResult("id").as)
-//        }
-//    }
-//
-//  }
-//  def findPredicate(predicate: String, objekt: String) = {}
-//  def findObject(predicate: String, objekt: String) = {}
-//
-//  def recursive(limit: Int=5)() = {}
 }
