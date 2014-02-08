@@ -162,11 +162,6 @@ object OntologyTriple {
     }
   }
 
-
-  sealed trait DescriptiveElement // http://stackoverflow.com/a/18595574/158523
-  object Label extends DescriptiveElement
-  object Comment extends DescriptiveElement
-
   def getSubject(predicate: String, objeckt: String): Future[Set[String]] = {
     val f: Future[List[OntologyTriple]] = collection.find(
       BSONDocument(

@@ -10,8 +10,6 @@ import java.util.Locale
 
 object Search {
 
-
-
   def findElementsByKeyword(kws: String*): Future[Seq[SearchResult]] = {
     import scala.annotation.tailrec
     def countSubstring(str1:String, str2:String):Int= {    // http://rosettacode.org/wiki/Count_occurrences_of_a_substring#Scala
