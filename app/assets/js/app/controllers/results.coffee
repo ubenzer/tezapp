@@ -20,12 +20,14 @@ ngDefine "controllers.results", [
       searchInProgress: true
     }
 
+    $scope.resultList = {}
 
     console.debug($scope.searchConfig)
     $http.post("/search", $scope.searchConfig)
 
     .success (data) ->
       console.debug(data)
+      $scope.resultList = data.searchResults;
     .error () ->
       alert("Some error occurred. Please resubmit your search. Sorry. :/")
     .finally () ->

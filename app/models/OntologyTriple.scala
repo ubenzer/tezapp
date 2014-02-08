@@ -28,7 +28,7 @@ case class OntologyTriple (
 object OntologyTriple {
   val collection: BSONCollection = ReactiveMongoPlugin.db.collection[BSONCollection]("OntologyTriple")
 
-  val MAX_SEARCH_QUERY = 1000 // TODO Move to conf
+  val MAX_SEARCH_QUERY = 5000 // TODO Move to conf
 
   implicit object OntologyTripleBSONReader extends BSONDocumentReader[OntologyTriple] {
     def read(doc: BSONDocument): OntologyTriple = {

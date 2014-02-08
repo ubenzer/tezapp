@@ -7,6 +7,7 @@ import reactivemongo.bson.{BSONArray, BSONDocument}
 import reactivemongo.core.commands.RawCommand
 import scala.util.{Success, Failure}
 import java.util.Locale
+import play.api.Logger
 
 object Search {
 
@@ -25,7 +26,8 @@ object Search {
       }
     }
 
-    val theSearchF = OntologyTriple.stringSearch(kws.mkString(" "))
+    val keywordString = kws.mkString(" ")
+    val theSearchF = OntologyTriple.stringSearch(keywordString)
 
     theSearchF.flatMap { results =>
       val futuresOfResults = results.iterator.flatMap {
@@ -74,8 +76,12 @@ object Search {
         case Success(_) => None
       }
 
-      Future.sequence(futuresOfResults).map {
-        _.toSeq.distinct
+      Future.sequence(futuresOfResults).map { i =>
+        val seq = i.toSeq
+        Logger.info(keywordString + " search has " + seq.size + " search result.")
+        val seqD = seq.distinct
+        Logger.info(keywordString + " search has " + seq.size + " unique search result.")
+        seqD
       }
     }
   }
