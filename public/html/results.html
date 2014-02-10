@@ -21,7 +21,7 @@
             <div class="entity class" ng-repeat="aResult in resultList">
 
               <span class="entity-description">
-                <i class="icon fa fa-circle fa-fw"></i><strong>( {{aResult.score | number }} ) </strong>{{ aResult.element.label }} <code>{{ aResult.element.uri }}</code> {{ aResult.element.comment | limitTo:200 }}
+                <i class="icon fa fa-circle fa-fw"></i><strong>( {{aResult.score | number }} ) </strong>{{ aResult.element.label }} <code>{{ aResult.element.uri }}</code> {{ aResult.element.kind }} - {{ aResult.element.comment | limitTo:200 }}
               </span>
 
             </div>

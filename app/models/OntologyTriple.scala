@@ -230,6 +230,7 @@ object OntologyTriple {
     }
   }
 
+  def getType(subject: String): Future[Option[String]] = _getSingleObject(subject, RDF.Type)
   def getLabel(subject: String): Future[Option[String]] = _getSingleObject(subject, RDF.Label)
   def getComment(subject: String): Future[Option[String]] = _getSingleObject(subject, RDF.Comment)
   private def _getSingleObject(subject: String, predicate: String): Future[Option[String]] = {
@@ -261,28 +262,31 @@ object OntologyTriple {
     }
   }
 
-  def getDisplayableElement(uri: String): Future[DisplayableElement] = {
+  def getDisplayableElement(uri: String): Future[Option[DisplayableElement]] = {
 
     /*  We need to fill label, description and kind for given uri */
 
     val labelF = getLabel(uri)
     val commentF = getComment(uri)
+    val typeF = getType(uri)
 
-    val f: Future[(Option[String], Option[String])] =
+    val f =
       for {
         f1 <- labelF
         f2 <- commentF
-      } yield (f1,f2)
+        f3 <- typeF
+      } yield (f1,f2, f3)
 
 
     f.map {
-      case (label, comment) =>
-        DisplayableElement(
+      case (label, comment, Some(kind)) =>
+        Some(DisplayableElement(
           uri = uri,
           label = label,
           comment = comment,
-          kind = "TODO" // TODO implement this
-        )
+          kind = kind
+        ))
+      case (label, comment, None) => None
     }
   }
 }

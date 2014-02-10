@@ -30,7 +30,7 @@ object Search {
     val theSearchF = OntologyTriple.stringSearch(keywordString)
 
     theSearchF.flatMap { results =>
-      val futuresOfResults = results.iterator.flatMap {
+      val futuresOfResults: Iterator[Future[Option[SearchResult]]] = results.iterator.flatMap {
         case Failure(ex) => None
         case Success((idx, value: BSONDocument)) => {
           val score = value.getAs[Double]("score").get
@@ -49,25 +49,29 @@ object Search {
           }
 
           /* Create a result object */
-          val sr: Future[SearchResult] = realHitElement match {
+          val sr: Future[Option[SearchResult]] = realHitElement match {
             case triple.objekt => {
               (if(triple.isObjectData) {
                 OntologyTriple.getDisplayableElement(triple.subject)
               } else {
                 OntologyTriple.getDisplayableElement(triple.objekt)
-              }).map { de: DisplayableElement =>
-                SearchResult(
-                  element = de,
-                  score = score
-                )
+              }).map {
+                case Some(de:DisplayableElement) =>
+                  Some(SearchResult(
+                    element = de,
+                    score = score
+                  ))
+                case None => None
               }
             }
             case _ => {
-              OntologyTriple.getDisplayableElement(realHitElement).map { de =>
-                SearchResult(
-                  element = de,
-                  score = score
-                )
+              OntologyTriple.getDisplayableElement(realHitElement).map {
+                case Some(de:DisplayableElement) =>
+                  Some(SearchResult(
+                    element = de,
+                    score = score
+                  ))
+                case None => None
               }
             }
           }
@@ -76,8 +80,10 @@ object Search {
         case Success(_) => None
       }
 
-      Future.sequence(futuresOfResults).map { i =>
-        val seq = i.toSeq
+      val futuresOfResultsSeq: Future[Iterator[Option[SearchResult]]] = Future.sequence(futuresOfResults)
+
+      futuresOfResultsSeq.map { i =>
+        val seq = i.flatten.toSeq
         Logger.info(keywordString + " search has " + seq.size + " search result.")
         val seqD = seq.distinct
         Logger.info(keywordString + " search has " + seqD.size + " unique search result.")
