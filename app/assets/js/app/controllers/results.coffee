@@ -33,6 +33,11 @@ ngDefine "controllers.results", [
         $scope.selectedElements[uri] = true;
     $scope.getSelectedElementCount = () -> Object.keys($scope.selectedElements).length
 
+    $scope.exportOntology = () ->
+      tripleIds = []
+      (tripleIds.push(k)) for own k of $scope.selectedElements
+      $http.post("/export", tripleIds)
+
 
     console.debug($scope.searchConfig)
     $http.post("/search", $scope.searchConfig)

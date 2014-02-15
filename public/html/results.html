@@ -12,7 +12,7 @@
       <div><!-- replace this with expandable tabs -->
         <ul class="nav nav-tabs">
           <li class="active"><a href=""><i class="fa fa-search fa-lg fa-fw "></i>Search Results</a></li>
-          <li><a href=""><i class="fa fa-check-circle fa-lg fa-fw"></i>Selected Items (4)</a></li>
+          <li><a ng-click="exportOntology()" href=""><i class="fa fa-check-circle fa-lg fa-fw"></i>Selected Items ({{ getSelectedElementCount() }})</a></li>
         </ul>
 
         <div class="tab-content">
