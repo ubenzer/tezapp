@@ -18,7 +18,10 @@
         <div class="tab-content">
           <div class="tab-pane active">
 
-            <div class="entity class" ng-repeat="aResult in resultList">
+            <div class="entity class"
+                 ng-click="toggleElement(aResult.element.uri)"
+                 ng-class="{'selected': isElementSelected(aResult.element.uri)}"
+                 ng-repeat="aResult in resultList">
 
               <span class="entity-description">
                 <i class="icon fa fa-circle fa-fw"></i><strong>( {{aResult.score | number }} ) </strong>{{ aResult.element.label }} <code>{{ aResult.element.uri }}</code> {{ aResult.element.kind }} - {{ aResult.element.comment | limitTo:200 }}
