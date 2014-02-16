@@ -2,6 +2,8 @@
 
 body.results {
 
+  /* Search Bar (Top bar) */
+  @import "results/header.less";
 
   /* Loading */
   #searchInProgress {
@@ -24,6 +26,12 @@ body.results {
     }
   }
 
+  /* Tabs */
+  ul.nav.nav-tabs a {
+    cursor: pointer;
+  }
+
+  /* TODO Polish these */
   .entity.class > .entity-description {
     .icon {
       color: #D1AE4F;
@@ -56,5 +64,7 @@ body.results {
   .selected {
     background: red;
   }
+
+
 
 }

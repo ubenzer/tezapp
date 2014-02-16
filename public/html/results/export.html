@@ -1,0 +1,54 @@
+<div ng-controller="results.export">
+  <h3 class="col-sm-offset-2">Export Ontology</h3>
+  <p class="col-sm-offset-2">Fill information bellow to finish creating your kickstarted ontology.</p>
+  <form class="form-horizontal" ng-submit="export.exportOntology()" role="form">
+    <div class="form-group">
+      <label for="fileName" class="col-sm-2 control-label">File name</label>
+      <div class="col-sm-10">
+        <input type="text" required class="form-control" id="fileName" ng-model="properties.fileName">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="format" class="col-sm-2 control-label">Format</label>
+      <div class="col-sm-10">
+        <select id="format" class="form-control">
+          <option value="RDFXML">RDF/XML</option>
+          <option value="NTRIPLES">N-Triples</option>
+          <option value="TURTLE">Turtle</option>
+          <option value="N3">N3</option>
+          <option value="TRIX">TriX</option>
+          <option value="TRIG">TriG</option>
+          <option value="BINARY">BinaryRDF</option>
+          <option value="NQUADS">N-Quads</option>
+          <option value="JSONLD">JSON-LD</option>
+          <option value="RDFJSON">RDF/JSON</option>
+          <option value="RDFA">RDFa</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="degree" class="col-sm-2 control-label">Relation degree</label>
+      <div class="col-sm-10">
+        <input type="number" class="form-control" id="degree">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 control-label">What to export</label>
+      <div class="col-sm-10">
+        <p class="form-control-static">Comments, labels, types, properties, class hierarchy and annotation properties are always exported.</p>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button type="submit" class="btn btn-primary btn-lg">
+          <span ng-hide="export.exportOngoing">
+            <i class="fa fa-rocket fa-lg"></i> Export
+          </span>
+          <span ng-show="export.exportOngoing">
+            <i class="fa fa-spinner fa-lg fa-spin"></i> Exporting...
+          </span>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

@@ -1,19 +1,24 @@
 "use strict"
 ngDefine "controllers.results", [
   "module:controllers.results.header"
+  "module:controllers.results.export"
 ], (module) ->
 
-  module.controller "results", ($scope, $state, $stateParams, SearchSerializer, UrlConfig, $http) ->
+  module.controller "results", ($scope, $state, $stateParams, SearchSerializer, SelectedItems, UrlConfig, $http) ->
+
     $scope.searchConfig = SearchSerializer.deserialize($stateParams.searchParams)
     if(!$scope.searchConfig)
       $state.go("search")
       return
+
+    SelectedItems.clear() # We don't want to keep items from previous one
 
     # Initianize page parts
     resultsPageBaseUrl = UrlConfig.htmlBaseUrl + "/results"
     # Basic configuration for subpages.
     $scope.pageParts = {
       header: resultsPageBaseUrl + "/header.html"
+      exportTab: resultsPageBaseUrl + "/export.html"
     }
     # Data for page parts
     $scope.pageControls = {
@@ -22,28 +27,7 @@ ngDefine "controllers.results", [
 
     $scope.resultList = {}
 
-    $scope.selectedElements = {} # We use instead of array due to performance reasons.
-    $scope.isElementSelected = (uri) -> $scope.selectedElements[uri]?
-    $scope.selectElement = (uri) -> $scope.selectedElements[uri] = true;
-    $scope.deselectElement = (uri) ->  delete $scope.selectedElements[uri];
-    $scope.toggleElement = (uri) ->
-      if($scope.selectedElements[uri]?)
-        delete $scope.selectedElements[uri];
-      else
-        $scope.selectedElements[uri] = true;
-    $scope.getSelectedElementCount = () -> Object.keys($scope.selectedElements).length
-
-    $scope.exportOntology = () ->
-      tripleIds = []
-      (tripleIds.push(k)) for own k of $scope.selectedElements
-      $http.post("/export", {
-        elements: tripleIds
-        properties:
-          format: "doesn't matter for now"
-      })
-
-
-    console.debug($scope.searchConfig)
+    # Do search!
     $http.post("/search", $scope.searchConfig)
       .success (data) ->
         console.debug(data)
@@ -51,6 +35,39 @@ ngDefine "controllers.results", [
       .error () ->
         alert("Some error occurred. Please resubmit your search. Sorry. :/")
       .finally () ->
-          $scope.pageControls.searchInProgress = false
+        $scope.pageControls.searchInProgress = false
+
+
+    $scope.isElementSelected = (uri) -> SelectedItems.isItemSelected(uri)
+    $scope.toggleElement = (uri) ->
+      if(SelectedItems.isItemSelected(uri))
+        SelectedItems.removeItem(uri)
+      else
+        SelectedItems.addItem(uri)
+      return
+    $scope.getSelectedElementCount = () -> SelectedItems.getSelectedCount()
 
     return
+
+  module.factory "SelectedItems", () ->
+    selectedItems = {}
+
+    api = {
+      clear: () ->
+        selectedItems = {}
+        return
+      addItem: (uri) ->
+        selectedItems[uri] = true
+        return
+      removeItem: (uri) ->
+        delete selectedItems[uri]
+        return
+      isItemSelected: (uri) ->
+        selectedItems[uri]?
+      getSelectedCount: () ->
+        Object.keys(selectedItems).length
+      getAllItems: () ->
+        angular.copy(selectedItems)
+    }
+    api
+
