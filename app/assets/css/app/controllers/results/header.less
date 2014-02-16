@@ -1,0 +1,26 @@
+@import "../../../bootstrap/variables.less";
+
+/* Header related styles */
+@media screen and (max-width: @screen-sm-min) {
+  .ngTagsInput {
+    width: 100%;
+  }
+}
+@media screen and (min-width: @screen-sm-min) {
+  .ngTagsInput {
+    width: 350px;
+  }
+}
+@media screen and (min-width: @screen-md-min) {
+  .ngTagsInput {
+    width: 600px;
+  }
+}
+.navbar {
+  margin-left: (@spacer_large * -1);
+  margin-right: (@spacer_large * -1);
+
+  .navbar-nav.navbar-right:last-child {
+    margin: 0;
+  }
+}
