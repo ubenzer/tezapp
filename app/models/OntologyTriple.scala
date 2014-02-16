@@ -230,6 +230,25 @@ object OntologyTriple {
     }
   }
 
+  def getTriplesThatIncludes(elements: String*): Future[Set[OntologyTriple]] = {
+    val f: Future[List[OntologyTriple]] = collection.find(
+      BSONDocument(
+        "elementUris" -> BSONDocument(
+          "$in" -> elements
+        )
+      )
+    ).cursor[OntologyTriple].collect[List]()
+
+    f.map {
+      ot => ot.toSet
+    } recover {
+      case e:Throwable => {
+        Logger.error("getTriplesThatIncludes failed for: " + elements.mkString(", ") + " The error is: " + e)
+        Set.empty
+      }
+    }
+  }
+
   def getType(subject: String): Future[Option[String]] = _getSingleObject(subject, RDF.Type)
   def getLabel(subject: String): Future[Option[String]] = _getSingleObject(subject, RDF.Label)
   def getComment(subject: String): Future[Option[String]] = _getSingleObject(subject, RDF.Comment)

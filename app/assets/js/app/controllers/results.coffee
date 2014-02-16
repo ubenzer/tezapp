@@ -36,7 +36,11 @@ ngDefine "controllers.results", [
     $scope.exportOntology = () ->
       tripleIds = []
       (tripleIds.push(k)) for own k of $scope.selectedElements
-      $http.post("/export", tripleIds)
+      $http.post("/export", {
+        elements: tripleIds
+        properties:
+          format: "doesn't matter for now"
+      })
 
 
     console.debug($scope.searchConfig)
