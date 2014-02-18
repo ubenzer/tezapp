@@ -7,6 +7,7 @@ GET     /                           controllers.Application.index
 
 POST    /search                     controllers.Application.search
 POST    /export                     controllers.Test.export
+GET     /exportFormats              controllers.Application.getExportFormats
 
 
 GET     /test/swoogle               controllers.Test.swoogle(keyword)

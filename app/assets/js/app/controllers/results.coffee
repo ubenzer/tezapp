@@ -4,7 +4,7 @@ ngDefine "controllers.results", [
   "module:controllers.results.export"
 ], (module) ->
 
-  module.controller "results", ($scope, $state, $stateParams, SearchSerializer, SelectedItems, UrlConfig, $http) ->
+  module.controller "results", ($scope, $state, $stateParams, SearchSerializer, SelectedItems, UrlConfig, $http, exportFormats) ->
 
     $scope.searchConfig = SearchSerializer.deserialize($stateParams.searchParams)
     if(!$scope.searchConfig)
@@ -12,6 +12,9 @@ ngDefine "controllers.results", [
       return
 
     SelectedItems.clear() # We don't want to keep items from previous one
+
+    $scope.export = {}
+    $scope.export.exportFormats = exportFormats
 
     # Initianize page parts
     resultsPageBaseUrl = UrlConfig.htmlBaseUrl + "/results"

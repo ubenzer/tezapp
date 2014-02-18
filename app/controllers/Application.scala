@@ -10,6 +10,7 @@ import common.ExecutionContexts.fastOps
 import service.FetchResult
 import service.ontologySearch.Search
 import models.{SearchResult, DisplayableElement}
+import org.openrdf.rio.RDFFormat
 
 object Application extends Controller {
   implicit val searchObjectRead: Reads[(List[String], Boolean)] =
@@ -50,14 +51,21 @@ object Application extends Controller {
                 }
             }
           }
-
-          // Do search db stuff here
-
-
-
-
       }.recoverTotal {
         e => Future.successful(BadRequest("Detected error:" + JsError.toFlatJson(e)))
       }
+  }
+
+  def getExportFormats = Action {
+    import scala.collection.JavaConversions._
+    val json = RDFFormat.values().toIterable.map {
+      aFormat =>
+        Json.obj(
+          "name" -> aFormat.getName,
+          "mime" -> aFormat.getDefaultMIMEType,
+          "extension" -> aFormat.getDefaultFileExtension
+        )
+    }.toSeq
+    Ok(JsArray(json))
   }
 }

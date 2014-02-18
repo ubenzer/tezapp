@@ -1,13 +1,16 @@
 "use strict"
 ngDefine "controllers.results.export", ["Blob", "FileSaver"], (module) ->
   module.controller "results.export", ($scope, $http, SelectedItems, $filter) ->
+    if(!angular.isObject($scope.export)) then throw new Error("We need export to be defined in scope")
+    if(!angular.isArray($scope.export.exportFormats)) then throw new Error("We need exportFormats to be defined in scope")
 
     $scope.properties = {
       fileName: "TOK Export " + $filter('date')(new Date())
+      format: $scope.export.exportFormats[0].name
     }
 
-    $scope.export = {}
-
+    $scope.export = $scope.export || {}
+    $scope.export.exportFormats = $scope.export.exportFormats || []
     $scope.export.exportOngoing = false
     $scope.export.exportOntology = () ->
       if($scope.export.exportOngoing) then return

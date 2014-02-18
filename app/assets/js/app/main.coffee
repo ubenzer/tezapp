@@ -34,6 +34,12 @@ ngDefine "main", [
       url: "/s/*searchParams"
       templateUrl: UrlConfig.htmlBaseUrl + "/results.html"
       controller: "results"
+      resolve:
+        exportFormats: ($http) ->
+          $http.get("/exportFormats")
+          .then (response) ->
+            response.data
+
     return
   .controller "app", ($rootScope, $state) ->
       $rootScope.$state = $state
