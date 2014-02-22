@@ -94,7 +94,7 @@ object Test extends Controller {
           Ok.chunked(dataContent)
 
     }.recoverTotal {
-      e => BadRequest("Detected error:" + JsError.toFlatJson(e))
+      e => BadRequest(JsError.toFlatJson(e))
     }
   }
 }
