@@ -53,7 +53,10 @@ object Test extends Controller {
 
           def isBlankNode(uri: String) = uri.indexOf(':') < 0
 
-          OntologyTriple.getTriplesThatIncludes(elements:_*).map {
+          OntologyTriple.getRecursive(elements, degree)(OntologyTriple.getTriplesThatIncludes){
+            x: OntologyTriple =>
+              Set(x.subject :: x.predicate :: (if(!x.isObjectData) { List(x.objekt) } else { Nil }))
+          }.map {
             triples =>
               val writer: RDFWriter = Rio.createWriter(formatObj.getOrElse(RDFFormat.RDFXML), out)
               writer.startRDF()
