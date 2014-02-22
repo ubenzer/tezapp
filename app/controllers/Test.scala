@@ -15,6 +15,7 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.Logger
+import common.RDFExport
 
 object Test extends Controller {
 
@@ -41,7 +42,7 @@ object Test extends Controller {
     {
       (__ \ "elements").read[List[String]] and
       (__ \ "properties" \ "format").read[String] and
-      (__ \ "properties" \ "degree").read[Int](min(0) or max(5))
+      (__ \ "properties" \ "degree").read[Int](min(0) or max(2))
     }.tupled
   def export() = Action(parse.json) {
     request =>
@@ -57,9 +58,38 @@ object Test extends Controller {
 
           OntologyTriple.getRecursive(elements, degree)(OntologyTriple.getTriplesThatIncludes){
             x: OntologyTriple =>
-              Set(x.subject :: x.predicate :: (if(!x.isObjectData) { List(x.objekt) } else { Nil }))
+              Set(
+                (if(RDFExport.isUriACommonOntologyThing(x.subject)) { List.empty } else { List(x.subject) }) ++
+                (if(RDFExport.isUriACommonOntologyThing(x.predicate)) { List.empty } else { List(x.predicate) }) ++
+                (if(!x.isObjectData && !RDFExport.isUriACommonOntologyThing(x.objekt)) { List(x.objekt) } else { List.empty }) ++
+                Nil
+              )
+          }.flatMap {
+           triples =>
+            val withExportTriples: Future[Set[OntologyTriple]] = Future.sequence {
+              triples.map {
+                triple =>
+                  val allExportedKinds: Future[Set[OntologyTriple]] = Future.sequence {
+                    RDFExport.INCLUDE_IN_ALL_EXPORTS.map {
+                      include =>
+                        val exportedKind: Future[Set[OntologyTriple]] = OntologyTriple.getRecursive(triple.subject, 10) {
+                          subject: String =>
+                            OntologyTriple.getTriple(Some(subject), Some(include))
+                        }{
+                          x => Set(x.subject, x.predicate) ++ (if(x.isObjectData) { Set.empty } else { Set(x.objekt) })
+                        }
+                        exportedKind
+                    }
+                  }.map { x => x.toSet.flatten }
+                  allExportedKinds
+              }
+            }.map { x => x.toSet.flatten }
+            withExportTriples.map {
+              x => x ++ triples
+            }
           }.map {
             triples =>
+              Logger.info("Starting writing ontology for export...")
               val writer: RDFWriter = Rio.createWriter(formatObj.getOrElse(RDFFormat.RDFXML), out)
               writer.startRDF()
 
@@ -77,12 +107,9 @@ object Test extends Controller {
                       }
                     )
                     writer.handleStatement(s)
-
                   }
               }
-
               writer.endRDF()
-
               out.close()
           } recover {
             case e:Throwable =>

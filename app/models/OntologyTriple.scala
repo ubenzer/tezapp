@@ -230,6 +230,27 @@ object OntologyTriple {
     }
   }
 
+  def getTriple(subject: Option[String] = None, predicate: Option[String] = None, objekt: Option[String] = None): Future[Set[OntologyTriple]] = {
+    if(!subject.isDefined && !predicate.isDefined && !objekt.isDefined) {
+      return Future.successful(Set.empty)
+    }
+
+    val query: List[(String, BSONValue)] = subject.map(x => List("subject" -> BSONString(x))).getOrElse(List.empty) ++
+                predicate.map(x => List("predicate" -> BSONString(x))).getOrElse(List.empty) ++
+                predicate.map(x => List("objeckt" -> BSONString(x))).getOrElse(List.empty)
+
+    val f: Future[Set[OntologyTriple]] = collection.find(
+      BSONDocument(query)
+    ).cursor[OntologyTriple].collect[Set]()
+
+    f.recover {
+      case e:Throwable => {
+        Logger.error("getSubject failed with subject: " + subject + " predicate: " + predicate + " The error is: " + e)
+        Set.empty
+      }
+    }
+  }
+
   def getTriplesThatIncludes(elements: String*): Future[Set[OntologyTriple]] = {
     val f: Future[List[OntologyTriple]] = collection.find(
       BSONDocument(
@@ -250,6 +271,7 @@ object OntologyTriple {
   }
 
   def getRecursive[I,O](queryElement: I, recursionCount:Int = 5)(fetchFunction: I => Future[Set[O]])(transformFunction: O => Set[I]): Future[Set[O]] = {
+    Logger.info("Recursive, recursion count=" + recursionCount)
     val fetchedFutureSet: Future[Set[O]] = fetchFunction(queryElement)
     if(recursionCount == 0) {
       fetchedFutureSet

@@ -26,7 +26,7 @@ ngDefine "controllers.results.export", ["Blob", "FileSaver"], (module) ->
         elements: tripleIds
         properties:
           format: selectedFormat.name
-          degree: $scope.properties.degree
+          degree: $scope.properties.degree - 1 # They start from 0 on server side...
       })
       .success (data) ->
         blob = new Blob([data], {type: selectedFormat.mime + ";charset=" + document.characterSet})
