@@ -258,7 +258,7 @@ object OntologyTriple {
           "$in" -> elements
         )
       )
-    ).cursor[OntologyTriple].collect[List](500)
+    ).cursor[OntologyTriple].collect[List](500)  // TODO MOVE TO CONF
 
     f.map {
       ot => ot.toSet
@@ -271,7 +271,6 @@ object OntologyTriple {
   }
 
   def getRecursive[I,O](queryElement: I, recursionCount:Int = 5)(fetchFunction: I => Future[Set[O]])(transformFunction: O => Set[I]): Future[Set[O]] = {
-    Logger.info("Recursive, recursion count=" + recursionCount)
     val fetchedFutureSet: Future[Set[O]] = fetchFunction(queryElement)
     if(recursionCount == 0) {
       fetchedFutureSet
