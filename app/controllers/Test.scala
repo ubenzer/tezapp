@@ -38,16 +38,16 @@ object Test extends Controller {
     }
   }
 
-  implicit val searchObjectRead: Reads[(List[String], String, Int)] =
+  implicit val searchObjectRead: Reads[(List[String], String, Boolean)] =
     {
       (__ \ "elements").read[List[String]] and
       (__ \ "properties" \ "format").read[String] and
-      (__ \ "properties" \ "degree").read[Int](min(0) or max(2))
+      (__ \ "properties" \ "neighbours").read[Boolean]
     }.tupled
   def export() = Action(parse.json) {
     request =>
-      request.body.validate[(List[String], String, Int)].map {
-        case (elements: List[String], format: String, degree: Int) =>
+      request.body.validate[(List[String], String, Boolean)].map {
+        case (elements: List[String], format: String, neighbours: Boolean) =>
 
           val formatObj = Option(RDFFormat.valueOf(format))
 
@@ -56,7 +56,7 @@ object Test extends Controller {
 
           def isBlankNode(uri: String) = uri.indexOf(':') < 0
 
-          OntologyTriple.getRecursive(elements, degree)(OntologyTriple.getTriplesThatIncludes){
+          OntologyTriple.getRecursive(elements, if(neighbours) {1} else {0})(OntologyTriple.getTriplesThatIncludes){
             x: OntologyTriple =>
               Set(
                 (if(RDFExport.isUriACommonOntologyThing(x.subject)) { List.empty } else { List(x.subject) }) ++
