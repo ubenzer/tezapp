@@ -249,18 +249,18 @@ object OntologyTriple {
     }
   }
 
-  def getRecursive[T](queryElement: String, recursionCount:Int = 5)(fetchFunction: String => Future[Set[T]])(transformFunction: T => Set[String]): Future[Set[T]] = {
-    val fetchedFutureSet: Future[Set[T]] = fetchFunction(queryElement)
+  def getRecursive[I,O](queryElement: I, recursionCount:Int = 5)(fetchFunction: I => Future[Set[O]])(transformFunction: O => Set[I]): Future[Set[O]] = {
+    val fetchedFutureSet: Future[Set[O]] = fetchFunction(queryElement)
     if(recursionCount == 0) {
       fetchedFutureSet
     } else {
-      val nextPhase: Future[Set[T]] = fetchedFutureSet.flatMap {
-        fetchedSet: Set[T] =>
-          val f2: Set[Future[Set[T]]] = fetchedSet.map {
-            fetched: T =>
-              val candidates: Set[String] = transformFunction(fetched)
-              val candidatesProcessed: Set[Future[Set[T]]] = candidates.map {
-                candidate: String =>
+      val nextPhase: Future[Set[O]] = fetchedFutureSet.flatMap {
+        fetchedSet: Set[O] =>
+          val f2: Set[Future[Set[O]]] = fetchedSet.map {
+            fetched: O =>
+              val candidates: Set[I] = transformFunction(fetched)
+              val candidatesProcessed: Set[Future[Set[O]]] = candidates.map {
+                candidate: I =>
                   getRecursive(candidate, recursionCount - 1)(fetchFunction)(transformFunction)
               }
               Future.sequence(candidatesProcessed).map { flatten => flatten.flatten }
