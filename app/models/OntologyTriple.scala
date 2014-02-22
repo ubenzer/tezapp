@@ -249,6 +249,28 @@ object OntologyTriple {
     }
   }
 
+  def getRecursive[T](queryElement: String, recursionCount:Int = 5)(fetchFunction: String => Future[Set[T]])(transformFunction: T => Set[String]): Future[Set[T]] = {
+    val fetchedFutureSet: Future[Set[T]] = fetchFunction(queryElement)
+    if(recursionCount == 0) {
+      fetchedFutureSet
+    } else {
+      val nextPhase: Future[Set[T]] = fetchedFutureSet.flatMap {
+        fetchedSet: Set[T] =>
+          val f2: Set[Future[Set[T]]] = fetchedSet.map {
+            fetched: T =>
+              val candidates: Set[String] = transformFunction(fetched)
+              val candidatesProcessed: Set[Future[Set[T]]] = candidates.map {
+                candidate: String =>
+                  getRecursive(candidate, recursionCount - 1)(fetchFunction)(transformFunction)
+              }
+              Future.sequence(candidatesProcessed).map { flatten => flatten.flatten }
+          }
+          Future.sequence(f2).map { flatten => flatten.flatten }
+      }
+      Future.sequence(Set(fetchedFutureSet, nextPhase)).map { flatten => flatten.flatten }
+    }
+  }
+
   def getType(subject: String): Future[Option[String]] = _getSingleObject(subject, RDF.Type)
   def getLabel(subject: String): Future[Option[String]] = _getSingleObject(subject, RDF.Label)
   def getComment(subject: String): Future[Option[String]] = _getSingleObject(subject, RDF.Comment)
