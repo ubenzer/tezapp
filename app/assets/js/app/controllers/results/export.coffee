@@ -6,7 +6,7 @@ ngDefine "controllers.results.export", ["Blob", "FileSaver"], (module) ->
 
     $scope.properties = {
       fileName: "TOK Export " + $filter('date')(new Date())
-      format: $scope.export.exportFormats[0].name
+      format: $scope.export.exportFormats[0]
     }
 
     $scope.export = $scope.export || {}
@@ -19,14 +19,17 @@ ngDefine "controllers.results.export", ["Blob", "FileSaver"], (module) ->
       tripleIds = []
       (tripleIds.push(k)) for own k of SelectedItems.getAllItems()
 
+      selectedFormat = $scope.properties.format
+
       $http.post("/export", {
         elements: tripleIds
         properties:
-          format: "doesn't matter for now"
+          format: selectedFormat.name
+          degree: $scope.properties.degree
       })
       .success (data) ->
-        blob = new Blob([data], {type: "text/plain;charset=" + document.characterSet})
-        saveAs(blob, $scope.properties.fileName + ".owl")
+        blob = new Blob([data], {type: selectedFormat.mime + ";charset=" + document.characterSet})
+        saveAs(blob, $scope.properties.fileName + "." + selectedFormat.extension)
         return
       .finally () ->
         $scope.export.exportOngoing = false

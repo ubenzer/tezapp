@@ -46,6 +46,8 @@ object Test extends Controller {
       request.body.validate[(List[String], String)].map {
         case (elements: List[String], format: String) =>
 
+          val formatObj = Option(RDFFormat.valueOf(format))
+
           val in = new PipedInputStream()
           val out = new PipedOutputStream(in)
 
@@ -53,7 +55,7 @@ object Test extends Controller {
 
           OntologyTriple.getTriplesThatIncludes(elements:_*).map {
             triples =>
-              val writer: RDFWriter = Rio.createWriter(RDFFormat.RDFXML, out)
+              val writer: RDFWriter = Rio.createWriter(formatObj.getOrElse(RDFFormat.RDFXML), out)
               writer.startRDF()
 
               triples.foreach {
