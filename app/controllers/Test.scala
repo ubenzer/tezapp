@@ -13,6 +13,7 @@ import org.openrdf.model.Statement
 import org.openrdf.model.impl.{LiteralImpl, URIImpl, StatementImpl}
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.libs.json.Reads._
 import play.api.Logger
 
 object Test extends Controller {
@@ -36,15 +37,16 @@ object Test extends Controller {
     }
   }
 
-  implicit val searchObjectRead: Reads[(List[String], String)] =
+  implicit val searchObjectRead: Reads[(List[String], String, Int)] =
     {
-      (JsPath \ "elements").read[List[String]] and
-      (JsPath \ "properties" \ "format").read[String]
+      (__ \ "elements").read[List[String]] and
+      (__ \ "properties" \ "format").read[String] and
+      (__ \ "properties" \ "degree").read[Int](min(0) or max(5))
     }.tupled
   def export() = Action(parse.json) {
     request =>
-      request.body.validate[(List[String], String)].map {
-        case (elements: List[String], format: String) =>
+      request.body.validate[(List[String], String, Int)].map {
+        case (elements: List[String], format: String, degree: Int) =>
 
           val formatObj = Option(RDFFormat.valueOf(format))
 

@@ -7,6 +7,7 @@ ngDefine "controllers.results.export", ["Blob", "FileSaver"], (module) ->
     $scope.properties = {
       fileName: "TOK Export " + $filter('date')(new Date())
       format: $scope.export.exportFormats[0]
+      degree: 1
     }
 
     $scope.export = $scope.export || {}
