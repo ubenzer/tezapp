@@ -66,9 +66,27 @@ body.results {
     margin-left: 20px;
   }
 
-  .selected {
-    background: red;
+  .entity {
+    margin: 2px 0;
+    padding: 1px 0 3px 5px;
+    border: 1px solid transparent;
+
+    &.selected {
+      border: 1px solid @btn-primary-border;
+      color: @btn-primary-color;
+      background: @btn-primary-bg;
+      border-radius: 3px;
+      .label {
+        color: @btn-primary-bg;
+        background: @btn-primary-color;
+      }
+    }
+
+    & > .entity-description {
+      cursor: pointer;
+    }
   }
+
 
 
 

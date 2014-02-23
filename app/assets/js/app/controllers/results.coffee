@@ -54,7 +54,8 @@ ngDefine "controllers.results", [
         result.element.kindPretty = PrettyNaming.for(result.element.kind)
         result.element.className = PrettyNaming.classNameFor(result.element.kind)
         result.element.popover =
-          "<strong>Type:</strong> " + result.element.kindPretty + "<br />"
+          "<p><strong>Type:</strong> " + result.element.kindPretty + "</p>" +
+          "<p><small>" + (result.element.comment || "") + "</small></p>"
       results
 
     return
