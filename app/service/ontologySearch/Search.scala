@@ -1,10 +1,9 @@
 package service.ontologySearch
 
 import models.{DisplayableElement, SearchResult, OntologyTriple}
-import scala.concurrent.{Future}
+import scala.concurrent.Future
 import common.ExecutionContexts.fastOps
-import reactivemongo.bson.{BSONArray, BSONDocument}
-import reactivemongo.core.commands.RawCommand
+import reactivemongo.bson.BSONDocument
 import scala.util.{Success, Failure}
 import java.util.Locale
 import play.api.Logger
@@ -32,7 +31,7 @@ object Search {
     theSearchF.flatMap { results =>
       val futuresOfResults: Iterator[Future[Option[SearchResult]]] = results.iterator.flatMap {
         case Failure(ex) => None
-        case Success((idx, value: BSONDocument)) => {
+        case Success((idx, value: BSONDocument)) =>
           val score = value.getAs[Double]("score").get
           val triple = value.getAs[OntologyTriple]("obj").get
 
@@ -50,7 +49,7 @@ object Search {
 
           /* Create a result object */
           val sr: Future[Option[SearchResult]] = realHitElement match {
-            case triple.objekt => {
+            case triple.objekt =>
               (if(triple.isObjectData) {
                 OntologyTriple.getDisplayableElement(triple.subject)
               } else {
@@ -63,8 +62,7 @@ object Search {
                   ))
                 case None => None
               }
-            }
-            case _ => {
+            case _ =>
               OntologyTriple.getDisplayableElement(realHitElement).map {
                 case Some(de:DisplayableElement) =>
                   Some(SearchResult(
@@ -73,10 +71,8 @@ object Search {
                   ))
                 case None => None
               }
-            }
           }
           Some(sr)
-        }
         case Success(_) => None
       }
 
