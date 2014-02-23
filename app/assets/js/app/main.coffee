@@ -2,6 +2,7 @@
 ngDefine "main", [
   # 3rd party
   "angular-animate"
+  "module:ngSanitize:angular-sanitize"
   "module:ui.bootstrap:ui-bootstrap"
   "module:ui.router:ui-router"
   "module:ngTagsInput:ng-tags-input"
