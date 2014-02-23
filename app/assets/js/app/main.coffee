@@ -14,7 +14,7 @@ ngDefine "main", [
   "module:controllers.results"
 
   # Services
-  "module:services.searchSerializer"
+  "module:services.SearchSerializer"
   "module:services.PrettyNaming"
 
 ], (module) ->

@@ -1,5 +1,5 @@
 "use strict"
-ngDefine "services.searchSerializer", (module) ->
+ngDefine "services.SearchSerializer", (module) ->
 
   module.factory "SearchSerializer", ($log) ->
 
