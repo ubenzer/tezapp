@@ -4,7 +4,7 @@ ngDefine "controllers.results", [
   "module:controllers.results.export"
 ], (module) ->
 
-  module.controller "results", ($scope, $state, $stateParams, SearchSerializer, SelectedItems, UrlConfig, $http, exportFormats) ->
+  module.controller "results", ($scope, $state, $stateParams, SearchSerializer, SelectedItems, UrlConfig, $http, exportFormats, PrettyNaming) ->
 
     $scope.searchConfig = SearchSerializer.deserialize($stateParams.searchParams)
     if(!$scope.searchConfig)
@@ -33,8 +33,7 @@ ngDefine "controllers.results", [
     # Do search!
     $http.post("/search", $scope.searchConfig)
       .success (data) ->
-        console.debug(data)
-        $scope.resultList = data.searchResults;
+        $scope.resultList = processResults(data.searchResults)
       .error () ->
         alert("Some error occurred. Please resubmit your search. Sorry. :/")
       .finally () ->
@@ -49,6 +48,14 @@ ngDefine "controllers.results", [
         SelectedItems.addItem(uri)
       return
     $scope.getSelectedElementCount = () -> SelectedItems.getSelectedCount()
+
+    processResults = (results) ->
+      for result in results
+        result.element.kindPretty = PrettyNaming.for(result.element.kind)
+        result.element.className = PrettyNaming.classNameFor(result.element.kind)
+        result.element.popover =
+          "<strong>Type:</strong> " + result.element.kindPretty + "<br />"
+      results
 
     return
 

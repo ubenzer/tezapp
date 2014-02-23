@@ -16,20 +16,20 @@
             <i class="fa fa-search fa-lg fa-fw"></i>Search Results
           </tab-heading>
 
-          <div class="entity class"
+          <div class="entity {{aResult.element.className}}"
                ng-click="toggleElement(aResult.element.uri)"
                ng-class="{'selected': isElementSelected(aResult.element.uri)}"
                ng-repeat="aResult in resultList">
 
-            <span class="entity-description">
-              <i class="icon fa fa-circle fa-fw"></i><strong>( {{aResult.score | number }} ) </strong>{{ aResult.element.label }} <code>{{ aResult.element.uri }}</code> {{ aResult.element.kind }} - {{ aResult.element.comment | limitTo:200 }}
+            <span class="entity-description" popover-title="{{ aResult.element.label }}" popover="{{ aResult.element.popover }}" popover-trigger="mouseenter">
+              <i class="icon fa fa-circle fa-fw"></i><strong>( {{aResult.score | number }} ) </strong>{{ aResult.element.label }} <code>{{ aResult.element.uri }}</code> {{ aResult.element.comment | limitTo:200 }}
             </span>
 
           </div>
 
           <div class="entity class">
 
-            <span class="entity-description" popover-title="Pizza" popover="I need to put html here somehow..." popover-trigger="mouseenter">
+            <span class="entity-description">
               <i class="icon fa fa-circle fa-fw"></i>Pizza
             </span>
 
@@ -172,9 +172,6 @@
             </div>
           </div>
 
-          <div class="entity property object-property">
-            <i class="icon fa fa-circle fa-fw"></i>is component of
-          </div>
           <div class="entity instance">
             <i class="icon fa fa-circle fa-fw"></i>Pizza Hut
           </div>
