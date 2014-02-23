@@ -5,7 +5,7 @@ ngDefine "controllers.results.export", ["Blob", "FileSaver"], (module) ->
     if(!angular.isArray($scope.export.exportFormats)) then throw new Error("We need exportFormats to be defined in scope")
 
     $scope.properties = {
-      fileName: "TOK Export " + $filter('date')(new Date())
+      fileName: "TOK Export " + $filter('date')(new Date()) + " " + $filter('date')(new Date(),"shortTime")
       format: $scope.export.exportFormats[0]
       neighbours: false
     }
