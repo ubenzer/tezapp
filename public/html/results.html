@@ -26,7 +26,7 @@
 
         <tab ng-repeat="entityDetail in entityDetails" active="entityDetail.active">
           <tab-heading>
-            <i class="icon fa fa-circle fa-fw"></i>{{entityDetail.title | limitTo: 10}}&nbsp;<button class="btn btn-link btn-xs" ng-click="entityDetail.close()"><i class="fa fa-times"></i></button>
+            <i class="icon fa fa-circle fa-fw entity-icon {{entityDetail.className}}"></i>{{entityDetail.title | limitTo: 10}}&nbsp;<button class="btn btn-link btn-xs" ng-click="entityDetail.close()"><i class="fa fa-times"></i></button>
           </tab-heading>
 
           <ng-include src="pageParts.entityDetailTab"></ng-include>

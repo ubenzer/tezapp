@@ -1,6 +1,6 @@
 <div ng-controller="results.entityDetail">
   <h2>
-    <i class="icon fa fa-circle fa-fw entity-icon {{entity.element.className}}"></i>
+    <i class="icon fa fa-circle fa-fw entity-icon {{entity.className}}"></i>
     <span>{{ entity.title }}</span>
     <button ng-if="isElementSelected(entity.uri)" ng-click="removeItem(entity.uri)" class="btn btn-lg btn-primary"><i class="fa fa-lg fa-check-circle"></i> <strong>Included</strong></button>
     <button ng-if="!isElementSelected(entity.uri)" ng-click="addItem(entity.uri)" class="btn btn-lg btn-info"><i class="fa fa-lg fa-puzzle-piece"></i> Include this</button>
