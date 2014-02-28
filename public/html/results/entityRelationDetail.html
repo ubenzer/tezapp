@@ -1,0 +1,69 @@
+<div class="row relation" ng-controller="results.entityRelationDetail">
+  <div class="col-md-12">
+    <h5>{{ entityRelationType.name }}</h5>
+  </div>
+
+  <div class="row" ng-if="loading">
+    <div class="col-md-12">
+      <small><i class="fa fa-lg fa-spinner fa-spin"></i> Loading...</small>
+    </div>
+  </div>
+  <div class="row" ng-if="error">
+    <div class="col-md-12">
+      <small><i class="fa fa-lg fa-thumbs-down"></i> Failed loading. :/ <button class="btn-xs btn btn-success" ng-click="load()">Try again?</button></small>
+    </div>
+  </div>
+  <div class="row" ng-if="!loading && !error">
+
+    <div class="col-md-4">
+
+      <div class="entity class">
+                        <span class="entity-description" popover-title="Pizza" popover="I need to put html here somehow..." popover-trigger="mouseenter">
+                          <i class="icon fa fa-circle fa-fw"></i>Pizza
+                        </span>
+      </div>
+
+      <div class="entity class">
+                        <span class="entity-description">
+                          <i class="icon fa fa-circle fa-fw"></i>Fanta
+                        </span>
+      </div>
+
+    </div>
+    <div class="col-md-4">
+
+      <div class="entity class">
+                        <span class="entity-description">
+                          <i class="icon fa fa-circle fa-fw"></i>Soft Drink
+                        </span>
+      </div>
+
+      <div class="entity class">
+                        <span class="entity-description">
+                          <i class="icon fa fa-circle fa-fw"></i>Aqua Hatua
+                        </span>
+      </div>
+
+    </div>
+    <div class="col-md-4">
+
+      <div class="entity class">
+                        <span class="entity-description">
+                          <i class="icon fa fa-circle fa-fw"></i>Drink
+                        </span>
+      </div>
+
+      <div class="entity class">
+                        <span class="entity-description">
+                          <i class="icon fa fa-circle fa-fw"></i>Lorem ipsum
+                        </span>
+      </div>
+
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <button class="btn btn-large btn-default btn-block" ng-show="hasMoreResults()" ng-click="showMoreResults()">Show more</button>
+    </div>
+  </div>
+</div>

@@ -1,5 +1,4 @@
 <div ng-controller="results.entityDetail">
-
   <h2>
     <i class="icon fa fa-circle fa-fw entity-icon {{entity.element.className}}"></i>
     <span>{{ entity.title }}</span>
@@ -9,99 +8,9 @@
   <span ng-if="entity.title != entity.uri" class="label label-default">{{ entity.uri }}</span>
   <p>{{ entity.comment }}</p>
 
-
-  <div class="entity-relations row">
-    <div class="col-md-6">
-
-      <div class="row relation domain">
-        <div class="col-md-12">
-          <h5>has domains</h5>
-        </div>
-
-
-        <div class="row">
-          <div class="col-md-4">
-
-            <div class="entity class">
-                        <span class="entity-description" popover-title="Pizza" popover="I need to put html here somehow..." popover-trigger="mouseenter">
-                          <i class="icon fa fa-circle fa-fw"></i>Pizza
-                        </span>
-            </div>
-
-            <div class="entity class">
-                        <span class="entity-description">
-                          <i class="icon fa fa-circle fa-fw"></i>Fanta
-                        </span>
-            </div>
-
-          </div>
-          <div class="col-md-4">
-
-            <div class="entity class">
-                        <span class="entity-description">
-                          <i class="icon fa fa-circle fa-fw"></i>Soft Drink
-                        </span>
-            </div>
-
-            <div class="entity class">
-                        <span class="entity-description">
-                          <i class="icon fa fa-circle fa-fw"></i>Aqua Hatua
-                        </span>
-            </div>
-
-          </div>
-          <div class="col-md-4">
-
-            <div class="entity class">
-                        <span class="entity-description">
-                          <i class="icon fa fa-circle fa-fw"></i>Drink
-                        </span>
-            </div>
-
-            <div class="entity class">
-                        <span class="entity-description">
-                          <i class="icon fa fa-circle fa-fw"></i>Lorem ipsum
-                        </span>
-            </div>
-
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-12">
-            <button class="btn btn-large btn-default btn-block" ng-show="hasMoreResults()" ng-click="showMoreResults()">Show more</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-6">
-
-      <div class="row relation range">
-        <div class="col-md-12">
-          <h6>has ranges</h6>
-        </div>
-      </div>
-
-    </div>
-  </div>
-  <div class="entity-relations row">
-    <div class="col-md-6">
-
-      <div class="row">
-        <div class="col-md-12">
-          <h6>has subproperties</h6>
-        </div>
-      </div>
-
-    </div>
-    <div class="col-md-6">
-
-      <div class="row">
-        <div class="col-md-12">
-          <h6>has superproperties</h6>
-        </div>
-      </div>
-
+  <div class="entity-relations row" ng-repeat="entityRelationTypes in columnEntityRelationTypes">
+    <div class="col-md-6" ng-repeat="entityRelationType in entityRelationTypes">
+      <ng-include src="pageParts.entityRelationDetail"></ng-include>
     </div>
   </div>
 </div>

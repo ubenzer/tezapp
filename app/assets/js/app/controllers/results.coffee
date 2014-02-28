@@ -24,6 +24,8 @@ ngDefine "controllers.results", [
       header: resultsPageBaseUrl + "/header.html"
       exportTab: resultsPageBaseUrl + "/export.html"
       entityDetailTab: resultsPageBaseUrl + "/entityDetail.html"
+      entityRelationTab: resultsPageBaseUrl + "/entityRelation.html"
+      entityRelationDetail: resultsPageBaseUrl + "/entityRelationDetail.html"
     }
     # Data for page parts
     $scope.pageControls = {
