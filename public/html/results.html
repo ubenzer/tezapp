@@ -19,7 +19,7 @@
           <div class="entity {{aResult.element.className}}"
                ng-click="toggleElement(aResult.element.uri)"
                ng-class="{'selected': isElementSelected(aResult.element.uri)}"
-               ng-repeat="aResult in resultList"
+               ng-repeat="aResult in resultList | limitTo: resultLimit"
               >
 
             <span class="entity-description"
@@ -32,8 +32,9 @@
               <span class="label label-default">{{ aResult.element.uri }}</span>
               <small>{{ aResult.element.comment | limitTo: 50 }}</small>
             </span>
-
           </div>
+
+          <button class="btn btn-large btn-default btn-block" ng-show="hasMoreResults()" ng-click="showMoreResults()">Show more</button>
 
 
           <div class="entity property data-property">

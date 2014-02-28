@@ -28,7 +28,10 @@ ngDefine "controllers.results", [
       searchInProgress: true
     }
 
-    $scope.resultList = {}
+    $scope.resultList = []
+    $scope.resultLimit = 20
+    $scope.showMoreResults = () -> $scope.resultLimit += 50
+    $scope.hasMoreResults = () -> $scope.resultLimit < $scope.resultList.length
 
     # Do search!
     $http.post("/search", $scope.searchConfig)
