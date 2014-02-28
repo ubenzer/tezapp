@@ -22,6 +22,7 @@ ngDefine "controllers.results", [
     $scope.pageParts = {
       header: resultsPageBaseUrl + "/header.html"
       exportTab: resultsPageBaseUrl + "/export.html"
+      entityDetailTab: resultsPageBaseUrl + "/entityDetail.html"
     }
     # Data for page parts
     $scope.pageControls = {
@@ -60,6 +61,12 @@ ngDefine "controllers.results", [
           "<p><strong>Type:</strong> " + result.element.kindPretty + "</p>" +
           "<p><small>" + (result.element.comment || "") + "</small></p>"
       results
+
+    $scope.entityDetails = []
+    $scope.showEntityDetail = (maybeEvent) ->
+      if(maybeEvent?) then maybeEvent.stopPropagation()
+      $scope.entityDetails.push({title:"ahaha", active:true, data: "ehehe"})
+      return
 
     return
 
