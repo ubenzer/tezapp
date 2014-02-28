@@ -2,14 +2,17 @@
 ngDefine "controllers.results.entityDetail", [
   "module:controllers.results.entityRelationDetail"
 ], (module) ->
-  module.controller "results.entityDetail", ($scope) ->
-    if(!angular.isObject($scope.entityDetail?.searchResultObj)) then throw new Error("We need entityDetail#searchResultObj to be defined in scope")
+  module.controller "results.entityDetail", ($scope, SelectedItems, Utils, PrettyNaming) ->
+    if(!angular.isObject($scope.entityDetail?.entityObj)) then throw new Error("We need entityDetail#entityObj to be defined in scope")
     if(!angular.isString($scope.pageParts?.entityDetailTab)) then throw new Error("We need pageParts#entityDetailTab to be defined in scope")
-    if(!angular.isFunction($scope.isElementSelected)) then throw new Error("We need isElementSelected to be defined in scope")
-    if(!angular.isFunction($scope.removeItem)) then throw new Error("We need removeItem to be defined in scope")
-    if(!angular.isFunction($scope.addItem)) then throw new Error("We need addItem to be defined in scope")
-    $scope.entity = $scope.entityDetail.searchResultObj.element
+
+    $scope.removeItem = (uri) -> SelectedItems.removeItem(uri)
+    $scope.addItem = (uri) -> SelectedItems.addItem(uri)
+    $scope.isElementSelected = (uri) -> SelectedItems.isItemSelected(uri)
+
+    $scope.entity = $scope.entityDetail.entityObj
     $scope.entity.title = $scope.entity.label || $scope.entity.uri
+    $scope.entity.className = PrettyNaming.classNameFor($scope.entity.kind)
 
     $scope.columnEntityRelationTypes = []
 

@@ -3,9 +3,7 @@ ngDefine "controllers.results.entityRelationDetail", (module) ->
   module.controller "results.entityRelationDetail", ($scope, $http) ->
     if(!angular.isObject($scope.entityRelationType)) then throw new Error("We need entityRelationType to be defined in scope")
     if(!angular.isString($scope.entity?.uri)) then throw new Error("We need entity#uri to be defined in scope")
-    if(!angular.isFunction($scope.isElementSelected)) then throw new Error("We need isElementSelected to be defined in scope")
-    if(!angular.isFunction($scope.removeItem)) then throw new Error("We need removeItem to be defined in scope")
-    if(!angular.isFunction($scope.addItem)) then throw new Error("We need addItem to be defined in scope")
+    if(!angular.isString($scope.pageParts?.genericEntity)) then throw new Error("We need pageParts#genericEntity to be defined in scope")
 
     $scope.showMoreResults = () -> $scope.resultLimit += 50
     $scope.hasMoreResults = () -> $scope.resultLimit < $scope.relations.length

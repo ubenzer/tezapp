@@ -16,24 +16,10 @@
             <i class="fa fa-search fa-lg fa-fw"></i>Search Results
           </tab-heading>
 
-          <div class="entity {{aResult.element.className}}"
-               ng-click="toggleElement(aResult.element.uri)"
-               ng-class="{'selected': isElementSelected(aResult.element.uri)}"
-               ng-repeat="aResult in resultList | limitTo: resultLimit"
-              >
-
-            <span class="entity-description"
-                  popover-title="{{ aResult.element.label }}"
-                  popover="{{ aResult.element.popover }}"
-                  popover-trigger="mouseenter"
-                  popover-append-to-body="true">
-              <i class="icon fa fa-circle fa-fw"></i>
-              <span>{{ aResult.element.label }}</span>
-              <span class="label label-default">{{ aResult.element.uri }}</span>
-              <small>{{ aResult.element.comment | limitTo: 50 }}</small>
-              <button ng-click="showEntityDetail($event, aResult)" class="btn btn-xs btn-info">details</button>
-            </span>
-          </div>
+          <ng-include
+            ng-repeat="result in resultList | limitTo: resultLimit"
+            src="pageParts.genericEntity">
+          </ng-include>
 
           <button class="btn btn-large btn-default btn-block" ng-show="hasMoreResults()" ng-click="showMoreResults()">Show more</button>
         </tab>

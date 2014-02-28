@@ -1,0 +1,16 @@
+<div ng-controller="results.genericEntity" class="entity {{result.className}}"
+     ng-click="toggleElement(result.uri)"
+     ng-class="{'selected': isElementSelected(result.uri)}"
+>
+  <span class="entity-description"
+        popover-title="{{ result.label }}"
+        popover="{{ result.popover }}"
+        popover-trigger="mouseenter"
+        popover-append-to-body="true">
+    <i class="icon fa fa-circle fa-fw entity-icon {{result.className}}"></i>
+    <span>{{ result.label }}</span>
+    <span class="label label-default">{{ result.uri }}</span>
+    <small>{{ result.comment | limitTo: 50 }}</small>
+    <button ng-click="showEntityDetail($event, result)" class="btn btn-xs btn-info">details</button>
+  </span>
+</div>

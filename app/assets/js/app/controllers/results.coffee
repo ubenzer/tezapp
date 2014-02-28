@@ -3,6 +3,7 @@ ngDefine "controllers.results", [
   "module:controllers.results.header"
   "module:controllers.results.export"
   "module:controllers.results.entityDetail"
+  "module:controllers.results.genericEntity"
 ], (module) ->
 
   module.controller "results", ($scope, $state, $stateParams, SearchSerializer, SelectedItems, UrlConfig, $http, exportFormats, PrettyNaming) ->
@@ -26,6 +27,7 @@ ngDefine "controllers.results", [
       entityDetailTab: resultsPageBaseUrl + "/entityDetail.html"
       entityRelationTab: resultsPageBaseUrl + "/entityRelation.html"
       entityRelationDetail: resultsPageBaseUrl + "/entityRelationDetail.html"
+      genericEntity: resultsPageBaseUrl + "/genericEntity.html"
     }
     # Data for page parts
     $scope.pageControls = {
@@ -46,26 +48,13 @@ ngDefine "controllers.results", [
       .finally () ->
         $scope.pageControls.searchInProgress = false
 
-
-    $scope.isElementSelected = (uri) -> SelectedItems.isItemSelected(uri)
-    $scope.removeItem = (uri) -> SelectedItems.removeItem(uri)
-    $scope.addItem = (uri) -> SelectedItems.addItem(uri)
-    $scope.toggleElement = (uri) ->
-      if(SelectedItems.isItemSelected(uri))
-        SelectedItems.removeItem(uri)
-      else
-        SelectedItems.addItem(uri)
-      return
     $scope.getSelectedElementCount = () -> SelectedItems.getSelectedCount()
 
     processResults = (results) ->
+      tbReturned = []
       for result in results
-        result.element.kindPretty = PrettyNaming.for(result.element.kind)
-        result.element.className = PrettyNaming.classNameFor(result.element.kind)
-        result.element.popover =
-          "<p><strong>Type:</strong> " + result.element.kindPretty + "</p>" +
-          "<p><small>" + (result.element.comment || "") + "</small></p>"
-      results
+        tbReturned.push(result.element)
+      tbReturned
 
     $scope.entityDetails = []
     $scope.showEntityDetail = (maybeEvent, searchResultObj) ->
