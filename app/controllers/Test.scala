@@ -15,9 +15,13 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.Logger
-import common.RDFExport
+import common.{RDF, RDFExport}
+import service.FetchResult
 
 object Test extends Controller {
+  implicit val DisplayableElementWrites = Json.writes[DisplayableElement]
+  implicit val SearchResultWrites = Json.writes[SearchResult]
+  implicit val fetchResultWrites = Json.writes[FetchResult]
 
   def swoogle(keyword: String) = Action.async {
     if(keyword.length < 1) {
@@ -32,8 +36,6 @@ object Test extends Controller {
   def find(keyword: String) = Action.async {
     Search.findElementsByKeyword(keyword).map {
       r =>
-        implicit val iDisplayableElement = Json.writes[DisplayableElement]
-        implicit val iSearchResult = Json.writes[SearchResult]
         Ok(Json.toJson(r))
     }
   }
@@ -122,6 +124,35 @@ object Test extends Controller {
 
     }.recoverTotal {
       e => BadRequest(JsError.toFlatJson(e))
+    }
+  }
+
+  implicit val getRelatedElementsRead: Reads[(String, String)] =
+    {
+      (__ \ "uri").read[String] and
+      (__ \ "relationType").read[String]
+    }.tupled
+  def getRelatedElements = Action.async(parse.json) {
+    request =>
+      request.body.validate[(String, String)].map {
+        case (uri: String, relationType: String) =>
+          OntologyTriple.getObject(uri, RDF.Type).flatMap {
+            elements =>
+              Future.sequence {
+                elements.map {
+                  element => OntologyTriple.getDisplayableElement(element)
+                }
+              }
+          }.map {
+            setOfMaybeDisplayableElements =>setOfMaybeDisplayableElements.flatten
+          }.map {
+            displayableElements =>
+              Ok(Json.toJson(displayableElements))
+          }
+    }.recoverTotal {
+      e => Future.successful {
+        BadRequest(JsError.toFlatJson(e))
+      }
     }
   }
 }

@@ -4,7 +4,7 @@ import play.api.mvc._
 import play.api.mvc.Controller
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
-import service.ontologyFetcher.{OntologyFetcher}
+import service.ontologyFetcher.OntologyFetcher
 import scala.concurrent.Future
 import common.ExecutionContexts.fastOps
 import service.FetchResult
