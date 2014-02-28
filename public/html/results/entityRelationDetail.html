@@ -15,50 +15,11 @@
   </div>
   <div class="row" ng-if="!loading && !error">
 
-    <div class="col-md-4">
-
-      <div class="entity class">
-                        <span class="entity-description" popover-title="Pizza" popover="I need to put html here somehow..." popover-trigger="mouseenter">
-                          <i class="icon fa fa-circle fa-fw"></i>Pizza
-                        </span>
-      </div>
-
-      <div class="entity class">
-                        <span class="entity-description">
-                          <i class="icon fa fa-circle fa-fw"></i>Fanta
-                        </span>
-      </div>
-
-    </div>
-    <div class="col-md-4">
-
-      <div class="entity class">
-                        <span class="entity-description">
-                          <i class="icon fa fa-circle fa-fw"></i>Soft Drink
-                        </span>
-      </div>
-
-      <div class="entity class">
-                        <span class="entity-description">
-                          <i class="icon fa fa-circle fa-fw"></i>Aqua Hatua
-                        </span>
-      </div>
-
-    </div>
-    <div class="col-md-4">
-
-      <div class="entity class">
-                        <span class="entity-description">
-                          <i class="icon fa fa-circle fa-fw"></i>Drink
-                        </span>
-      </div>
-
-      <div class="entity class">
-                        <span class="entity-description">
-                          <i class="icon fa fa-circle fa-fw"></i>Lorem ipsum
-                        </span>
-      </div>
-
+    <div ng-repeat="relations in columnedRelations" class="col-md-{{12/columnedRelations.length}}">
+      <ng-include
+          ng-repeat="result in relations | limitTo: resultLimit"
+          src="pageParts.genericEntity">
+      </ng-include>
     </div>
   </div>
   <div class="row">
