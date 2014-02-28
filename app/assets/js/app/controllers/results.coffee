@@ -57,15 +57,27 @@ ngDefine "controllers.results", [
       tbReturned
 
     $scope.entityDetails = []
-    $scope.showEntityDetail = (maybeEvent, searchResultObj) ->
+    entityDetailsUriLookup = {}
+    $scope.showEntityDetail = (maybeEvent, entityObj) ->
       if(maybeEvent?) then maybeEvent.stopPropagation()
+
+      if(entityDetailsUriLookup[entityObj.uri]?)
+        # If already open, switch to that tab.
+        entityDetailsUriLookup[entityObj.uri].active = true
+        return
+
       entity = {
-        title: searchResultObj.element.label || searchResultObj.element.uri
+        title: entityObj.label || entityObj.uri
+        className: PrettyNaming.classNameFor(entityObj.kind)
         active: (!maybeEvent? || maybeEvent.button != 1)
-        close: () -> $scope.entityDetails.splice($scope.entityDetails.indexOf(entity), 1)
-        searchResultObj: searchResultObj
+        close: () ->
+          $scope.entityDetails.splice($scope.entityDetails.indexOf(entity), 1)
+          delete entityDetailsUriLookup[entityObj.uri]
+          return
+        entityObj: entityObj
       }
       $scope.entityDetails.push(entity)
+      entityDetailsUriLookup[entityObj.uri] = entity
       return
 
     return
