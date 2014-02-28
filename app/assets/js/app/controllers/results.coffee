@@ -2,6 +2,7 @@
 ngDefine "controllers.results", [
   "module:controllers.results.header"
   "module:controllers.results.export"
+  "module:controllers.results.entityDetail"
 ], (module) ->
 
   module.controller "results", ($scope, $state, $stateParams, SearchSerializer, SelectedItems, UrlConfig, $http, exportFormats, PrettyNaming) ->
@@ -45,6 +46,8 @@ ngDefine "controllers.results", [
 
 
     $scope.isElementSelected = (uri) -> SelectedItems.isItemSelected(uri)
+    $scope.removeItem = (uri) -> SelectedItems.removeItem(uri)
+    $scope.addItem = (uri) -> SelectedItems.addItem(uri)
     $scope.toggleElement = (uri) ->
       if(SelectedItems.isItemSelected(uri))
         SelectedItems.removeItem(uri)
@@ -63,9 +66,15 @@ ngDefine "controllers.results", [
       results
 
     $scope.entityDetails = []
-    $scope.showEntityDetail = (maybeEvent) ->
+    $scope.showEntityDetail = (maybeEvent, searchResultObj) ->
       if(maybeEvent?) then maybeEvent.stopPropagation()
-      $scope.entityDetails.push({title:"ahaha", active:true, data: "ehehe"})
+      entity = {
+        title: searchResultObj.element.label || searchResultObj.element.uri
+        active: (!maybeEvent? || maybeEvent.button != 1)
+        close: () -> $scope.entityDetails.splice($scope.entityDetails.indexOf(entity), 1)
+        searchResultObj: searchResultObj
+      }
+      $scope.entityDetails.push(entity)
       return
 
     return

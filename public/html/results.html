@@ -31,14 +31,18 @@
               <span>{{ aResult.element.label }}</span>
               <span class="label label-default">{{ aResult.element.uri }}</span>
               <small>{{ aResult.element.comment | limitTo: 50 }}</small>
-              <button ng-click="showEntityDetail($event)" class="btn btn-xs btn-info">details</button>
+              <button ng-click="showEntityDetail($event, aResult)" class="btn btn-xs btn-info">details</button>
             </span>
           </div>
 
           <button class="btn btn-large btn-default btn-block" ng-show="hasMoreResults()" ng-click="showMoreResults()">Show more</button>
         </tab>
 
-        <tab ng-repeat="ed in entityDetails" heading="{{ed.title}}" active="ed.active">
+        <tab ng-repeat="entityDetail in entityDetails" active="entityDetail.active">
+          <tab-heading>
+            <i class="icon fa fa-circle fa-fw"></i>{{entityDetail.title | limitTo: 10}}&nbsp;<button class="btn btn-link btn-xs" ng-click="entityDetail.close()"><i class="fa fa-times"></i></button>
+          </tab-heading>
+
           <ng-include src="pageParts.entityDetailTab"></ng-include>
         </tab>
 

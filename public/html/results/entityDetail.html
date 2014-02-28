@@ -1,24 +1,26 @@
-{{ed.data}}
-<div class="entity property data-property" ng-controller="results.entityDetail">
-  {{ed.data}}
+<div ng-controller="results.entityDetail">
+
+  <h2>
+    <i class="icon fa fa-circle fa-fw entity-icon {{entity.element.className}}"></i>
+    <span>{{ entity.title }}</span>
+    <button ng-if="isElementSelected(entity.uri)" ng-click="removeItem(entity.uri)" class="btn btn-lg btn-primary"><i class="fa fa-lg fa-check-circle"></i> <strong>Included</strong></button>
+    <button ng-if="!isElementSelected(entity.uri)" ng-click="addItem(entity.uri)" class="btn btn-lg btn-info"><i class="fa fa-lg fa-puzzle-piece"></i> Include this</button>
+  </h2>
+  <span ng-if="entity.title != entity.uri" class="label label-default">{{ entity.uri }}</span>
+  <p>{{ entity.comment }}</p>
 
 
-            <span class="entity-description">
-              <i class="icon fa fa-circle fa-fw"></i>has price
-            </span>
+  <div class="entity-relations row">
+    <div class="col-md-6">
 
-  <div class="entity-relations inner-level row">
-    <div class="col-md-12">
-
-      <div class="relation domain">
-        <div class="row">
-          <div class="col-md-12">
-            <h6>has domains</h6>
-          </div>
+      <div class="row relation domain">
+        <div class="col-md-12">
+          <h5>has domains</h5>
         </div>
 
+
         <div class="row">
-          <div class="col-md-2">
+          <div class="col-md-4">
 
             <div class="entity class">
                         <span class="entity-description" popover-title="Pizza" popover="I need to put html here somehow..." popover-trigger="mouseenter">
@@ -33,7 +35,7 @@
             </div>
 
           </div>
-          <div class="col-md-2">
+          <div class="col-md-4">
 
             <div class="entity class">
                         <span class="entity-description">
@@ -48,7 +50,7 @@
             </div>
 
           </div>
-          <div class="col-md-2">
+          <div class="col-md-4">
 
             <div class="entity class">
                         <span class="entity-description">
@@ -63,59 +65,27 @@
             </div>
 
           </div>
-          <div class="col-md-2">
-
-            <div class="entity class">
-                        <span class="entity-description">
-                          <i class="icon fa fa-circle fa-fw"></i>Potato Chips
-                        </span>
-            </div>
-
-            <div class="entity class">
-                        <span class="entity-description">
-                          <i class="icon fa fa-circle fa-fw"></i>Dolor sit
-                        </span>
-            </div>
-
-          </div>
-          <div class="col-md-2">
-
-            <div class="entity class">
-                        <span class="entity-description">
-                          <i class="icon fa fa-circle fa-fw"></i>Beer
-                        </span>
-            </div>
-
-            <div class="entity class">
-                        <span class="entity-description">
-                          <i class="icon fa fa-circle fa-fw"></i>Amet
-                        </span>
-            </div>
-
-          </div>
-          <div class="col-md-2">
-
-            <div class="entity class">
-                        <span class="entity-description">
-                          <i class="icon fa fa-circle fa-fw"></i>Pepper Spray
-                        </span>
-            </div>
-
-            <div class="load-more">
-                        <span>
-                          <button class="btn btn-link"><i class="icon fa fa-code fa-fw"></i>load more</button>
-                        </span>
-            </div>
-
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <button class="btn btn-large btn-default btn-block" ng-show="hasMoreResults()" ng-click="showMoreResults()">Show more</button>
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="row">
+    <div class="col-md-6">
+
+      <div class="row relation range">
         <div class="col-md-12">
           <h6>has ranges</h6>
         </div>
       </div>
+
+    </div>
+  </div>
+  <div class="entity-relations row">
+    <div class="col-md-6">
 
       <div class="row">
         <div class="col-md-12">
@@ -123,25 +93,16 @@
         </div>
       </div>
 
+    </div>
+    <div class="col-md-6">
+
       <div class="row">
         <div class="col-md-12">
           <h6>has superproperties</h6>
         </div>
       </div>
 
-      <div class="row">
-        <div class="col-md-12">
-          <h6>has siblings</h6>
-        </div>
-      </div>
-
     </div>
   </div>
 </div>
-
-<div class="entity instance">
-  <i class="icon fa fa-circle fa-fw"></i>Pizza Hut
-</div>
-
-
 
