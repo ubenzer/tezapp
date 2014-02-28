@@ -26,9 +26,7 @@ ngDefine "controllers.results.entityDetail", [
         type: "hasRanges"
       }
     ]
-    itemCountInEachColumn = Math.ceil(entityRelationTypes.length / 2)
-    for i in [0..1]
-      $scope.columnEntityRelationTypes.push(entityRelationTypes.slice(i * itemCountInEachColumn, (if(i == 0) then itemCountInEachColumn else undefined)))
 
+    $scope.columnEntityRelationTypes = Utils.splitArrayIntoChunks(2, entityRelationTypes)
     return
   return
