@@ -4,6 +4,7 @@ ngDefine "services.Utils", (module) ->
   module.factory "Utils", () ->
 
     splitArrayIntoEqualChunks = (chunkCount, array) ->
+      if(array.length == 0) then return []
       itemCountInEachColumn = Math.ceil(array.length / chunkCount)
       chunked = []
       for i in [0..chunkCount - 1]
