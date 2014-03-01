@@ -32,23 +32,29 @@ body.results {
   }
 
   /* TODO Polish these */
-  .entity-icon.class {
-    color: #D1AE4F;
-  }
-  .entity-icon.property.object-property {
-    color: #1E8AB5;
-  }
-  .entity-icon.ontology {
-    color: #896db5;
-  }
-  .entity-icon.property.data-property {
-    color: #6B8E23;
-  }
-  .entity-icon.annotation {
-    color: #719FA0;
-  }
-  .entity-icon.instance {
-    color: #541852;
+  .entity-icon {
+
+    &.class {
+      color: #D1AE4F;
+    }
+    &.property, &property.object-property {
+      color: #1E8AB5;
+    }
+    &.ontology {
+      color: #896db5;
+    }
+    &.property.data-property {
+      color: #6B8E23;
+    }
+    &.annotation {
+      color: #719FA0;
+    }
+    &.instance {
+      color: #541852;
+    }
+    &.thing {
+      color: #aeabb5;
+    }
   }
 
   .entity {
