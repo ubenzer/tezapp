@@ -8,6 +8,11 @@ object RDF {
   val Ontology = "http://www.w3.org/2002/07/owl#Ontology"
   val Class = "http://www.w3.org/2002/07/owl#Class"
   val AnnotationProperty = "http://www.w3.org/2002/07/owl#AnnotationProperty"
+  val DisjointWith = "http://www.w3.org/2002/07/owl#disjointWith"
+  val SubclassOf = "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+  val Range = "http://www.w3.org/2000/01/rdf-schema#range"
+  val Domain = "http://www.w3.org/2000/01/rdf-schema#domain"
+  val Thing = "http://www.w3.org/2002/07/owl#Thing"
 }
 object RDFNamespace {
   val RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns"

@@ -7,6 +7,7 @@ ngDefine "services.PrettyNaming", (module) ->
       "http://www.w3.org/2002/07/owl#Class": "Class"
       "http://www.w3.org/2002/07/owl#ObjectProperty": "Object Property"
       "http://www.w3.org/2002/07/owl#Ontology": "Ontology"
+      "http://www.w3.org/2002/07/owl#Thing": "Thing"
     }
 
     classNamingLookup = {

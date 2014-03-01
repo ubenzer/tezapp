@@ -130,24 +130,67 @@ object Test extends Controller {
   implicit val getRelatedElementsRead: Reads[(String, String)] =
     {
       (__ \ "uri").read[String] and
-      (__ \ "relationType").read[String]
+      (__ \ "what").read[String]
     }.tupled
-  def getRelatedElements = Action.async(parse.json) {
+  val availableRelationTypes = Map(
+      "disjointWith"-> RDF.DisjointWith,
+      "range" -> RDF.Range,
+      "domain" -> RDF.Domain,
+      "subclassOf" -> RDF.SubclassOf,
+
+      "type" -> RDF.Type
+    )
+  def getRelatedElementsByObject = Action.async(parse.json) {
     request =>
       request.body.validate[(String, String)].map {
         case (uri: String, relationType: String) =>
-          OntologyTriple.getObject(uri, RDF.Type).flatMap {
-            elements =>
-              Future.sequence {
-                elements.map {
-                  element => OntologyTriple.getDisplayableElement(element)
-                }
+         availableRelationTypes.get(relationType) match {
+           case Some(rt: String) =>
+              OntologyTriple.getObject(uri, rt).flatMap {
+                elements =>
+                  Future.sequence {
+                    elements.map {
+                      element => OntologyTriple.getDisplayableElement(element)
+                    }
+                  }
+              }.map {
+                setOfMaybeDisplayableElements =>setOfMaybeDisplayableElements.flatten
+              }.map {
+                displayableElements =>
+                  Ok(Json.toJson(displayableElements))
               }
-          }.map {
-            setOfMaybeDisplayableElements =>setOfMaybeDisplayableElements.flatten
-          }.map {
-            displayableElements =>
-              Ok(Json.toJson(displayableElements))
+           case _ =>  Future.successful {
+             BadRequest("Invalid type")
+           }
+          }
+    }.recoverTotal {
+      e => Future.successful {
+        BadRequest(JsError.toFlatJson(e))
+      }
+    }
+  }
+  def getRelatedElementsBySubject = Action.async(parse.json) {
+    request =>
+      request.body.validate[(String, String)].map {
+        case (uri: String, relationType: String) =>
+         availableRelationTypes.get(relationType) match {
+           case Some(rt: String) =>
+              OntologyTriple.getSubject(rt, uri).flatMap {
+                elements =>
+                  Future.sequence {
+                    elements.map {
+                      element => OntologyTriple.getDisplayableElement(element)
+                    }
+                  }
+              }.map {
+                setOfMaybeDisplayableElements =>setOfMaybeDisplayableElements.flatten
+              }.map {
+                displayableElements =>
+                  Ok(Json.toJson(displayableElements))
+              }
+           case _ => Future.successful {
+             BadRequest("Invalid type")
+           }
           }
     }.recoverTotal {
       e => Future.successful {

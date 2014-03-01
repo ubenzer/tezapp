@@ -18,12 +18,47 @@ ngDefine "controllers.results.entityDetail", [
 
     entityRelationTypes = [
       {
-        name: "has domains"
-        type: "hasDomains"
+        name: "disjoint with"
+        by: "object"
+        what: "disjointWith"
+      }
+      {
+        name: "subclass of"
+        by: "object"
+        what: "subclassOf"
+      }
+      {
+        name: "superclass of"
+        by: "subject"
+        what: "subclassOf"
       }
       {
         name: "has ranges"
-        type: "hasRanges"
+        by: "subject"
+        what: "range"
+      }
+      {
+        name: "has domains"
+        by: "subject"
+        what: "domain"
+      }
+      {
+        name: "is domain of"
+        by: "object"
+        what: "domain"
+      }
+      {
+        name: "is range of"
+        by: "object"
+        what: "range"
+      }
+
+
+
+      {
+        name: "has types"
+        by: "object"
+        what: "type"
       }
     ]
 

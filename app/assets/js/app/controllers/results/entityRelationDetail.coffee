@@ -16,9 +16,9 @@ ngDefine "controllers.results.entityRelationDetail", (module) ->
       $scope.columnedRelations = []
 
       # Do search!
-      $http.post("/relation", {
+      $http.post("/relation/" + $scope.entityRelationType.by, {
         uri: $scope.entity.uri
-        relationType: $scope.entityRelationType.type
+        what: $scope.entityRelationType.what
       })
       .success (data) ->
         relationSize = data.length
