@@ -33,18 +33,15 @@ class RIOParser(storer: OntologyStorageEngine) extends OntologyParser(storer) {
           x => FetchResult(success = 1)
         }
       } catch {
-        case ex: RDFParseException => {
+        case ex: RDFParseException =>
           Logger.info("Couldn't parse ontology at " + ontologyUri + "(" + ex.getMessage + ")")
           Future.successful(FetchResult(notParsable = 1))
-        }
-        case ex: UnsupportedRDFormatException => {
+        case ex: UnsupportedRDFormatException =>
           Logger.info("Couldn't parse ontology because it is unsupported at " + ontologyUri + "(" + ex.getMessage + ")")
           Future.successful(FetchResult(notParsable = 1))
-        }
-        case ex: Throwable => {
+        case ex: Throwable =>
           Logger.error("Some exception occurred while parsing ontology at " + ontologyUri, ex)
           Future.successful(FetchResult(notParsable = 1))
-        }
       } finally {
         Try {
           ontologyAsStream.close()
@@ -55,24 +52,20 @@ class RIOParser(storer: OntologyStorageEngine) extends OntologyParser(storer) {
     // Check if ontology exists
     OntologyDocument.isExists(ontologyUri).flatMap {
       case false => parseAndSave()
-      case true  => {
+      case true  =>
         OntologyDocument.isLocked(ontologyUri).flatMap {
           case true  => Future.successful(FetchResult(duplicate = 1))
-          case false => {
+          case false =>
             OntologyDocument.isModified(ontologyUri, md5).flatMap {
-              case true => {
+              case true =>
                 // If modified clean old ontology
                 storer.deleteOntology(ontologyUri)
                 parseAndSave()
               }
-              case false => {
+              case false =>
                 storer.saveDocument(ontologyUri, md5, source).map {
                   x => FetchResult(duplicate = 1)
                 }
-              }
-            }
-          }
-        }
       }
     }
 
