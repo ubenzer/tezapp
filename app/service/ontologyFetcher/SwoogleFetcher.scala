@@ -87,7 +87,7 @@ class SwoogleFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
           Logger.error("Fetching SWOOGLE FAILED " + startResult)
           response
         case Success(response) =>
-          Logger.error("Fetching SWOOGLE completed " + startResult)
+          Logger.info("Fetching SWOOGLE completed " + startResult)
           response
       }
   }
