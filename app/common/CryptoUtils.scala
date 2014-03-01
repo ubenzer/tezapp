@@ -7,5 +7,4 @@ import java.io.InputStream
  */
 object CryptoUtils {
   def md5(input: String): String = DigestUtils.md5Hex(input)
-  def md5(input: InputStream): String = DigestUtils.md5Hex(input)
 }
