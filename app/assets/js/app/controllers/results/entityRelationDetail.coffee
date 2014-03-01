@@ -22,7 +22,7 @@ ngDefine "controllers.results.entityRelationDetail", (module) ->
       })
       .success (data) ->
         relationSize = data.length
-        $scope.columnedRelations = Utils.splitArrayIntoEqualChunks(2, data)
+        $scope.columnedRelations = Utils.splitArrayIntoEqualChunks(1, data)
       .error () ->
         $scope.error = true
       .finally () ->
