@@ -14,7 +14,7 @@ import play.api.Play.current
 class SwoogleFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
   private final val ACCESS_KEY: String = Play.configuration.getString("swoogle.apiKey").getOrElse("_")
   private final val SEARCH_ONTOLOGY_API_URL: String = "http://sparql.cs.umbc.edu/swoogle31/q"
-  private final val SWOOGLE_MAX_RESULT: Int = 50
+  private final val SWOOGLE_MAX_RESULT: Int = 1000  // TODO move this to conf
   private final val SWOOGLE_RESULT_PER_PAGE: Int = 10
 
   def search(keyword: String): Future[FetchResult] = super.search(keyword, "swoogle")
