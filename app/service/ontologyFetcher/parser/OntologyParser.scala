@@ -2,10 +2,8 @@ package service.ontologyFetcher.parser
 
 import org.openrdf.rio.RDFFormat
 import java.net.{URI=>JURI}
-import java.io.{ByteArrayInputStream, InputStream}
 import play.api.libs.ws.Response
 import service.ontologyFetcher.storer.OntologyStorageEngine
-import common.RewindableByteArrayInputStream
 import service.FetchResult
 import scala.concurrent.Future
 
