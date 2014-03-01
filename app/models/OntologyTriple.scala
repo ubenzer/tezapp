@@ -11,7 +11,7 @@ import reactivemongo.core.commands.{RawCommand, Remove, Update, FindAndModify}
 import play.api.Logger
 import common.ExecutionContexts.verySlowOps
 import play.api.Play.current
-import common.RDF
+import common.{RDFExport, RDFType, RDF}
 
 case class OntologyTriple (
                             id            : Option[BSONObjectID] = None,
@@ -292,7 +292,28 @@ object OntologyTriple {
     }
   }
 
-  def getType(subject: String): Future[Option[String]] = _getSingleObject(subject, RDF.Type)
+  def getType(subject: String): Future[Option[String]] = {
+    getObject(subject, RDF.Type).map {
+      oSet =>
+        val reducedToSupported = oSet.filter( x => RDFType.APP_SUPPORTED_TYPES.contains(x))
+
+        if(reducedToSupported.size > 1) {
+          Logger.warn("Reduced type for " + subject + " has more than one")
+        }
+
+        if(reducedToSupported.isEmpty) {
+          if(oSet.exists(
+            x => !RDFExport.isUriACommonOntologyThing(x)
+          )) {
+            Some("__INSTANCE__")
+          } else {
+            None
+          }
+        } else {
+          reducedToSupported.headOption
+        }
+    }
+  }
   def getLabel(subject: String): Future[Option[String]] = _getSingleObject(subject, RDF.Label)
   def getComment(subject: String): Future[Option[String]] = _getSingleObject(subject, RDF.Comment)
   private def _getSingleObject(subject: String, predicate: String): Future[Option[String]] = {
