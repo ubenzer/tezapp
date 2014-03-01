@@ -164,11 +164,11 @@ object OntologyTriple {
     }
   }
 
-  def getSubject(predicate: String, objeckt: String): Future[Set[String]] = {
+  def getSubject(predicate: String, objekt: String): Future[Set[String]] = {
     val f: Future[List[OntologyTriple]] = collection.find(
       BSONDocument(
         "predicate" -> predicate,
-        "objeckt" -> objeckt
+        "objekt" -> objekt
       )
     ).cursor[OntologyTriple].collect[List]()
 
@@ -180,17 +180,17 @@ object OntologyTriple {
       }.toSet
     } recover {
       case e:Throwable => {
-        Logger.error("getSubject failed with predicate: " + predicate + " object: " + objeckt + " The error is: " + e)
+        Logger.error("getSubject failed with predicate: " + predicate + " object: " + objekt + " The error is: " + e)
         Set.empty
       }
     }
   }
 
-  def getPredicate(subject: String, objeckt: String): Future[Set[String]] = {
+  def getPredicate(subject: String, objekt: String): Future[Set[String]] = {
     val f: Future[List[OntologyTriple]] = collection.find(
       BSONDocument(
         "subject" -> subject,
-        "objeckt" -> objeckt
+        "objekt" -> objekt
       )
     ).cursor[OntologyTriple].collect[List]()
 
@@ -202,7 +202,7 @@ object OntologyTriple {
       }.toSet
     } recover {
       case e:Throwable => {
-        Logger.error("getSubject failed with subject: " + subject + " object: " + objeckt + " The error is: " + e)
+        Logger.error("getSubject failed with subject: " + subject + " object: " + objekt + " The error is: " + e)
         Set.empty
       }
     }
@@ -237,7 +237,7 @@ object OntologyTriple {
 
     val query: List[(String, BSONValue)] = subject.map(x => List("subject" -> BSONString(x))).getOrElse(List.empty) ++
                 predicate.map(x => List("predicate" -> BSONString(x))).getOrElse(List.empty) ++
-                predicate.map(x => List("objeckt" -> BSONString(x))).getOrElse(List.empty)
+                predicate.map(x => List("objekt" -> BSONString(x))).getOrElse(List.empty)
 
     val f: Future[Set[OntologyTriple]] = collection.find(
       BSONDocument(query)
@@ -324,7 +324,7 @@ object OntologyTriple {
     }
   }
 
-  def getDisplayableElement(uri: String): Future[Option[DisplayableElement]] = {
+  def getDisplayableElement(uri: String, allowUnknownType: Boolean = false): Future[Option[DisplayableElement]] = {
 
     /*  We need to fill label, description and kind for given uri */
 
@@ -348,7 +348,17 @@ object OntologyTriple {
           comment = comment,
           kind = kind
         ))
-      case (label, comment, None) => None
+      case (label, comment, None) =>
+        if(allowUnknownType) {
+          Some(DisplayableElement(
+            uri = uri,
+            label = label,
+            comment = comment,
+            kind = "UNKNOWN"
+          ))
+        } else {
+          None
+        }
     }
   }
 }
