@@ -61,11 +61,11 @@ class RIOParser(storer: OntologyStorageEngine) extends OntologyParser(storer) {
                 // If modified clean old ontology
                 storer.deleteOntology(ontologyUri)
                 parseAndSave()
-              }
               case false =>
                 storer.saveDocument(ontologyUri, md5, source).map {
                   x => FetchResult(duplicate = 1)
                 }
+            }
       }
     }
 

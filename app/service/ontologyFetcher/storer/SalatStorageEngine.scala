@@ -45,10 +45,13 @@ class SalatStorageEngine() extends OntologyStorageEngine {
 
       Data? That's ok.
      */
-    val subjectId    = getResourceId(subject)(bNodeLookup)
-    val predicateId  = predicate.stringValue
-    val objectId     = getResourceId(objekt)(bNodeLookup)
-    val objectIsData = isData(objekt)
+    val subjectId      = getResourceId(subject)(bNodeLookup)
+    val predicateId    = predicate.stringValue
+    val objectId       = getResourceId(objekt)(bNodeLookup)
+    val objectIsData   = isData(objekt)
+    val objectLanguage = if(objectIsData && objekt.isInstanceOf[Literal]) {
+      Option(objekt.asInstanceOf[Literal].getLanguage)
+    } else None
 
 
     /* Find and replace here! */
@@ -57,6 +60,7 @@ class SalatStorageEngine() extends OntologyStorageEngine {
       predicate = predicateId,
       objekt = objectId,
       isObjectData = objectIsData,
+      objectLanguage = objectLanguage,
       appearsOn = Set(source),
       sourceOntology = Set(sourceDocument)
     )).map {

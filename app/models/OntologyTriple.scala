@@ -3,7 +3,7 @@ package models
 import play.modules.reactivemongo.ReactiveMongoPlugin
 import reactivemongo.bson._
 import org.joda.time.DateTime
-import reactivemongo.api.indexes.{Index}
+import reactivemongo.api.indexes.Index
 import reactivemongo.api.indexes.IndexType.{Text, Ascending}
 import reactivemongo.api.collections.default.BSONCollection
 import scala.concurrent.Future
@@ -19,7 +19,7 @@ case class OntologyTriple (
                             predicate     : String,
                             objekt        : String,
                             isObjectData  : Boolean,
-
+                            objectLanguage: Option[String],
                             appearsOn     : Set[String] = Set.empty,  // Swoogle, Watson etc.
                             sourceOntology: Set[String] = Set.empty,
                             cDate         : DateTime = new DateTime
@@ -38,6 +38,7 @@ object OntologyTriple {
         predicate      = doc.getAs[String]("predicate").get,
         objekt         = doc.getAs[String]("objekt").get,
         isObjectData   = doc.getAs[Boolean]("isObjectData").get,
+        objectLanguage = doc.getAs[String]("objectLanguage"),
         sourceOntology = doc.getAs[Set[String]]("sourceOntology").toSet.flatten,
         appearsOn      = doc.getAs[Set[String]]("appearsOn").toSet.flatten,
         cDate          = doc.getAs[BSONDateTime]("cDate").map(dt => new DateTime(dt.value)).get
@@ -53,6 +54,7 @@ object OntologyTriple {
         "subject" -> triple.subject,
         "predicate" -> triple.predicate,
         "objekt" -> triple.objekt,
+        "objectLanguage" -> triple.objectLanguage,
         "isObjectData" -> triple.isObjectData,
         "sourceOntology" -> triple.sourceOntology,
         "appearsOn" -> triple.appearsOn,
@@ -165,67 +167,29 @@ object OntologyTriple {
   }
 
   def getSubject(predicate: String, objekt: String): Future[Set[String]] = {
-    val f: Future[List[OntologyTriple]] = collection.find(
-      BSONDocument(
-        "predicate" -> predicate,
-        "objekt" -> objekt
-      )
-    ).cursor[OntologyTriple].collect[List]()
-
-    f.map {
-      ot:List[OntologyTriple] => {
+    getTriple(None, Some(predicate), Some(objekt)).map {
+      ot => {
         ot.map {
           o => o.subject
         }
-      }.toSet
-    } recover {
-      case e:Throwable => {
-        Logger.error("getSubject failed with predicate: " + predicate + " object: " + objekt + " The error is: " + e)
-        Set.empty
       }
     }
   }
-
   def getPredicate(subject: String, objekt: String): Future[Set[String]] = {
-    val f: Future[List[OntologyTriple]] = collection.find(
-      BSONDocument(
-        "subject" -> subject,
-        "objekt" -> objekt
-      )
-    ).cursor[OntologyTriple].collect[List]()
-
-    f.map {
-      ot:List[OntologyTriple] => {
+    getTriple(Some(subject), None, Some(objekt)).map {
+      ot => {
         ot.map {
           o => o.predicate
         }
-      }.toSet
-    } recover {
-      case e:Throwable => {
-        Logger.error("getSubject failed with subject: " + subject + " object: " + objekt + " The error is: " + e)
-        Set.empty
       }
     }
   }
-
   def getObject(subject: String, predicate: String): Future[Set[String]] = {
-    val f: Future[List[OntologyTriple]] = collection.find(
-      BSONDocument(
-        "subject" -> subject,
-        "predicate" -> predicate
-      )
-    ).cursor[OntologyTriple].collect[List]()
-
-    f.map {
-      ot:List[OntologyTriple] => {
+    getTriple(Some(subject), Some(predicate), None).map {
+      ot => {
         ot.map {
           o => o.objekt
         }
-      }.toSet
-    } recover {
-      case e:Throwable => {
-        Logger.error("getSubject failed with subject: " + subject + " predicate: " + predicate + " The error is: " + e)
-        Set.empty
       }
     }
   }
@@ -237,7 +201,7 @@ object OntologyTriple {
 
     val query: List[(String, BSONValue)] = subject.map(x => List("subject" -> BSONString(x))).getOrElse(List.empty) ++
                 predicate.map(x => List("predicate" -> BSONString(x))).getOrElse(List.empty) ++
-                predicate.map(x => List("objekt" -> BSONString(x))).getOrElse(List.empty)
+                objekt.map(x => List("objekt" -> BSONString(x))).getOrElse(List.empty)
 
     val f: Future[Set[OntologyTriple]] = collection.find(
       BSONDocument(query)
@@ -317,12 +281,32 @@ object OntologyTriple {
   def getLabel(subject: String): Future[Option[String]] = _getSingleObject(subject, RDF.Label)
   def getComment(subject: String): Future[Option[String]] = _getSingleObject(subject, RDF.Comment)
   private def _getSingleObject(subject: String, predicate: String): Future[Option[String]] = {
-    getObject(subject, predicate).map {
+    getTriple(Some(subject), Some(predicate), None).map {
       oSet =>
         if(oSet.size > 1) {
-          Logger.warn("Uri " + subject + " has more than one " + predicate)
+          val en: Set[OntologyTriple] = oSet.filter(x => x.objectLanguage == Some("en"))
+          if(en.size > 1) {
+            Logger.warn("Uri " + subject + " has more than one en language " + predicate)
+            Some(en.head.objekt)
+          } else if (en.size == 1) {
+            Some(en.head.objekt)
+          } else {
+            val nullLang: Set[OntologyTriple] = oSet.filter(x => x.objectLanguage == None)
+            if(nullLang.size > 1) {
+              Logger.warn("Uri " + subject + " has more than one any language " + predicate)
+              Some(nullLang.head.objekt)
+            } else if (nullLang.size == 1) {
+              Some(nullLang.head.objekt)
+            } else {
+              Logger.warn("Uri " + subject + " has more than one " + predicate)
+              Some(oSet.head.objekt)
+            }
+          }
+        } else if (oSet.size == 1) {
+          Some(oSet.head.objekt)
+        } else {
+          None
         }
-        oSet.headOption
     }
   }
 
