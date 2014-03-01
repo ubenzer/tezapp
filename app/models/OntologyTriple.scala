@@ -8,7 +8,7 @@ import reactivemongo.api.indexes.IndexType.{Text, Ascending}
 import reactivemongo.api.collections.default.BSONCollection
 import scala.concurrent.Future
 import reactivemongo.core.commands.{RawCommand, Remove, Update, FindAndModify}
-import play.api.Logger
+import play.api.{Play, Logger}
 import common.ExecutionContexts.verySlowOps
 import play.api.Play.current
 import common.{RDFExport, RDFType, RDF}
@@ -27,8 +27,8 @@ case class OntologyTriple (
 }
 object OntologyTriple {
   val collection: BSONCollection = ReactiveMongoPlugin.db.collection[BSONCollection]("OntologyTriple")
-
-  val MAX_SEARCH_QUERY = 5000 // TODO Move to conf
+  val MAX_TEXT_INDEX_SEARCH_COUNT = Play.configuration.getInt("search.maxSearchByTextIndexCount").getOrElse(5000)
+  val MAX_URI_SEARCH_COUNT = Play.configuration.getInt("search.maxSearchByUriCount").getOrElse(500)
 
   implicit object OntologyTripleBSONReader extends BSONDocumentReader[OntologyTriple] {
     def read(doc: BSONDocument): OntologyTriple = {
@@ -222,7 +222,7 @@ object OntologyTriple {
           "$in" -> elements
         )
       )
-    ).cursor[OntologyTriple].collect[List](500)  // TODO MOVE TO CONF
+    ).cursor[OntologyTriple].collect[List](MAX_URI_SEARCH_COUNT)
 
     f.map {
       ot => ot.toSet
@@ -314,7 +314,7 @@ object OntologyTriple {
     val searchCommand = BSONDocument(
       "text" -> OntologyTriple.collection.name,
       "search" -> searchString,
-      "limit" -> MAX_SEARCH_QUERY
+      "limit" -> MAX_TEXT_INDEX_SEARCH_COUNT
     )
     val futureResult: Future[BSONDocument] = OntologyTriple.collection.db.command(RawCommand(searchCommand))
 
