@@ -15,13 +15,21 @@
   </div>
   <div class="row" ng-if="!loading && !error">
 
-    <div ng-repeat="relations in columnedRelations" class="col-md-{{12/columnedRelations.length}}">
-      <ng-include
-          ng-repeat="result in relations | limitTo: resultLimit"
-          src="pageParts.genericEntity">
-      </ng-include>
+    <div ng-if="columnedRelations.length > 0" class="col-md-12">
+      <div class="well well-sm">
+        <div class="row">
+          <div ng-repeat="relations in columnedRelations" class="col-md-{{12/columnedRelations.length}}">
+            <ng-include
+                ng-repeat="result in relations | limitTo: resultLimit"
+                src="pageParts.genericEntity">
+            </ng-include>
+          </div>
+        </div>
+       </div>
+    </div>
     </div>
   </div>
+
   <div class="row">
     <div class="col-md-12">
       <button class="btn btn-large btn-default btn-block" ng-show="hasMoreResults()" ng-click="showMoreResults()">Show more</button>
