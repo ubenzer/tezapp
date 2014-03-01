@@ -1,31 +1,33 @@
-package service.parser
+package service.ontologyFetcher.parser
 
 import org.openrdf.rio.{UnsupportedRDFormatException, RDFParseException, Rio, RDFFormat}
-import org.openrdf.rio.helpers.{RDFHandlerBase}
-import service.ontologyFetcher.parser.OntologyParser
+import org.openrdf.rio.helpers.RDFHandlerBase
 import play.Logger
 import org.openrdf.model._
 import service.ontologyFetcher.storer.OntologyStorageEngine
-import common.{RewindableByteArrayInputStream, CryptoUtils}
+import common.CryptoUtils
 import service.FetchResult
 import models.OntologyDocument
 import scala.concurrent.Future
 import common.ExecutionContexts.verySlowOps
+import java.io.{ByteArrayInputStream, InputStream}
+import scala.util.Try
 
 class RIOParser(storer: OntologyStorageEngine) extends OntologyParser(storer) {
 
-  override def parseStreamAsOntology(tbParsed: RewindableByteArrayInputStream, ontologyUri: String, format: RDFFormat, source: String): Future[FetchResult] = {
-
+  override def parseStreamAsOntology(tbParsed: String, ontologyUri: String, format: RDFFormat, source: String): Future[FetchResult] = {
+    def string2InputStream(value: String):InputStream = new ByteArrayInputStream(value.getBytes("UTF-8"))
     lazy val md5 = CryptoUtils.md5(tbParsed)
 
     def parseAndSave(): Future[FetchResult] = {
+      val ontologyAsStream = string2InputStream(tbParsed)
       try {
         val handler = new RIOCustomHandler(storer, ontologyUri, source)
         val rdfParser = Rio.createParser(format)
         rdfParser.setRDFHandler(handler)
 
         // Save elements, triples and update document on demand. (we cant handle all list in one turn, if ontology is big.)
-        rdfParser.parse(tbParsed, ontologyUri)
+        rdfParser.parse(ontologyAsStream, ontologyUri)
 
         storer.saveDocument(ontologyUri, md5, source).map {
           x => FetchResult(success = 1)
@@ -42,6 +44,10 @@ class RIOParser(storer: OntologyStorageEngine) extends OntologyParser(storer) {
         case ex: Throwable => {
           Logger.error("Some exception occurred while parsing ontology at " + ontologyUri, ex)
           Future.successful(FetchResult(notParsable = 1))
+        }
+      } finally {
+        Try {
+          ontologyAsStream.close()
         }
       }
     }
