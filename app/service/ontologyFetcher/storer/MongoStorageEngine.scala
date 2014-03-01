@@ -1,4 +1,4 @@
-package service.storer
+package service.ontologyFetcher.storer
 
 import common.Utils
 import service.ontologyFetcher.storer.OntologyStorageEngine
@@ -11,7 +11,7 @@ import reactivemongo.bson.BSONObjectID
 import play.api.Logger
 import common.ExecutionContexts.verySlowOps
 
-class SalatStorageEngine() extends OntologyStorageEngine {
+class MongoStorageEngine() extends OntologyStorageEngine {
 
   override def saveDocument(uri: String, md5: String, source: String): Future[Boolean] = {
     OntologyDocument.mergeSave(

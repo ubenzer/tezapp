@@ -3,12 +3,12 @@ package service.ontologyFetcher
 import scala.concurrent.Future
 import play.api.libs.ws.{WS, Response}
 import play.api.Logger
-import service.storer.SalatStorageEngine
 import java.net.ConnectException
 import java.util.concurrent.TimeoutException
 import service.ontologyFetcher.parser.{RIOParser, OntologyParser}
 import common.ExecutionContexts
 import service.FetchResult
+import service.ontologyFetcher.storer.MongoStorageEngine
 
 
 abstract class OntologyFetcher(parser: OntologyParser) {
@@ -73,6 +73,6 @@ abstract class OntologyFetcher(parser: OntologyParser) {
 }
 
 object OntologyFetcher {
-  lazy val defaultParser = new RIOParser(new SalatStorageEngine())
+  lazy val defaultParser = new RIOParser(new MongoStorageEngine())
   lazy val SwoogleFetcher = new SwoogleFetcher(defaultParser)
 }
