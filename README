@@ -1,9 +1,0 @@
-tezapp
-=====================================
-
---Running--
-
-Run mongodb with following params:
-
-mongod --setParameter textSearchEnabled=true
-
