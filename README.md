@@ -22,6 +22,12 @@ This application is developed using Play Framework 2.2 using Scala and Angular.j
 
 This application is not hosted in anywhere yet.
 
+## Screenshots
+
+**[Click here for all screenshots!](SCREENSHOTS.md)**
+
+![TOK Screenshot](http://www.ubenzer.com/deepo/github/tezapp/1.png "TOK Screenshot")
+
 ## Deploying
 
 TODO.
