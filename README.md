@@ -1,4 +1,4 @@
- # The Ontology Kickstarter
+# The Ontology Kickstarter
 
 The Ontology Kickstarter is a web application which helps you start creating you ontology very quickly. It's like yeoman for ontologies.
 
