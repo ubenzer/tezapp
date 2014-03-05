@@ -1,7 +1,6 @@
 package service.ontologyFetcher.storer
 
 import common.Utils
-import service.ontologyFetcher.storer.OntologyStorageEngine
 import org.openrdf.model._
 import models._
 import org.joda.time.DateTime

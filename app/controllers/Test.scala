@@ -33,6 +33,16 @@ object Test extends Controller {
     }
   }
 
+  def watson(keyword: String) = Action.async {
+    if(keyword.length < 1) {
+      Future.successful(BadRequest)
+    } else {
+      OntologyFetcher.WatsonFetcher.search(keyword).map {
+        result => Ok(result.toString)
+      }
+    }
+  }
+
   def find(keyword: String) = Action.async {
     Search.findElementsByKeyword(keyword).map {
       r =>

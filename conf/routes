@@ -3,16 +3,17 @@
 # ~~~~
 
 # Home page
-GET     /                               controllers.Application.index
+GET     /                           controllers.Application.index
 
-POST    /search                         controllers.Application.search
-POST    /export                         controllers.Test.export
-GET     /exportFormats                  controllers.Application.getExportFormats
-POST    /relation/object                controllers.Test.getRelatedElementsByObject
-POST    /relation/subject               controllers.Test.getRelatedElementsBySubject
+POST    /search                     controllers.Application.search
+POST    /export                     controllers.Test.export
+GET     /exportFormats              controllers.Application.getExportFormats
+POST    /relation/object            controllers.Test.getRelatedElementsByObject
+POST    /relation/subject           controllers.Test.getRelatedElementsBySubject
 
 
 GET     /test/swoogle               controllers.Test.swoogle(keyword)
+GET     /test/watson                controllers.Test.watson(keyword)
 GET     /test/find                  controllers.Test.find(keyword)
 
 # Map static resources from the /public folder to the /assets URL path

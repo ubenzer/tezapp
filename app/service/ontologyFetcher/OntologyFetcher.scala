@@ -75,4 +75,5 @@ abstract class OntologyFetcher(parser: OntologyParser) {
 object OntologyFetcher {
   lazy val defaultParser = new RIOParser(new MongoStorageEngine())
   lazy val SwoogleFetcher = new SwoogleFetcher(defaultParser)
+  lazy val WatsonFetcher = new WatsonFetcher(defaultParser)
 }
