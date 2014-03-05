@@ -33,6 +33,16 @@ object Test extends Controller {
     }
   }
 
+  def sindice(keyword: String) = Action.async {
+    if(keyword.length < 1) {
+      Future.successful(BadRequest)
+    } else {
+      OntologyFetcher.SindiceFetcher.search(keyword).map {
+        result => Ok(result.toString)
+      }
+    }
+  }
+
   def find(keyword: String) = Action.async {
     Search.findElementsByKeyword(keyword).map {
       r =>
