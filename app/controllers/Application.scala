@@ -34,7 +34,9 @@ object Application extends Controller {
           // Update database if requested.
           (if(!offline) {
             val futureList: List[Future[FetchResult]] = keywords.map {
-              OntologyFetcher.SwoogleFetcher.search(_)
+              keyword => OntologyFetcher.SwoogleFetcher.search(keyword.trim)
+            } ++ keywords.map {
+              keyword => OntologyFetcher.WatsonFetcher.search(keyword.trim)
             }
             Future.sequence(futureList)
           } else {
