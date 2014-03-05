@@ -19,8 +19,11 @@ abstract class OntologyFetcher(parser: OntologyParser) {
 
     /* Step 1: Fetch ontology list to be fetched. */
     val ontologyListF = getOntologyList(keyword)
+    val cleanedOntologyList = ontologyListF.map {
+      ontologyList => ontologyList.filter(x => x.startsWith("http://") || x.startsWith("https://"))
+    }(ExecutionContexts.fastOps)
 
-    ontologyListF.flatMap {
+    cleanedOntologyList.flatMap {
       case ontologyList if ontologyList.isEmpty => Future.successful(FetchResult(searchEngineFailed = true))
       case ontologyList if !ontologyList.isEmpty =>
         Logger.info("Downloading ontologies, total file count: " + ontologyList.size)
