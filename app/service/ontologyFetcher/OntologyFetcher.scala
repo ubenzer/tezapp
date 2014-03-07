@@ -2,16 +2,18 @@ package service.ontologyFetcher
 
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.ws.{WS, Response}
-import play.api.Logger
+import play.api.{Play, Logger}
 import java.net.ConnectException
 import java.util.concurrent.TimeoutException
 import service.ontologyFetcher.parser.{RIOParser, OntologyParser}
 import common.ExecutionContexts
 import service.FetchResult
 import service.ontologyFetcher.storer.MongoStorageEngine
-
+import play.api.Play.current
 
 abstract class OntologyFetcher(parser: OntologyParser) {
+  val CHUNK_SIZE = Play.configuration.getInt("process.chunkSize").getOrElse(50)
+
   def getOntologyList(keyword: String): Future[Set[String]]
 
   def serialiseFutures[A, B](l: Iterable[A])(fn: A ⇒ Future[B])
@@ -38,7 +40,7 @@ abstract class OntologyFetcher(parser: OntologyParser) {
       case ontologyList if !ontologyList.isEmpty =>
         Logger.info("Downloading ontologies, total file count: " + ontologyList.size)
 
-        serialiseFutures(ontologyList.grouped(100).toIterable) {
+        serialiseFutures(ontologyList.grouped(CHUNK_SIZE).toIterable) {
           aChunk =>
             def downloadedOntologiesFutureSeq: List[Future[(Option[Response], FetchResult)]] = downloadOntologies(aChunk)
             def processedOntologiesSeq: List[Future[FetchResult]] = downloadedOntologiesFutureSeq.map {
