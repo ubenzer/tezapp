@@ -67,5 +67,5 @@ These are the libraries, frameworks etc. that are used in this project.
 
 ### Data Sources
 + [Swoogle](http://swoogle.umbc.edu/)
-+ [Sindice](http://sindice.com/) _(implemented on [sindice](https://github.com/ubenzer/tezapp/tree/sindice) branch, but [API is not reachable](http://lists.w3.org/Archives/Public/public-lod/2014Jan/0070.html) ATM)_
++ [Sindice](http://sindice.com/)
 + [Watson](http://watson.kmi.open.ac.uk/WatsonWUI/)
