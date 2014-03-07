@@ -39,6 +39,4 @@ object ApplicationBuild extends Build {
     lessEntryPoints <<= baseDirectory(customLessEntryPoints),
     javascriptEntryPoints <<= baseDirectory(customJSEntryPoints)
   )
-
-  scalacOptions ++= Seq("-Xmx512M", "-Xmx2048M", "-XX:MaxPermSize=2048M")
 }
