@@ -37,6 +37,8 @@ object Application extends Controller {
               keyword => OntologyFetcher.SwoogleFetcher.search(keyword.trim)
             } ++ keywords.map {
               keyword => OntologyFetcher.WatsonFetcher.search(keyword.trim)
+            } ++ keywords.map {
+              keyword => OntologyFetcher.SindiceFetcher.search(keyword.trim)
             }
             Future.sequence(futureList)
           } else {

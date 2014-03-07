@@ -12,6 +12,7 @@ POST    /relation/object            controllers.Test.getRelatedElementsByObject
 POST    /relation/subject           controllers.Test.getRelatedElementsBySubject
 
 
+GET     /test/sindice               controllers.Test.sindice(keyword)
 GET     /test/swoogle               controllers.Test.swoogle(keyword)
 GET     /test/watson                controllers.Test.watson(keyword)
 GET     /test/find                  controllers.Test.find(keyword)
