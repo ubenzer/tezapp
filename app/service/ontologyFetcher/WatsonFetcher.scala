@@ -7,10 +7,12 @@ import common.ExecutionContexts
 import service.FetchResult
 import scala.util.{Success, Failure}
 import play.api.libs.json.JsArray
-import play.api.Logger
+import play.api.{Play, Logger}
+import play.api.Play.current
 
 class WatsonFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
   private val SEARCH_ONTOLOGY_API_URL = "http://watson.kmi.open.ac.uk/API/semanticcontent/keywords/"
+  private val WATSON_MAX_RESULT = Play.configuration.getInt("watson.maxSearchResult").getOrElse(100)
 
   def search(keyword: String): Future[FetchResult] = super.search(keyword, "watson")
 
@@ -18,9 +20,7 @@ class WatsonFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
     import ExecutionContexts.internetIOOps
     val resultListResponseFuture: Future[Response] = fetchResults(keyword)
     resultListResponseFuture.map {
-      response => toUrlList(response).filterNot {
-        x => x.contains("livejournal.com") || x.contains("deadjournal.com")
-      }
+      response => toUrlList(response)
     }.recover {
       case ex: Throwable => Set.empty[String]
     }
@@ -34,7 +34,9 @@ class WatsonFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
         element =>
           val link = element.asOpt[String]
           link
-      }.flatten.toSet
+      }.flatten.filterNot {
+        x => x.contains("livejournal.com") || x.contains("deadjournal.com")
+      }.take(WATSON_MAX_RESULT).toSet
     } catch {
       case ex: Throwable => Set.empty[String]
     }
