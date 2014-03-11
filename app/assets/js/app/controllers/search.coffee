@@ -4,7 +4,7 @@ ngDefine "controllers.search", (module) ->
   module.controller "search", ($scope, $state, SearchSerializer) ->
     $scope.formData = {
       keywords: []
-      offline: false
+      offline: true
     }
     $scope.doSearch = () ->
       if($scope.formData.keywords.length == 0) then return
