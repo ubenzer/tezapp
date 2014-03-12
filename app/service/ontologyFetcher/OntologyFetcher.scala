@@ -67,23 +67,25 @@ abstract class OntologyFetcher(parser: OntologyParser) {
     val resultFutures = urlList.map {
       url =>
         Logger.info("Downloading ontology: " + url)
-        WS.url(url).withHeaders(("Accept", "application/rdf+xml, application/xml;q=0.6, text/xml;q=0.6")).get().map {
-          response => response.status match {
-            case num if 404 == num => (None, FetchResult(notFound = 1))
-            case num if 400 until 500 contains num => (None, FetchResult(failed400x = 1))
-            case num if 500 until 600 contains num => (None, FetchResult(failed500x = 1))
-            case _ => (Some(response), FetchResult(success = 1))
+        try {
+          WS.url(url).withHeaders(("Accept", "application/rdf+xml, application/xml;q=0.6, text/xml;q=0.6")).get().map {
+            response => response.status match {
+              case num if 404 == num => (None, FetchResult(notFound = 1))
+              case num if 400 until 500 contains num => (None, FetchResult(failed400x = 1))
+              case num if 500 until 600 contains num => (None, FetchResult(failed500x = 1))
+              case _ => (Some(response), FetchResult(success = 1))
+            }
+          }.recover {
+            case ex: TimeoutException =>
+              Logger.info("Fetch failed because of a timeout  for url " + url)
+              (None, FetchResult(timeout = 1))
+            case ex: ConnectException =>
+              Logger.info("Fetch failed because of connection problem for url " + url)
+              (None, FetchResult(connection = 1))
+            case ex: Throwable =>
+              Logger.error("Fetch failed for url " + url, ex)
+              (None, FetchResult(unknown = 1))
           }
-        } recover {
-          case ex: TimeoutException =>
-            Logger.info("Fetch failed because of a timeout  for url " + url)
-            (None, FetchResult(timeout = 1))
-          case ex: ConnectException =>
-            Logger.info("Fetch failed because of connection problem for url " + url)
-            (None, FetchResult(connection = 1))
-          case ex: Exception =>
-            Logger.error("Fetch failed for url " + url, ex)
-            (None, FetchResult(unknown=1))
         }
     }
     resultFutures

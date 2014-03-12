@@ -82,18 +82,18 @@ object Test extends Controller {
             val withExportTriples: Future[Set[OntologyTriple]] = Future.sequence {
               triples.map {
                 triple =>
-                  val allExportedKinds: Future[Set[OntologyTriple]] = Future.sequence {
+                  val allExportedKinds: Future[List[OntologyTriple]] = Future.sequence {
                     RDFExport.INCLUDE_IN_ALL_EXPORTS.map {
                       include =>
-                        val exportedKind: Future[Set[OntologyTriple]] = OntologyTriple.getRecursive(triple.subject, 10) {
+                        val exportedKind: Future[List[OntologyTriple]] = OntologyTriple.getRecursive(triple.subject, 10) {
                           subject: String =>
                             OntologyTriple.getTriple(Some(subject), Some(include))
                         }{
-                          x => Set(x.subject, x.predicate) ++ (if(x.isObjectData) { Set.empty } else { Set(x.objekt) })
+                          x => if(x.isObjectData) { List.empty } else { List(x.objekt) }
                         }
                         exportedKind
                     }
-                  }.map { x => x.toSet.flatten }
+                  }.map { x => x.flatten }
                   allExportedKinds
               }
             }.map { x => x.toSet.flatten }
@@ -168,7 +168,7 @@ object Test extends Controller {
                 setOfMaybeDisplayableElements =>setOfMaybeDisplayableElements.flatten
               }.map {
                 displayableElements =>
-                  Ok(Json.toJson(displayableElements))
+                  Ok(Json.toJson(displayableElements.toSet))
               }
            case _ =>  Future.successful {
              BadRequest("Invalid type")

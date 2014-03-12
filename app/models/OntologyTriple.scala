@@ -166,7 +166,7 @@ object OntologyTriple {
     }
   }
 
-  def getSubject(predicate: String, objekt: String): Future[Set[String]] = {
+  def getSubject(predicate: String, objekt: String): Future[List[String]] = {
     getTriple(None, Some(predicate), Some(objekt)).map {
       ot => {
         ot.map {
@@ -175,7 +175,7 @@ object OntologyTriple {
       }
     }
   }
-  def getPredicate(subject: String, objekt: String): Future[Set[String]] = {
+  def getPredicate(subject: String, objekt: String): Future[List[String]] = {
     getTriple(Some(subject), None, Some(objekt)).map {
       ot => {
         ot.map {
@@ -184,7 +184,7 @@ object OntologyTriple {
       }
     }
   }
-  def getObject(subject: String, predicate: String): Future[Set[String]] = {
+  def getObject(subject: String, predicate: String): Future[List[String]] = {
     getTriple(Some(subject), Some(predicate), None).map {
       ot => {
         ot.map {
@@ -194,28 +194,28 @@ object OntologyTriple {
     }
   }
 
-  def getTriple(subject: Option[String] = None, predicate: Option[String] = None, objekt: Option[String] = None): Future[Set[OntologyTriple]] = {
+  def getTriple(subject: Option[String] = None, predicate: Option[String] = None, objekt: Option[String] = None): Future[List[OntologyTriple]] = {
     if(!subject.isDefined && !predicate.isDefined && !objekt.isDefined) {
-      return Future.successful(Set.empty)
+      return Future.successful(List.empty)
     }
 
     val query: List[(String, BSONValue)] = subject.map(x => List("subject" -> BSONString(x))).getOrElse(List.empty) ++
                 predicate.map(x => List("predicate" -> BSONString(x))).getOrElse(List.empty) ++
                 objekt.map(x => List("objekt" -> BSONString(x))).getOrElse(List.empty)
 
-    val f: Future[Set[OntologyTriple]] = collection.find(
+    val f: Future[List[OntologyTriple]] = collection.find(
       BSONDocument(query)
-    ).cursor[OntologyTriple].collect[Set]()
+    ).cursor[OntologyTriple].collect[List]()
 
     f.recover {
       case e:Throwable => {
         Logger.error("getSubject failed with subject: " + subject + " predicate: " + predicate + " The error is: " + e)
-        Set.empty
+        List.empty
       }
     }
   }
 
-  def getTriplesThatIncludes(elements: String*): Future[Set[OntologyTriple]] = {
+  def getTriplesThatIncludes(elements: List[String]): Future[List[OntologyTriple]] = {
     val f: Future[List[OntologyTriple]] = collection.find(
       BSONDocument(
         "elementUris" -> BSONDocument(
@@ -224,27 +224,25 @@ object OntologyTriple {
       )
     ).cursor[OntologyTriple].collect[List](MAX_URI_SEARCH_COUNT)
 
-    f.map {
-      ot => ot.toSet
-    } recover {
+    f.recover {
       case e:Throwable => {
         Logger.error("getTriplesThatIncludes failed for: " + elements.mkString(", ") + " The error is: " + e)
-        Set.empty
+        List.empty
       }
     }
   }
 
-  def getRecursive[I,O](queryElement: I, recursionCount:Int = 5)(fetchFunction: I => Future[Set[O]])(transformFunction: O => Set[I]): Future[Set[O]] = {
-    val fetchedFutureSet: Future[Set[O]] = fetchFunction(queryElement)
+  def getRecursive[I,O](queryElement: I, recursionCount:Int = 5)(fetchFunction: I => Future[List[O]])(transformFunction: O => List[I]): Future[List[O]] = {
+    val fetchedFutureSet: Future[List[O]] = fetchFunction(queryElement)
     if(recursionCount == 0) {
       fetchedFutureSet
     } else {
-      val nextPhase: Future[Set[O]] = fetchedFutureSet.flatMap {
-        fetchedSet: Set[O] =>
-          val f2: Set[Future[Set[O]]] = fetchedSet.map {
+      val nextPhase: Future[List[O]] = fetchedFutureSet.flatMap {
+        fetchedSet: List[O] =>
+          val f2: List[Future[List[O]]] = fetchedSet.map {
             fetched: O =>
-              val candidates: Set[I] = transformFunction(fetched)
-              val candidatesProcessed: Set[Future[Set[O]]] = candidates.map {
+              val candidates: List[I] = transformFunction(fetched)
+              val candidatesProcessed: List[Future[List[O]]] = candidates.map {
                 candidate: I =>
                   getRecursive(candidate, recursionCount - 1)(fetchFunction)(transformFunction)
               }
@@ -252,7 +250,7 @@ object OntologyTriple {
           }
           Future.sequence(f2).map { flatten => flatten.flatten }
       }
-      Future.sequence(Set(fetchedFutureSet, nextPhase)).map { flatten => flatten.flatten }
+      Future.sequence(List(fetchedFutureSet, nextPhase)).map { flatten => flatten.flatten }
     }
   }
 
@@ -284,14 +282,14 @@ object OntologyTriple {
     getTriple(Some(subject), Some(predicate), None).map {
       oSet =>
         if(oSet.size > 1) {
-          val en: Set[OntologyTriple] = oSet.filter(x => x.objectLanguage == Some("en"))
+          val en: List[OntologyTriple] = oSet.filter(x => x.objectLanguage == Some("en"))
           if(en.size > 1) {
             Logger.warn("Uri " + subject + " has more than one en language " + predicate)
             Some(en.head.objekt)
           } else if (en.size == 1) {
             Some(en.head.objekt)
           } else {
-            val nullLang: Set[OntologyTriple] = oSet.filter(x => x.objectLanguage == None)
+            val nullLang: List[OntologyTriple] = oSet.filter(x => x.objectLanguage == None)
             if(nullLang.size > 1) {
               Logger.warn("Uri " + subject + " has more than one any language " + predicate)
               Some(nullLang.head.objekt)
