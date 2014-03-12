@@ -30,13 +30,13 @@ object Application extends Controller {
     request =>
       request.body.validate[(List[String], Boolean)].map {
         case (keywords, offline) =>
-
+          /*++ keywords.map {
+            keyword => OntologyFetcher.WatsonFetcher.search(keyword.trim)
+          } */
           // Update database if requested.
           (if(!offline) {
             val futureList: List[Future[FetchResult]] = keywords.map {
               keyword => OntologyFetcher.SwoogleFetcher.search(keyword.trim)
-            } ++ keywords.map {
-              keyword => OntologyFetcher.WatsonFetcher.search(keyword.trim)
             } ++ keywords.map {
               keyword => OntologyFetcher.SindiceFetcher.search(keyword.trim)
             }
