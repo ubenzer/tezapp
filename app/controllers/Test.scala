@@ -60,16 +60,15 @@ object Test extends Controller {
     }
   }
 
-  implicit val searchObjectRead: Reads[(List[String], String, Boolean)] =
+  implicit val searchObjectRead: Reads[(List[String], String)] =
     {
       (__ \ "elements").read[List[String]] and
-      (__ \ "properties" \ "format").read[String] and
-      (__ \ "properties" \ "neighbours").read[Boolean]
+      (__ \ "properties" \ "format").read[String]
     }.tupled
   def export() = Action(parse.json) {
     request =>
-      request.body.validate[(List[String], String, Boolean)].map {
-        case (elements: List[String], format: String, neighbours: Boolean) =>
+      request.body.validate[(List[String], String)].map {
+        case (elements: List[String], format: String) =>
 
           val formatObj = Option(RDFFormat.valueOf(format))
 
@@ -78,15 +77,7 @@ object Test extends Controller {
 
           def isBlankNode(uri: String) = uri.indexOf(':') < 0
 
-          OntologyTriple.getRecursive(elements, if(neighbours) {1} else {0})(OntologyTriple.getTriplesThatIncludes){
-            x: OntologyTriple =>
-              Set(
-                (if(RDFExport.isUriACommonOntologyThing(x.subject)) { List.empty } else { List(x.subject) }) ++
-                (if(RDFExport.isUriACommonOntologyThing(x.predicate)) { List.empty } else { List(x.predicate) }) ++
-                (if(!x.isObjectData && !RDFExport.isUriACommonOntologyThing(x.objekt)) { List(x.objekt) } else { List.empty }) ++
-                Nil
-              )
-          }.flatMap {
+          OntologyTriple.getTriplesThatIncludes(elements).flatMap {
            triples =>
             val withExportTriples: Future[Set[OntologyTriple]] = Future.sequence {
               triples.map {

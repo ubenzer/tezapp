@@ -7,7 +7,6 @@ ngDefine "controllers.results.export", ["Blob", "FileSaver"], (module) ->
     $scope.properties = {
       fileName: "TOK Export " + $filter('date')(new Date()) + " " + $filter('date')(new Date(),"shortTime")
       format: $scope.export.exportFormats[0]
-      neighbours: false
     }
 
     $scope.export = $scope.export || {}
@@ -26,7 +25,6 @@ ngDefine "controllers.results.export", ["Blob", "FileSaver"], (module) ->
         elements: tripleIds
         properties:
           format: selectedFormat.name
-          neighbours: $scope.properties.neighbours
       })
       .success (data) ->
         blob = new Blob([data], {type: selectedFormat.mime + ";charset=" + document.characterSet})
