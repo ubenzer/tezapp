@@ -31,8 +31,8 @@ This application is not hosted in anywhere _yet_.
 ## Running application on your machine
 
 1. [Download](http://www.playframework.com/download) and install PlayFramework 2.2. Refer to [their documentation](http://www.playframework.com/documentation/2.2.x/Installing) if required.
-2. Install [MongoDB 2.4](http://www.mongodb.org/)
-3. Run MongoDB with _(experimental)_ text search enabled mode with the following params: `mongod --setParameter textSearchEnabled=true`
+2. Install [MongoDB 2.6](http://www.mongodb.org/)
+3. Run MongoDB.
 4. Create a copy of `conf/secret.sample.conf` naming it `conf/secret.conf`.
 5. Edit `conf/secret.conf` and fill it with your own configuration.
 5. Run application with `run` or `start` on Play console.
