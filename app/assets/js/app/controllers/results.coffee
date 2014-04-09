@@ -18,7 +18,7 @@ ngDefine "controllers.results", [
     $scope.export = {}
     $scope.export.exportFormats = exportFormats
 
-    # Initianize page parts
+    # Initialize page parts
     resultsPageBaseUrl = UrlConfig.htmlBaseUrl + "/results"
     # Basic configuration for subpages.
     $scope.pageParts = {
