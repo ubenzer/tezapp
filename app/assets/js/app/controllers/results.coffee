@@ -6,7 +6,7 @@ ngDefine "controllers.results", [
   "module:controllers.results.genericEntity"
 ], (module) ->
 
-  module.controller "results", ($scope, $state, $stateParams, SearchSerializer, SelectedItems, UrlConfig, $http, exportFormats, PrettyNaming) ->
+  module.controller "results", ($scope, $state, $stateParams, SearchSerializer, SelectedItems, UrlConfig, $http, exportFormats, PrettyNaming, $filter) ->
 
     $scope.searchConfig = SearchSerializer.deserialize($stateParams.searchParams)
     if(!$scope.searchConfig)
@@ -35,18 +35,22 @@ ngDefine "controllers.results", [
     }
 
     $scope.resultList = []
-    $scope.resultLimit = 20
+    $scope.resultListVisible = []
+    $scope.resultLimit = 30
     $scope.showMoreResults = () -> $scope.resultLimit += 50
-    $scope.hasMoreResults = () -> $scope.resultLimit < $scope.resultList.length
+    $scope.hasMoreResults = () -> $scope.resultLimit < $scope.resultListVisible.length
 
     # Do search!
     $http.post("/search", $scope.searchConfig)
       .success (data) ->
         $scope.resultList = processResults(data.searchResults)
+        return
       .error () ->
         alert("Some error occurred. Please resubmit your search. Sorry. :/")
+        return
       .finally () ->
         $scope.pageControls.searchInProgress = false
+        return
 
     $scope.getSelectedElementCount = () -> SelectedItems.getSelectedCount()
 
@@ -79,6 +83,16 @@ ngDefine "controllers.results", [
       $scope.entityDetails.push(entity)
       entityDetailsUriLookup[entityObj.uri] = entity
       return
+
+    $scope.entityTypes = PrettyNaming.list()
+    $scope.filter = {}
+    Object.keys($scope.entityTypes).forEach (entity) -> $scope.filter[entity] = true
+    typeFilter = (item) -> ($scope.filter[item.kind]? && $scope.filter[item.kind])
+    refreshFilter = () ->
+      $scope.resultListVisible = $filter('filter')($scope.resultList, typeFilter)
+      $scope.resultLimit = 30
+    $scope.$watchCollection("resultList", refreshFilter)
+    $scope.$watch("filter", refreshFilter, true)
 
     return
 

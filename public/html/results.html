@@ -16,12 +16,21 @@
             <i class="fa fa-search fa-lg fa-fw"></i>Search Results
           </tab-heading>
 
+          <div class="well well-sm pull-right refine-results">
+            <p class="lead">Refine Results</p>
+            <h6>Show/Hide by Type</h6>
+            <div class="checkbox" ng-repeat="(entityUrl, entityData) in entityTypes">
+              <label for="filter-{{ entityUrl }}">
+                <input type="checkbox" id="filter-{{ entityUrl }}" ng-model="filter[entityUrl]"> <span>{{ entityData.name }}</span>
+              </label>
+            </div>
+          </div>
           <ng-include
-            ng-repeat="result in resultList | limitTo: resultLimit"
+            ng-repeat="result in resultListVisible | limitTo: resultLimit"
             src="pageParts.genericEntity">
           </ng-include>
 
-          <button class="btn btn-large btn-default btn-block" ng-show="hasMoreResults()" ng-click="showMoreResults()">Show more</button>
+          <button class="btn btn-large btn-primary btn-block" style="margin-bottom: 10px;" ng-show="hasMoreResults()" ng-click="showMoreResults()">Show more</button>
         </tab>
 
         <tab ng-repeat="entityDetail in entityDetails" active="entityDetail.active">
@@ -38,6 +47,7 @@
           </tab-heading>
           <ng-include src="pageParts.exportTab"></ng-include>
         </tab>
+
       </tabset>
     </div>
   </div>

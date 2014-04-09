@@ -3,26 +3,36 @@ ngDefine "services.PrettyNaming", (module) ->
 
   module.factory "PrettyNaming", () ->
 
-    prettyPrintLookup = {
-      "http://www.w3.org/2002/07/owl#Class": "Class"
-      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property": "Property"
-      "http://www.w3.org/2002/07/owl#ObjectProperty": "Object Property"
-      "http://www.w3.org/2002/07/owl#Ontology": "Ontology"
-      "http://www.w3.org/2002/07/owl#Thing": "Thing"
-      "__INSTANCE__": "Individual"
-    }
-
-    classNamingLookup = {
-      "http://www.w3.org/2002/07/owl#Class": "class"
-      "http://www.w3.org/2002/07/owl#ObjectProperty": "property object-property"
-      "http://www.w3.org/2002/07/owl#Ontology": "ontology"
-      "http://www.w3.org/2002/07/owl#Thing": "thing"
-      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property": "property"
-      "__INSTANCE__": "instance"
+    lookup = {
+      "http://www.w3.org/2002/07/owl#Class": {
+        name: "Class"
+        code: "class"
+      }
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property": {
+        name: "Property"
+        code: "property"
+      }
+      "http://www.w3.org/2002/07/owl#ObjectProperty": {
+        name: "Object Property"
+        code: "object-property"
+      }
+      "http://www.w3.org/2002/07/owl#Ontology": {
+        name: "Ontology"
+        code: "ontology"
+      }
+      "http://www.w3.org/2002/07/owl#Thing": {
+        name: "Thing"
+        code: "thing"
+      }
+      "__INSTANCE__": {
+        name: "Individual"
+        code: "instance"
+      }
     }
 
     api = {
-      for: (uglyName) -> prettyPrintLookup[uglyName] || uglyName
-      classNameFor: (uglyName) -> classNamingLookup[uglyName] || uglyName
+      list: () -> angular.copy(lookup)
+      for: (uglyName) -> lookup[uglyName]?.name || uglyName
+      classNameFor: (uglyName) -> lookup[uglyName]?.code || uglyName
     }
     api
