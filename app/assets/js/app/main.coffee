@@ -21,6 +21,9 @@ ngDefine "main", [
   # Directives
   "module:directives.genericEntity"
 
+  # Filters
+  "module:filters.cut"
+
 ], (module) ->
 
   module.constant("UrlConfig", {

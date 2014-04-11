@@ -16,6 +16,7 @@ ngDefine "directives.genericEntity", (module) ->
     $scope.entityData.className = PrettyNaming.classNameFor($scope.entityData.kind)
     $scope.entityData.popover =
         "<p><strong>Type:</strong> " + $scope.entityData.kindPretty + "</p>" +
+        "<p><small>" + ($filter("cut")(($scope.entityData.comment || "") , 150)) + "</small></p>"
 
     $scope.showEntityDetail = (event) ->
       event.stopPropagation()
