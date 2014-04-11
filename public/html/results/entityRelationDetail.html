@@ -19,10 +19,13 @@
       <div class="well well-sm">
         <div class="row">
           <div ng-repeat="relations in columnedRelations" class="col-md-{{12/columnedRelations.length}}">
-            <ng-include
-                ng-repeat="result in relations | limitTo: resultLimit"
-                src="pageParts.genericEntity">
-            </ng-include>
+            <generic-entity
+                ng-repeat="relation in relations | limitTo: resultLimit"
+                entity="relation"
+                selectable="true"
+                show-navigation="true"
+                on-detail-action="showEntityDetail(relation, $activate)">
+            </generic-entity>
           </div>
         </div>
        </div>

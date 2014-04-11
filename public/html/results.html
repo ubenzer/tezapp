@@ -25,10 +25,14 @@
               </label>
             </div>
           </div>
-          <ng-include
+
+          <generic-entity
             ng-repeat="result in resultListVisible | limitTo: resultLimit"
-            src="pageParts.genericEntity">
-          </ng-include>
+            entity="result"
+            selectable="false"
+            show-navigation="true"
+            on-detail-action="showEntityDetail(result, $activate)">
+          </generic-entity>
 
           <button class="btn btn-large btn-primary btn-block" style="margin-bottom: 10px;" ng-show="hasMoreResults()" ng-click="showMoreResults()">Show more</button>
         </tab>

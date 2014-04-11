@@ -18,6 +18,9 @@ ngDefine "main", [
   "module:services.PrettyNaming"
   "module:services.Utils"
 
+  # Directives
+  "module:directives.genericEntity"
+
 ], (module) ->
 
   module.constant("UrlConfig", {

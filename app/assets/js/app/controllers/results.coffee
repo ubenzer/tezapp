@@ -3,7 +3,6 @@ ngDefine "controllers.results", [
   "module:controllers.results.header"
   "module:controllers.results.export"
   "module:controllers.results.entityDetail"
-  "module:controllers.results.genericEntity"
 ], (module) ->
 
   module.controller "results", ($scope, $state, $stateParams, SearchSerializer, SelectedItems, UrlConfig, $http, exportFormats, PrettyNaming, $filter) ->
@@ -27,7 +26,6 @@ ngDefine "controllers.results", [
       entityDetailTab: resultsPageBaseUrl + "/entityDetail.html"
       entityRelationTab: resultsPageBaseUrl + "/entityRelation.html"
       entityRelationDetail: resultsPageBaseUrl + "/entityRelationDetail.html"
-      genericEntity: resultsPageBaseUrl + "/genericEntity.html"
     }
     # Data for page parts
     $scope.pageControls = {
@@ -62,8 +60,7 @@ ngDefine "controllers.results", [
 
     $scope.entityDetails = []
     entityDetailsUriLookup = {}
-    $scope.showEntityDetail = (maybeEvent, entityObj) ->
-      if(maybeEvent?) then maybeEvent.stopPropagation()
+    $scope.showEntityDetail = (entityObj, activeTab = true) ->
 
       if(entityDetailsUriLookup[entityObj.uri]?)
         # If already open, switch to that tab.
@@ -73,7 +70,7 @@ ngDefine "controllers.results", [
       entity = {
         title: entityObj.label || entityObj.uri
         className: PrettyNaming.classNameFor(entityObj.kind)
-        active: (!maybeEvent? || maybeEvent.button != 1)
+        active: activeTab
         close: () ->
           $scope.entityDetails.splice($scope.entityDetails.indexOf(entity), 1)
           delete entityDetailsUriLookup[entityObj.uri]

@@ -3,7 +3,6 @@ ngDefine "controllers.results.entityRelationDetail", (module) ->
   module.controller "results.entityRelationDetail", ($scope, $http, Utils) ->
     if(!angular.isObject($scope.entityRelationType)) then throw new Error("We need entityRelationType to be defined in scope")
     if(!angular.isString($scope.entity?.uri)) then throw new Error("We need entity#uri to be defined in scope")
-    if(!angular.isString($scope.pageParts?.genericEntity)) then throw new Error("We need pageParts#genericEntity to be defined in scope")
 
     relationSize = 0
     $scope.showMoreResults = () -> $scope.resultLimit += 5
