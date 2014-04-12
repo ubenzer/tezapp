@@ -8,8 +8,8 @@ GET     /                           controllers.Application.index
 POST    /search                     controllers.Application.search
 POST    /export                     controllers.Test.export
 GET     /exportFormats              controllers.Application.getExportFormats
-POST    /relation/object            controllers.Test.getRelatedElementsByObject
-POST    /relation/subject           controllers.Test.getRelatedElementsBySubject
+POST    /relation/object            controllers.Test.getRelatedElements(getBy = "object")
+POST    /relation/subject           controllers.Test.getRelatedElements(getBy = "subject")
 
 
 GET     /test/sindice               controllers.Test.sindice(keyword)

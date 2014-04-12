@@ -148,16 +148,21 @@ object Test extends Controller {
       "range" -> RDF.Range,
       "domain" -> RDF.Domain,
       "subclassOf" -> RDF.SubclassOf,
-
       "type" -> RDF.Type
     )
-  def getRelatedElementsByObject = Action.async(parse.json) {
+  def getRelatedElements(getWhat: String) = Action.async(parse.json) {
     request =>
       request.body.validate[(String, String)].map {
-        case (uri: String, relationType: String) =>
-         availableRelationTypes.get(relationType) match {
-           case Some(rt: String) =>
-              OntologyTriple.getObject(uri, rt).flatMap {
+        case (uri: String, notValidatedRelationType: String) =>
+          availableRelationTypes.get(notValidatedRelationType) match {
+            case Some(relationUrl: String) =>
+              (
+                if(getWhat == "object") {
+                  OntologyTriple.getObject(subject = uri, predicate = relationUrl)
+                } else {
+                  OntologyTriple.getSubject(predicate = relationUrl, objekt = uri)
+                }
+              ).flatMap {
                 elements =>
                   Future.sequence {
                     elements.map {
@@ -165,43 +170,14 @@ object Test extends Controller {
                     }
                   }
               }.map {
-                setOfMaybeDisplayableElements =>setOfMaybeDisplayableElements.flatten
+                setOfMaybeDisplayableElements => setOfMaybeDisplayableElements.flatten
               }.map {
                 displayableElements =>
                   Ok(Json.toJson(displayableElements.toSet))
               }
-           case _ =>  Future.successful {
-             BadRequest("Invalid type")
-           }
-          }
-    }.recoverTotal {
-      e => Future.successful {
-        BadRequest(JsError.toFlatJson(e))
-      }
-    }
-  }
-  def getRelatedElementsBySubject = Action.async(parse.json) {
-    request =>
-      request.body.validate[(String, String)].map {
-        case (uri: String, relationType: String) =>
-         availableRelationTypes.get(relationType) match {
-           case Some(rt: String) =>
-              OntologyTriple.getSubject(rt, uri).flatMap {
-                elements =>
-                  Future.sequence {
-                    elements.map {
-                      element => OntologyTriple.getDisplayableElement(element)
-                    }
-                  }
-              }.map {
-                setOfMaybeDisplayableElements =>setOfMaybeDisplayableElements.flatten
-              }.map {
-                displayableElements =>
-                  Ok(Json.toJson(displayableElements))
-              }
-           case _ => Future.successful {
-             BadRequest("Invalid type")
-           }
+            case _ => Future.successful {
+              BadRequest("Invalid 'type'")
+            }
           }
     }.recoverTotal {
       e => Future.successful {
