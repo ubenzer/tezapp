@@ -14,7 +14,7 @@ object RDF {
   val Range = "http://www.w3.org/2000/01/rdf-schema#range"
   val Domain = "http://www.w3.org/2000/01/rdf-schema#domain"
   val Thing = "http://www.w3.org/2002/07/owl#Thing"
-  val subPropertyOf = "http://www.w3.org/2000/01/rdf-schema#subPropertyOf"
+  val SubPropertyOf = "http://www.w3.org/2000/01/rdf-schema#subPropertyOf"
 }
 object RDFNamespace {
   val RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns"
