@@ -141,26 +141,17 @@ object Test extends Controller {
   implicit val getRelatedElementsRead: Reads[(String, String)] =
     {
       (__ \ "uri").read[String] and
-      (__ \ "what").read[String]
+      (__ \ "predicate").read[String]
     }.tupled
-  val availableRelationTypes = Map(
-      "disjointWith"-> RDF.DisjointWith,
-      "range" -> RDF.Range,
-      "domain" -> RDF.Domain,
-      "subclassOf" -> RDF.SubclassOf,
-      "type" -> RDF.Type
-    )
+  val searchableTypes = RDF.InverseOf :: RDF.DisjointWith :: RDF.Range :: RDF.Domain ::
+    RDF.SubPropertyOf :: RDF.SubclassOf :: RDF.Type :: Nil
   def getRelatedElements(getWhat: String) = Action.async(parse.json) {
     request =>
       request.body.validate[(String, String)].map {
-        case (uri: String, notValidatedRelationType: String) =>
-          availableRelationTypes.get(notValidatedRelationType) match {
-            case Some(relationUrl: String) =>
-              (
-                if(getWhat == "object") {
-                  OntologyTriple.getObject(subject = uri, predicate = relationUrl)
-                } else {
-                  OntologyTriple.getSubject(predicate = relationUrl, objekt = uri)
+        case (uri: String, predicate: String) =>
+          if(!searchableTypes.contains(predicate)) {
+            Future.successful { BadRequest("Invalid 'type'") }
+          } else {
                 }
               ).flatMap {
                 elements =>
@@ -175,8 +166,6 @@ object Test extends Controller {
                 displayableElements =>
                   Ok(Json.toJson(displayableElements.toSet))
               }
-            case _ => Future.successful {
-              BadRequest("Invalid 'type'")
             }
           }
     }.recoverTotal {
