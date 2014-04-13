@@ -20,6 +20,7 @@ ngDefine "main", [
 
   # Directives
   "module:directives.genericEntity"
+  "module:directives.genericRelationDetail"
 
   # Filters
   "module:filters.cut"

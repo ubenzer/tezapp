@@ -81,15 +81,6 @@ ngDefine "controllers.results.entityDetail", [
       }
     ]
 
-    ## INSTANCE ##
-    instance = [
-      {
-       name: "Instance of"
-       hierarchy: true
-      }
-    ]
-
-
     relationSearches = []
     switch $scope.entity.kind
       when "http://www.w3.org/2002/07/owl#Class" then relationSearches = classRelations
