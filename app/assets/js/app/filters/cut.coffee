@@ -2,11 +2,10 @@
 ngDefine "filters.cut", (module) ->
   # Reference: http://stackoverflow.com/a/18096071/158523
   module.filter 'cut', () ->
-    (value, max, wordwise, tail) ->
+    (value, max = 100, wordwise = false, tail = '…') ->
       if (!value) then return ''
 
       max = parseInt(max, 10)
-      if (!max?) then return value
       if (value.length <= max) then return value
 
       value = value.substr(0, max)
@@ -15,4 +14,4 @@ ngDefine "filters.cut", (module) ->
         if (lastSpace != -1)
           value = value.substr(0, lastSpace)
 
-      return value + (tail || ' …')
+      return value + tail
