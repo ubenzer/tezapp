@@ -9,7 +9,7 @@
   <p>{{ entity.comment }}</p>
 
   <div ng-if="entity.kind != '__INSTANCE__'" class="entity-relations row" ng-repeat="entityRelationTypes in columnEntityRelationTypes">
-    <div class="col-md-6" ng-repeat="entityRelationType in entityRelationTypes">
+    <div ng-repeat="entityRelationType in entityRelationTypes">
       <generic-relation-detail entity-uri="entity.uri" relation-data="entityRelationType"
                                show-navigation="true" on-detail-action="showEntityDetail($relationEntity, $activate)"></generic-relation-detail>
     </div>
