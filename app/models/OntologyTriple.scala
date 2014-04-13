@@ -276,9 +276,9 @@ object OntologyTriple {
         }
     }
   }
-  def getLabel(subject: String): Future[Option[String]] = _getSingleObject(subject, RDF.Label)
+  def getLabel(subject: String): Future[Option[String]] = _getSingleObject(subject, RDF.Label, defaultToAnchor = true)
   def getComment(subject: String): Future[Option[String]] = _getSingleObject(subject, RDF.Comment)
-  private def _getSingleObject(subject: String, predicate: String): Future[Option[String]] = {
+  private def _getSingleObject(subject: String, predicate: String, defaultToAnchor: Boolean = false): Future[Option[String]] = {
 
     def getLabelFromUri(uri: String): Option[String] = {
       val splittedUri = uri.split("#")
@@ -293,16 +293,26 @@ object OntologyTriple {
       oSet =>
         if(oSet.size > 0) {
           val en: List[OntologyTriple] = oSet.filter(x => x.objectLanguage == Some("en"))
-          if(en.size > 1) {
-            Logger.warn("Uri " + subject + " has more than one en language " + predicate)
-            Some(en.head.objekt)
-          } else if (en.size == 1) {
+          if(en.size > 0) {
             Some(en.head.objekt)
           } else {
-            getLabelFromUri(subject)
+            if(defaultToAnchor) {
+              getLabelFromUri(subject)
+            } else {
+              val nullLang: List[OntologyTriple] = oSet.filter(x => x.objectLanguage == None)
+              if(nullLang.size > 0) {
+                Some(nullLang.head.objekt)
+              } else {
+                Some(oSet.head.objekt)
+              }
+            }
           }
         } else {
-          getLabelFromUri(subject)
+          if(defaultToAnchor) {
+            getLabelFromUri(subject)
+          } else {
+            None
+          }
         }
     }
   }
