@@ -9,12 +9,12 @@ ngDefine "services.PrettyNaming", (module) ->
         code: "class"
       }
       "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property": {
-        name: "Property"
+        name: "RDF Property"
         code: "property"
       }
       "http://www.w3.org/2002/07/owl#ObjectProperty": {
         name: "Object Property"
-        code: "object-property"
+        code: "property"
       }
       "http://www.w3.org/2002/07/owl#Ontology": {
         name: "Ontology"
