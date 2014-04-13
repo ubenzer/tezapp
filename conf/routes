@@ -10,6 +10,7 @@ POST    /export                     controllers.Test.export
 GET     /exportFormats              controllers.Application.getExportFormats
 POST    /relation/object            controllers.Test.getRelatedElements(getBy = "object")
 POST    /relation/subject           controllers.Test.getRelatedElements(getBy = "subject")
+POST    /relation/all               controllers.Test.getRelatedElements(getBy = "all")
 
 
 GET     /test/sindice               controllers.Test.sindice(keyword)

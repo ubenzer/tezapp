@@ -152,20 +152,31 @@ object Test extends Controller {
           if(!searchableTypes.contains(predicate)) {
             Future.successful { BadRequest("Invalid 'type'") }
           } else {
+            (
+              if(getWhat == "object") {
+                OntologyTriple.getObject(subject = uri, predicate = predicate)
+              } else if(getWhat == "subject") {
+                OntologyTriple.getSubject(predicate = predicate, objekt = uri)
+              } else {
+                Future.sequence {
+                  OntologyTriple.getObject(subject = uri, predicate = predicate) ::
+                    OntologyTriple.getSubject(predicate = predicate, objekt = uri) :: Nil
+                }.map {
+                  f => f.flatten
                 }
-              ).flatMap {
-                elements =>
-                  Future.sequence {
-                    elements.map {
-                      element => OntologyTriple.getDisplayableElement(element)
-                    }
-                  }
-              }.map {
-                setOfMaybeDisplayableElements => setOfMaybeDisplayableElements.flatten
-              }.map {
-                displayableElements =>
-                  Ok(Json.toJson(displayableElements.toSet))
               }
+            ).flatMap {
+              elements =>
+                Future.sequence {
+                  elements.map {
+                    element => OntologyTriple.getDisplayableElement(element)
+                  }
+                }
+            }.map {
+              setOfMaybeDisplayableElements => setOfMaybeDisplayableElements.flatten
+            }.map {
+              displayableElements =>
+                Ok(Json.toJson(displayableElements.toSet))
             }
           }
     }.recoverTotal {
