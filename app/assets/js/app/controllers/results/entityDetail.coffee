@@ -1,7 +1,5 @@
 "use strict"
-ngDefine "controllers.results.entityDetail", [
-  "module:controllers.results.entityRelationDetail"
-], (module) ->
+ngDefine "controllers.results.entityDetail", (module) ->
   module.controller "results.entityDetail", ($scope, SelectedItems, Utils, PrettyNaming) ->
     if(!angular.isObject($scope.entityDetail?.entityObj)) then throw new Error("We need entityDetail#entityObj to be defined in scope")
     if(!angular.isString($scope.pageParts?.entityDetailTab)) then throw new Error("We need pageParts#entityDetailTab to be defined in scope")
