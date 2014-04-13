@@ -21,6 +21,7 @@ ngDefine "main", [
   # Directives
   "module:directives.genericEntity"
   "module:directives.genericRelationDetail"
+  "module:directives.genericEntityList"
 
   # Filters
   "module:filters.cut"

@@ -20,11 +20,13 @@ ngDefine "controllers.results.entityDetail", (module) ->
     classRelations = [
       {
         name: "Sub classes"
+        hierarchyCount: 5
         predicate: "http://www.w3.org/2000/01/rdf-schema#subClassOf"
         searchFor: "subject"
       }
       {
         name: "Super classes"
+        hierarchyCount: 5
         predicate: "http://www.w3.org/2000/01/rdf-schema#subClassOf"
         searchFor: "object"
       }
@@ -54,11 +56,13 @@ ngDefine "controllers.results.entityDetail", (module) ->
     propertyRelations = [
       {
         name: "Sub properties"
+        hierarchyCount: 5
         predicate: "http://www.w3.org/2000/01/rdf-schema#subPropertyOf"
         searchFor: "subject"
       }
       {
         name: "Super properties"
+        hierarchyCount: 5
         predicate: "http://www.w3.org/2000/01/rdf-schema#subPropertyOf"
         searchFor: "object"
       }

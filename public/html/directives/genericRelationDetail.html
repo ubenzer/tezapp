@@ -1,42 +1,36 @@
 <div class="row relation">
   <div class="col-md-12">
-    <h4>{{ relationData.name }}</h4>
+    <h4>
+      {{ relationData.name }}
+      <button class="btn btn-xs btn-default" ng-click="showBlock = !showBlock">Show/Hide</button>
+    </h4>
   </div>
 
-  <div class="row" ng-if="loading">
-    <div class="col-md-12">
-      <small><i class="fa fa-lg fa-spinner fa-spin"></i> Loading...</small>
-    </div>
-  </div>
-  <div class="row" ng-if="error">
-    <div class="col-md-12">
-      <small><i class="fa fa-lg fa-thumbs-down"></i> Failed loading. <button class="btn-xs btn btn-success" ng-click="load()">Try again?</button></small>
-    </div>
-  </div>
-  <div class="row" ng-if="!loading && !error">
+  <div ng-show="showBlock" class="col-md-12">
+    <div class="well well-sm">
+      <div ng-if="allLoading">
+        <i class="fa fa-lg fa-spinner fa-spin"></i> Loading...
+      </div>
+      <div ng-if="allFailed">
+        <i class="fa fa-lg fa-thumbs-down"></i> Failed loading. <button class="btn-xs btn btn-success" ng-click="load()">Try again?</button>
+      </div>
+      <div ng-if="!allLoading && !allFailed">
 
-    <div ng-if="relations.length > 0" class="col-md-12">
-      <div class="well well-sm">
-          <generic-entity
-              ng-repeat="relation in relations | limitTo: resultLimit"
+        <div ng-if="relations.length > 0">
+          <div ng-repeat="relation in relations">
+            <generic-entity-with-hierarchy
               entity="relation"
               selectable="true"
               show-navigation="true"
               on-detail-action="detailFnWrapper(relation, $activate)">
-          </generic-entity>
-       </div>
-    </div>
+            </generic-entity-with-hierarchy>
+          </div>
+        </div>
 
-    <div ng-if="relations.length == 0">
-      <div class="col-md-12">
-        <i class="fa fa-lg fa-meh-o"></i> <em>Nothing.</em>
+        <div ng-if="relations.length == 0">
+          <i class="fa fa-lg fa-meh-o"></i> <em>Nothing.</em>
+        </div>
       </div>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-md-12">
-      <button class="btn btn-large btn-default btn-block" ng-show="hasMoreResults()" ng-click="showMoreResults()">Show more</button>
     </div>
   </div>
 </div>
