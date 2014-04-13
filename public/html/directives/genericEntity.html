@@ -10,7 +10,7 @@
     <i class="icon fa fa-circle fa-fw entity-icon {{entityData.className}}"></i>
     <span>{{ entityData.label }}</span>
     <span class="label label-default">{{ entityData.uri }}</span>
-    <small>{{ entityData.comment | limitTo: 50 }}</small>
+    <small>{{ entityData.comment | cut: 50 }}</small>
     <button ng-if="showNavigation" ng-click="showEntityDetail($event)" class="btn btn-xs btn-info">details</button>
   </span>
 </div>
