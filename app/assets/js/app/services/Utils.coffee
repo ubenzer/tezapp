@@ -12,6 +12,7 @@ ngDefine "services.Utils", (module) ->
       return chunked
 
     splitArrayIntoChunks = (chunkCount, array) ->
+      if(array.length == 0) then return []
       innerCounter = 0
       innerArray = []
       chunked = []
