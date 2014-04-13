@@ -279,9 +279,19 @@ object OntologyTriple {
   def getLabel(subject: String): Future[Option[String]] = _getSingleObject(subject, RDF.Label)
   def getComment(subject: String): Future[Option[String]] = _getSingleObject(subject, RDF.Comment)
   private def _getSingleObject(subject: String, predicate: String): Future[Option[String]] = {
+
+    def getLabelFromUri(uri: String): Option[String] = {
+      val splittedUri = uri.split("#")
+      if(splittedUri.length == 2) {
+        Some(splittedUri(1))
+      } else {
+        None
+      }
+    }
+
     getTriple(Some(subject), Some(predicate), None).map {
       oSet =>
-        if(oSet.size > 1) {
+        if(oSet.size > 0) {
           val en: List[OntologyTriple] = oSet.filter(x => x.objectLanguage == Some("en"))
           if(en.size > 1) {
             Logger.warn("Uri " + subject + " has more than one en language " + predicate)
@@ -289,21 +299,10 @@ object OntologyTriple {
           } else if (en.size == 1) {
             Some(en.head.objekt)
           } else {
-            val nullLang: List[OntologyTriple] = oSet.filter(x => x.objectLanguage == None)
-            if(nullLang.size > 1) {
-              Logger.warn("Uri " + subject + " has more than one any language " + predicate)
-              Some(nullLang.head.objekt)
-            } else if (nullLang.size == 1) {
-              Some(nullLang.head.objekt)
-            } else {
-              Logger.warn("Uri " + subject + " has more than one " + predicate)
-              Some(oSet.head.objekt)
-            }
+            getLabelFromUri(subject)
           }
-        } else if (oSet.size == 1) {
-          Some(oSet.head.objekt)
         } else {
-          None
+          getLabelFromUri(subject)
         }
     }
   }
