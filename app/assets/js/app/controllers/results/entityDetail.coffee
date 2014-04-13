@@ -16,52 +16,86 @@ ngDefine "controllers.results.entityDetail", [
 
     $scope.columnEntityRelationTypes = []
 
-    entityRelationTypes = [
-      {
-        name: "disjoint with"
-        by: "object"
-        what: "disjointWith"
-      }
-      {
-        name: "subclass of"
-        by: "object"
-        what: "subclassOf"
-      }
-      {
-        name: "superclass of"
-        by: "subject"
-        what: "subclassOf"
-      }
-      {
-        name: "has ranges"
-        by: "subject"
-        what: "range"
-      }
-      {
-        name: "has domains"
-        by: "subject"
-        what: "domain"
-      }
-      {
-        name: "is domain of"
-        by: "object"
-        what: "domain"
-      }
-      {
-        name: "is range of"
-        by: "object"
-        what: "range"
-      }
+    ### LOOKUP TYPES ###
 
-
-
+    ## CLASS ##
+    classRelations = [
       {
-        name: "has types"
-        by: "object"
-        what: "type"
+        name: "Sub classes"
+        predicate: "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+        searchFor: "subject"
+      }
+      {
+        name: "Super classes"
+        predicate: "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+        searchFor: "object"
+      }
+      {
+        name: "Instances"
+        predicate: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+        searchFor: "subject"
+      }
+      {
+        name: "Disjoint with"
+        predicate: "http://www.w3.org/2002/07/owl#disjointWith"
+        searchFor: "object"
+      }
+      {
+        name: "Is domain of"
+        predicate: "http://www.w3.org/2000/01/rdf-schema#domain"
+        searchFor: "subject"
+      }
+      {
+        name: "Is range of"
+        predicate: "http://www.w3.org/2000/01/rdf-schema#range"
+        searchFor: "subject"
       }
     ]
 
-    $scope.columnEntityRelationTypes = Utils.splitArrayIntoChunks(2, entityRelationTypes)
+    ## OBJECT PROPERTY + PROPERTY ##
+    propertyRelations = [
+      {
+        name: "Sub properties"
+        predicate: "http://www.w3.org/2000/01/rdf-schema#subPropertyOf"
+        searchFor: "subject"
+      }
+      {
+        name: "Super properties"
+        predicate: "http://www.w3.org/2000/01/rdf-schema#subPropertyOf"
+        searchFor: "object"
+      }
+      {
+        name: "Domains"
+        predicate: "http://www.w3.org/2000/01/rdf-schema#domain"
+        searchFor: "object"
+      }
+      {
+        name: "Ranges"
+        predicate: "http://www.w3.org/2000/01/rdf-schema#range"
+        searchFor: "object"
+      }
+      {
+        name: "Inverse of"
+        predicate: "http://www.w3.org/2002/07/owl#inverseOf"
+        searchFor: "all"
+      }
+    ]
+
+    ## INSTANCE ##
+    instance = [
+      {
+       name: "Instance of"
+       hierarchy: true
+      }
+    ]
+
+
+    relationSearches = []
+    switch $scope.entity.kind
+      when "http://www.w3.org/2002/07/owl#Class" then relationSearches = classRelations
+      when "http://www.w3.org/2002/07/owl#ObjectProperty" then relationSearches = propertyRelations
+      else relationSearches = []
+
+    $scope.columnEntityRelationTypes = Utils.splitArrayIntoChunks(2, relationSearches)
     return
   return
