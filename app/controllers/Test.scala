@@ -169,7 +169,7 @@ object Test extends Controller {
               elements =>
                 Future.sequence {
                   elements.map {
-                    element => OntologyTriple.getDisplayableElement(element)
+                    element => OntologyTriple.getDisplayableElement(element, true)
                   }
                 }
             }.map {

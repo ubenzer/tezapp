@@ -85,8 +85,10 @@ ngDefine "controllers.results.entityDetail", (module) ->
 
     relationSearches = []
     switch $scope.entity.kind
-      when "http://www.w3.org/2002/07/owl#Class" then relationSearches = classRelations
-      when "http://www.w3.org/2002/07/owl#ObjectProperty" then relationSearches = propertyRelations
+      when "http://www.w3.org/2002/07/owl#Class", "http://www.w3.org/2000/01/rdf-schema#Class"
+        relationSearches = classRelations
+      when "http://www.w3.org/2002/07/owl#ObjectProperty", "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        relationSearches = propertyRelations
       else relationSearches = []
 
     $scope.columnEntityRelationTypes = Utils.splitArrayIntoChunks(2, relationSearches)

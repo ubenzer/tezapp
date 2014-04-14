@@ -8,6 +8,7 @@ object RDF {
   val ObjectProperty = "http://www.w3.org/2002/07/owl#ObjectProperty"
   val Ontology = "http://www.w3.org/2002/07/owl#Ontology"
   val Class = "http://www.w3.org/2002/07/owl#Class"
+  val RDFClass = "http://www.w3.org/2000/01/rdf-schema#Class"
   val AnnotationProperty = "http://www.w3.org/2002/07/owl#AnnotationProperty"
   val DisjointWith = "http://www.w3.org/2002/07/owl#disjointWith"
   val SubclassOf = "http://www.w3.org/2000/01/rdf-schema#subClassOf"
@@ -23,7 +24,7 @@ object RDFNamespace {
   val OWL = "http://www.w3.org/2002/07/owl"
 }
 object RDFType {
-  val APP_SUPPORTED_TYPES = RDF.Class :: RDF.Property :: RDF.Ontology :: RDF.Thing :: RDF.ObjectProperty :: Nil
+  val APP_SUPPORTED_TYPES = RDF.RDFClass :: RDF.Class :: RDF.Property :: RDF.Ontology :: RDF.Thing :: RDF.ObjectProperty :: Nil
 }
 
 object RDFExport {
