@@ -14,6 +14,9 @@
                                show-navigation="true" on-detail-action="showEntityDetail($relationEntity, $activate)"></generic-relation-detail>
     </div>
   </div>
-  <div ng-if="entity.kind == '__INSTANCE__'">instance</div>
+  <div ng-if="entity.kind == '__INSTANCE__'">
+    <instance-relation-detail entity-uri="entity.uri" show-navigation="true"
+                              on-detail-action="showEntityDetail($relationEntity, $activate)"></instance-relation-detail>
+  </div>
 </div>
 
