@@ -260,7 +260,7 @@ object OntologyTriple {
         val reducedToSupported = oSet.filter( x => RDFType.APP_SUPPORTED_TYPES.contains(x))
 
         if(reducedToSupported.size > 1) {
-          Logger.warn("Reduced type for " + subject + " has more than one")
+          Logger.warn("Reduced type for " + subject + " has more than one supported type.")
         }
 
         if(reducedToSupported.isEmpty) {
