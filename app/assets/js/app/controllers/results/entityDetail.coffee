@@ -20,13 +20,13 @@ ngDefine "controllers.results.entityDetail", (module) ->
     classRelations = [
       {
         name: "Sub classes"
-        hierarchyCount: 5
+        hierarchyCount: 3
         predicate: "http://www.w3.org/2000/01/rdf-schema#subClassOf"
         searchFor: "subject"
       }
       {
         name: "Super classes"
-        hierarchyCount: 5
+        hierarchyCount: 10
         predicate: "http://www.w3.org/2000/01/rdf-schema#subClassOf"
         searchFor: "object"
       }
