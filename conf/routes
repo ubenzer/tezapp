@@ -8,9 +8,9 @@ GET     /                           controllers.Application.index
 POST    /search                     controllers.Application.search
 POST    /export                     controllers.Test.export
 GET     /exportFormats              controllers.Application.getExportFormats
-POST    /relation/object            controllers.Test.getRelatedElements(getBy = "object")
-POST    /relation/subject           controllers.Test.getRelatedElements(getBy = "subject")
-POST    /relation/all               controllers.Test.getRelatedElements(getBy = "all")
+POST    /relation/object            controllers.Application.getRelatedElements(getBy = "object")
+POST    /relation/subject           controllers.Application.getRelatedElements(getBy = "subject")
+POST    /relation/all               controllers.Application.getRelatedElements(getBy = "all")
 
 
 GET     /test/sindice               controllers.Test.sindice(keyword)

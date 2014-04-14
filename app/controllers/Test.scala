@@ -15,7 +15,7 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.Logger
-import common.{RDF, RDFExport}
+import common.RDFExport
 import service.FetchResult
 
 object Test extends Controller {
@@ -135,54 +135,6 @@ object Test extends Controller {
 
     }.recoverTotal {
       e => BadRequest(JsError.toFlatJson(e))
-    }
-  }
-
-  implicit val getRelatedElementsRead: Reads[(String, String)] =
-    {
-      (__ \ "uri").read[String] and
-      (__ \ "predicate").read[String]
-    }.tupled
-  val searchableTypes = RDF.InverseOf :: RDF.DisjointWith :: RDF.Range :: RDF.Domain ::
-    RDF.SubPropertyOf :: RDF.SubclassOf :: RDF.Type :: Nil
-  def getRelatedElements(getWhat: String) = Action.async(parse.json) {
-    request =>
-      request.body.validate[(String, String)].map {
-        case (uri: String, predicate: String) =>
-          if(!searchableTypes.contains(predicate)) {
-            Future.successful { BadRequest("Invalid 'type'") }
-          } else {
-            (
-              if(getWhat == "object") {
-                OntologyTriple.getObject(subject = uri, predicate = predicate)
-              } else if(getWhat == "subject") {
-                OntologyTriple.getSubject(predicate = predicate, objekt = uri)
-              } else {
-                Future.sequence {
-                  OntologyTriple.getObject(subject = uri, predicate = predicate) ::
-                    OntologyTriple.getSubject(predicate = predicate, objekt = uri) :: Nil
-                }.map {
-                  f => f.flatten
-                }
-              }
-            ).flatMap {
-              elements =>
-                Future.sequence {
-                  elements.map {
-                    element => OntologyTriple.getDisplayableElement(element)
-                  }
-                }
-            }.map {
-              setOfMaybeDisplayableElements => setOfMaybeDisplayableElements.flatten
-            }.map {
-              displayableElements =>
-                Ok(Json.toJson(displayableElements.toSet))
-            }
-          }
-    }.recoverTotal {
-      e => Future.successful {
-        BadRequest(JsError.toFlatJson(e))
-      }
     }
   }
 }
