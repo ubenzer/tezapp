@@ -264,13 +264,7 @@ object OntologyTriple {
         }
 
         if(reducedToSupported.isEmpty) {
-          if(oSet.exists(
-            x => !RDFExport.isUriACommonOntologyThing(x)
-          )) {
-            Some("__INSTANCE__")
-          } else {
-            None
-          }
+          Some("__INSTANCE__")
         } else {
           reducedToSupported.headOption
         }

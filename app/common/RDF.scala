@@ -30,7 +30,4 @@ object RDFType {
 object RDFExport {
   val INCLUDE_IN_ALL_EXPORTS = RDF.Comment :: RDF.Label :: RDF.Type :: RDF.Property :: RDF.Class :: RDF.AnnotationProperty :: Nil
   val COMMON_NAMESPACES: List[String] = RDFNamespace.RDF :: RDFNamespace.RDF_SCHEMA :: RDFNamespace.OWL :: Nil
-  def isUriACommonOntologyThing(uri: String): Boolean = {
-    COMMON_NAMESPACES.exists(x => uri.startsWith(x))
-  }
 }
