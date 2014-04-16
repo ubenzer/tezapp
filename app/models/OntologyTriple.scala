@@ -279,7 +279,12 @@ object OntologyTriple {
       if(splittedUri.length == 2) {
         Some(splittedUri(1))
       } else {
-        None
+        val splittedUri = uri.split("/")
+        if(splittedUri.length > 1) {
+         Some(splittedUri(splittedUri.length-1))
+        } else {
+          None
+        }
       }
     }
 
