@@ -194,7 +194,7 @@ object OntologyTriple {
     }
   }
 
-  def getTriple(subject: Option[String] = None, predicate: Option[String] = None, objekt: Option[String] = None): Future[List[OntologyTriple]] = {
+  def getTriple(subject: Option[String] = None, predicate: Option[String] = None, objekt: Option[String] = None, max: Int = 100): Future[List[OntologyTriple]] = {
     if(!subject.isDefined && !predicate.isDefined && !objekt.isDefined) {
       return Future.successful(List.empty)
     }
@@ -205,7 +205,7 @@ object OntologyTriple {
 
     val f: Future[List[OntologyTriple]] = collection.find(
       BSONDocument(query)
-    ).cursor[OntologyTriple].collect[List]()
+    ).cursor[OntologyTriple].collect[List](upTo = max)
 
     f.recover {
       case e:Throwable => {
