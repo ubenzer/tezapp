@@ -11,6 +11,7 @@ GET     /exportFormats              controllers.Application.getExportFormats
 POST    /relation/object            controllers.Application.getRelatedElements(getBy = "object")
 POST    /relation/subject           controllers.Application.getRelatedElements(getBy = "subject")
 POST    /relation/all               controllers.Application.getRelatedElements(getBy = "all")
+POST    /relation/advanced          controllers.Application.getTriple
 
 
 GET     /test/sindice               controllers.Test.sindice(keyword)

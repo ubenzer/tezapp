@@ -7,10 +7,10 @@
         popover="{{ entityData.popover }}"
         popover-trigger="mouseenter"
         popover-append-to-body="true">
-    <i class="icon fa fa-circle fa-fw entity-icon {{entityData.className}}"></i>
-    <span>{{ entityData.label }}</span>
-    <span class="label label-default">{{ entityData.uri }}</span>
+    <i ng-if="!isData" class="icon fa fa-circle fa-fw entity-icon {{entityData.className}}"></i>
+    <span>{{ entityData.label | cut: 100 }}</span>
+    <span ng-if="!isData" class="label label-default">{{ entityData.uri }}</span>
     <small>{{ entityData.comment | cut: 50 }}</small>
-    <button ng-if="showNavigation" ng-click="showEntityDetail($event)" class="btn btn-xs btn-info">details</button>
+    <button ng-if="showNavigation && !isData" ng-click="showEntityDetail($event)" class="btn btn-xs btn-info">details</button>
   </span>
 </div>

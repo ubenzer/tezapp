@@ -32,10 +32,19 @@ ngDefine "services.PrettyNaming", (module) ->
         name: "Individual"
         code: "instance"
       }
+      "__DATA__": {
+        name: "Data Property",
+        code: "data"
+        hide: true
+      }
     }
 
     api = {
-      list: () -> angular.copy(lookup)
+      list: () ->
+        tbReturned = {}
+        for own k,v of lookup
+          if(!v.hide) then tbReturned[k] = angular.copy(v)
+        tbReturned
       for: (uglyName) -> lookup[uglyName]?.name || uglyName
       classNameFor: (uglyName) -> lookup[uglyName]?.code || uglyName
     }

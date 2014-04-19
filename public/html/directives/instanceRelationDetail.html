@@ -1,34 +1,112 @@
-<div class="row relation">
-  <div class="col-md-12">
-    <h4>
-      Instance of
-      <button class="btn btn-xs btn-default" ng-click="showBlock = !showBlock">Show/Hide</button>
-    </h4>
+<div class="relation">
+  <div class="row">
+    <div class="col-md-12">
+      <h4>
+        Instance of
+        <button class="btn btn-xs btn-default" ng-click="showInstanceOfBlock = !showInstanceOfBlock">Show/Hide</button>
+      </h4>
+    </div>
   </div>
+  <div ng-show="showInstanceOfBlock" class="row">
+    <div class="col-md-12">
+      <div class="well well-sm">
+        <div ng-if="instanceAllLoading">
+          <i class="fa fa-lg fa-spinner fa-spin"></i> Loading...
+        </div>
+        <div ng-if="instanceAllFailed">
+          <i class="fa fa-lg fa-thumbs-down"></i> Failed loading. <button class="btn-xs btn btn-success" ng-click="loadInstanceOf()">Try again?</button>
+        </div>
+        <div ng-if="!instanceAllLoading && !instanceAllFailed">
 
-  <div ng-show="showBlock" class="col-md-12">
-    <div class="well well-sm">
-      <div ng-if="allLoading">
-        <i class="fa fa-lg fa-spinner fa-spin"></i> Loading...
-      </div>
-      <div ng-if="allFailed">
-        <i class="fa fa-lg fa-thumbs-down"></i> Failed loading. <button class="btn-xs btn btn-success" ng-click="load()">Try again?</button>
-      </div>
-      <div ng-if="!allLoading && !allFailed">
+          <div ng-if="instanceRelations.length > 0">
+            <div ng-repeat="relation in instanceRelations">
+              <generic-entity-with-hierarchy
+                entity="relation"
+                selectable="true"
+                show-navigation="true"
+                on-detail-action="detailFnWrapper(relation, $activate)">
+              </generic-entity-with-hierarchy>
+            </div>
+          </div>
 
-        <div ng-if="relations.length > 0">
-          <div ng-repeat="relation in relations">
-            <generic-entity-with-hierarchy
-              entity="relation"
-              selectable="true"
-              show-navigation="true"
-              on-detail-action="detailFnWrapper(relation, $activate)">
-            </generic-entity-with-hierarchy>
+          <div ng-if="instanceRelations.length == 0">
+            <i class="fa fa-lg fa-meh-o"></i> <em>Nothing.</em>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
 
-        <div ng-if="relations.length == 0">
-          <i class="fa fa-lg fa-meh-o"></i> <em>Nothing.</em>
+  <div ng-repeat="tripleType in instanceTriples">
+    <div class="row">
+      <div class="col-md-12">
+        <h4>
+          {{ tripleType.name }}
+          <button class="btn btn-xs btn-default" ng-click="tripleType.showBlock = !tripleType.showBlock">Show/Hide</button>
+        </h4>
+      </div>
+    </div>
+    <div ng-show="tripleType.showBlock" class="row">
+      <div class="col-md-12">
+        <div class="well well-sm">
+          <div ng-if="tripleType.allLoading">
+            <i class="fa fa-lg fa-spinner fa-spin"></i> Loading...
+          </div>
+          <div ng-if="tripleType.allFailed">
+            <i class="fa fa-lg fa-thumbs-down"></i> Failed loading. <button class="btn-xs btn btn-success" ng-click="load()">Try again?</button>
+          </div>
+          <div ng-if="!tripleType.allLoading && !tripleType.allFailed">
+
+            <div ng-if="tripleType.relations.length > 0">
+              <div class="row" ng-repeat="relation in tripleType.relations">
+
+                <div ng-if="relation.subject != '__OWN__'" class="col-sm-5">
+                  <generic-entity
+                      entity="relation.subject"
+                      selectable="true"
+                      show-navigation="true"
+                      on-detail-action="detailFnWrapper(relation.subject, $activate)">
+                  </generic-entity>
+                </div>
+                <div ng-if="relation.subject =='__OWN__'" class="col-sm-2">
+                  <h4>{{ entityName }}</h4>
+                </div>
+
+                <div ng-if="relation.predicate != '__OWN__'" class="col-sm-5">
+                  <generic-entity
+                      entity="relation.predicate"
+                      selectable="true"
+                      show-navigation="true"
+                      on-detail-action="detailFnWrapper(relation.predicate, $activate)">
+                  </generic-entity>
+                </div>
+                <div ng-if="relation.predicate =='__OWN__'" class="col-sm-2">
+                  <h4>{{ entityName }}</h4>
+                </div>
+
+                <div ng-if="relation.object != '__OWN__'" class="col-sm-5">
+                  <generic-entity
+                      entity="relation.object"
+                      selectable="true"
+                      show-navigation="true"
+                      on-detail-action="detailFnWrapper(relation.object, $activate)">
+                  </generic-entity>
+                </div>
+                <div ng-if="relation.object =='__OWN__'" class="col-sm-2">
+                  <h4>{{ entityName }}</h4>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="alert alert-warning" ng-if="tripleType.relations.length === 100">
+              <i class="fa fa-lg fa-warning"></i> This search returned too much results. Showing only first 100...
+            </div>
+
+            <div ng-if="tripleType.relations.length == 0">
+              <i class="fa fa-lg fa-meh-o"></i> <em>Nothing.</em>
+            </div>
+          </div>
         </div>
       </div>
     </div>

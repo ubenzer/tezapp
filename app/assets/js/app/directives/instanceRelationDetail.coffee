@@ -4,8 +4,11 @@ ngDefine "directives.instanceRelationDetail", (module) ->
   module.controller "directives.instanceRelationDetail", ($scope, $http) ->
     $scope.showBlock = true
 
-    $scope.load = () ->
-      $scope.relations = []
+    $scope.showInstanceOfBlock = true
+    $scope.instanceAllLoading = true
+    $scope.instanceAllFailed = false
+    $scope.loadInstanceOf = () ->
+      $scope.instanceRelations = []
 
       _load = (uri, predicate, whatToSearchFor, hierarchyLeft) ->
         # Do search!
@@ -52,16 +55,40 @@ ngDefine "directives.instanceRelationDetail", (module) ->
         return data
       return promise
 
-    $scope.allLoading = true
-    $scope.allFailed = false
-
-    $scope.load().then (data) ->
-      $scope.relations = data
-      $scope.allLoading = false
+    $scope.loadInstanceOf().then (data) ->
+      $scope.instanceRelations = data
+      $scope.instanceAllLoading = false
       return
     , () ->
-      $scope.allLoading = false
-      $scope.allFailed = true
+      $scope.instanceAllLoading = false
+      $scope.instanceAllFailed = true
+
+
+    $scope.getRelationsFor = (name, key, uri) ->
+      tbReturned = {
+        name: name
+        showBlock: true
+        allLoading: true
+        allFailed: false
+        relations: []
+      }
+      rqObj = {}
+      rqObj[key] = uri
+      $http.post("/relation/advanced", rqObj)
+        .success (data) ->
+          d[key] = "__OWN__" for d in data
+          tbReturned.relations = data
+          tbReturned.allLoading = false
+        .error () ->
+          tbReturned.allLoading = false
+          tbReturned.allFailed = true
+      tbReturned
+
+    $scope.instanceTriples = [
+      $scope.getRelationsFor($scope.entityName + " - Predicate - Object", "subject", $scope.entityUri)
+      $scope.getRelationsFor("Subject - " + $scope.entityName + " - Object", "predicate", $scope.entityUri)
+      $scope.getRelationsFor("Subject - Predicate - " + $scope.entityName, "object", $scope.entityUri)
+    ]
 
     $scope.detailFnWrapper = (relation, activate) ->
       $scope.detailFn({
@@ -77,6 +104,7 @@ ngDefine "directives.instanceRelationDetail", (module) ->
       templateUrl: UrlConfig.htmlBaseUrl + "/directives/instanceRelationDetail.html"
       replace: true
       scope:
+        entityName: "="
         entityUri: "="
         showNavigation: "="
         detailFn: "&onDetailAction"

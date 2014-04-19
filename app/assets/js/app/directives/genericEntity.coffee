@@ -4,7 +4,7 @@ ngDefine "directives.genericEntity", (module) ->
   module.controller "directives.genericEntity", ($scope, $filter, SelectedItems, PrettyNaming) ->
     $scope.isElementSelected = (uri) -> SelectedItems.isItemSelected(uri)
     $scope.toggleElement = (uri) ->
-      if(!$scope.selectable) then return
+      if(!$scope.selectable || $scope.isData) then return
 
       if(SelectedItems.isItemSelected(uri))
         SelectedItems.removeItem(uri)
@@ -23,6 +23,7 @@ ngDefine "directives.genericEntity", (module) ->
       $scope.detailFn({$activate: (event.button != 1)})
       return
 
+    if($scope.entityData.kind == "__DATA__") then $scope.isData = true
     return
 
   module.directive "genericEntity", (UrlConfig) ->

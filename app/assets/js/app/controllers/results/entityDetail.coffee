@@ -1,6 +1,6 @@
 "use strict"
 ngDefine "controllers.results.entityDetail", (module) ->
-  module.controller "results.entityDetail", ($scope, SelectedItems, Utils, PrettyNaming) ->
+  module.controller "results.entityDetail", ($scope, SelectedItems, PrettyNaming) ->
     if(!angular.isObject($scope.entityDetail?.entityObj)) then throw new Error("We need entityDetail#entityObj to be defined in scope")
     if(!angular.isString($scope.pageParts?.entityDetailTab)) then throw new Error("We need pageParts#entityDetailTab to be defined in scope")
 
@@ -91,6 +91,6 @@ ngDefine "controllers.results.entityDetail", (module) ->
         relationSearches = propertyRelations
       else relationSearches = []
 
-    $scope.columnEntityRelationTypes = Utils.splitArrayIntoChunks(2, relationSearches)
+    $scope.relationSearches = relationSearches
     return
   return

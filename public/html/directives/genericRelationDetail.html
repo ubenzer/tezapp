@@ -1,34 +1,37 @@
-<div class="row relation">
-  <div class="col-md-12">
-    <h4>
-      {{ relationData.name }}
-      <button class="btn btn-xs btn-default" ng-click="showBlock = !showBlock">Show/Hide</button>
-    </h4>
+<div class="relation">
+  <div class="row">
+    <div class="col-md-12">
+      <h4>
+        {{ relationData.name }}
+        <button class="btn btn-xs btn-default" ng-click="showBlock = !showBlock">Show/Hide</button>
+      </h4>
+    </div>
   </div>
-
-  <div ng-show="showBlock" class="col-md-12">
-    <div class="well well-sm">
-      <div ng-if="allLoading">
-        <i class="fa fa-lg fa-spinner fa-spin"></i> Loading...
-      </div>
-      <div ng-if="allFailed">
-        <i class="fa fa-lg fa-thumbs-down"></i> Failed loading. <button class="btn-xs btn btn-success" ng-click="load()">Try again?</button>
-      </div>
-      <div ng-if="!allLoading && !allFailed">
-
-        <div ng-if="relations.length > 0">
-          <div ng-repeat="relation in relations">
-            <generic-entity-with-hierarchy
-              entity="relation"
-              selectable="true"
-              show-navigation="true"
-              on-detail-action="detailFnWrapper(relation, $activate)">
-            </generic-entity-with-hierarchy>
-          </div>
+  <div ng-show="showBlock" class="row">
+    <div class="col-md-12">
+      <div class="well well-sm">
+        <div ng-if="allLoading">
+          <i class="fa fa-lg fa-spinner fa-spin"></i> Loading...
         </div>
+        <div ng-if="allFailed">
+          <i class="fa fa-lg fa-thumbs-down"></i> Failed loading. <button class="btn-xs btn btn-success" ng-click="load()">Try again?</button>
+        </div>
+        <div ng-if="!allLoading && !allFailed">
 
-        <div ng-if="relations.length == 0">
-          <i class="fa fa-lg fa-meh-o"></i> <em>Nothing.</em>
+          <div ng-if="relations.length > 0">
+            <div ng-repeat="relation in relations">
+              <generic-entity-with-hierarchy
+                entity="relation"
+                selectable="true"
+                show-navigation="true"
+                on-detail-action="detailFnWrapper(relation, $activate)">
+              </generic-entity-with-hierarchy>
+            </div>
+          </div>
+
+          <div ng-if="relations.length == 0">
+            <i class="fa fa-lg fa-meh-o"></i> <em>Nothing.</em>
+          </div>
         </div>
       </div>
     </div>

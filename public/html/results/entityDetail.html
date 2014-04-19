@@ -8,14 +8,14 @@
   <span ng-if="entity.title != entity.uri" class="label label-default">{{ entity.uri }}</span>
   <p>{{ entity.comment }}</p>
 
-  <div ng-if="entity.kind != '__INSTANCE__'" class="entity-relations row" ng-repeat="entityRelationTypes in columnEntityRelationTypes">
-    <div ng-repeat="entityRelationType in entityRelationTypes">
+  <div ng-if="entity.kind != '__INSTANCE__'" class="entity-relations">
+    <div class="row" ng-repeat="entityRelationType in relationSearches">
       <generic-relation-detail entity-uri="entity.uri" relation-data="entityRelationType"
                                show-navigation="true" on-detail-action="showEntityDetail($relationEntity, $activate)"></generic-relation-detail>
     </div>
   </div>
   <div ng-if="entity.kind == '__INSTANCE__'">
-    <instance-relation-detail entity-uri="entity.uri" show-navigation="true"
+    <instance-relation-detail entity-name="entity.title" entity-uri="entity.uri" show-navigation="true"
                               on-detail-action="showEntityDetail($relationEntity, $activate)"></instance-relation-detail>
   </div>
 </div>
