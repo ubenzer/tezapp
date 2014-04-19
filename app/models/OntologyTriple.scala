@@ -338,6 +338,9 @@ object OntologyTriple {
   def getDisplayableElement(uri: String, allowUnknownType: Boolean = false): Future[Option[DisplayableElement]] = {
 
     /*  We need to fill label, description and kind for given uri */
+    if(!uri.startsWith("http")) {
+      return Future.successful(None)
+    }
 
     val labelF = getLabel(uri)
     val commentF = getComment(uri)
