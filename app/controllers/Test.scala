@@ -15,7 +15,7 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.Logger
-import common.RDFExport
+import common.{RDF, RDFExport}
 import service.FetchResult
 
 object Test extends Controller {
@@ -60,15 +60,16 @@ object Test extends Controller {
     }
   }
 
-  implicit val searchObjectRead: Reads[(List[String], String)] =
+  implicit val searchObjectRead: Reads[(List[String], String, Boolean)] =
     {
       (__ \ "elements").read[List[String]] and
-      (__ \ "properties" \ "format").read[String]
+      (__ \ "properties" \ "format").read[String] and
+      (__ \ "properties" \ "extended").read[Boolean]
     }.tupled
   def export() = Action(parse.json) {
     request =>
-      request.body.validate[(List[String], String)].map {
-        case (elements: List[String], format: String) =>
+      request.body.validate[(List[String], String, Boolean)].map {
+        case (elements: List[String], format: String, extended: Boolean) =>
 
           val formatObj = Option(RDFFormat.valueOf(format))
 
@@ -77,21 +78,16 @@ object Test extends Controller {
 
           def isBlankNode(uri: String) = uri.indexOf(':') < 0
 
-          OntologyTriple.getTriplesThatIncludes(elements).flatMap {
+          val nonCommonElements = elements.filterNot(x => RDFExport.isUriACommonOntologyThing(x))
+          OntologyTriple.getTriplesThatIncludes(nonCommonElements).flatMap {
            triples =>
             val withExportTriples: Future[Set[OntologyTriple]] = Future.sequence {
               triples.map {
                 triple =>
                   val allExportedKinds: Future[List[OntologyTriple]] = Future.sequence {
-                    RDFExport.INCLUDE_IN_ALL_EXPORTS.map {
+                    (if(extended) { RDFExport.INCLUDE_IN_ALL_EXPORTS_EXTENDED } else { RDFExport.INCLUDE_IN_ALL_EXPORTS }).map {
                       include =>
-                        val exportedKind: Future[List[OntologyTriple]] = OntologyTriple.getRecursive(triple.subject, 10) {
-                          subject: String =>
-                            OntologyTriple.getTriple(Some(subject), Some(include))
-                        }{
-                          x => if(x.isObjectData) { List.empty } else { List(x.objekt) }
-                        }
-                        exportedKind
+                        OntologyTriple.getTriple(Some(triple.subject), Some(include))
                     }
                   }.map { x => x.flatten }
                   allExportedKinds

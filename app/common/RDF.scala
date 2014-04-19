@@ -28,6 +28,12 @@ object RDFType {
 }
 
 object RDFExport {
-  val INCLUDE_IN_ALL_EXPORTS = RDF.Comment :: RDF.Label :: RDF.Type :: RDF.Property :: RDF.Class :: RDF.AnnotationProperty :: Nil
+  val INCLUDE_IN_ALL_EXPORTS = RDF.Comment :: RDF.Label :: RDF.Type :: Nil
+  val INCLUDE_IN_ALL_EXPORTS_EXTENDED = RDF.Comment :: RDF.Label :: RDF.Type :: RDF.SubPropertyOf :: RDF.SubclassOf ::
+    RDF.RDFClass :: RDF.Class :: RDF.Property ::  RDF.Property :: RDF.Ontology :: RDF.ObjectProperty :: RDF.DisjointWith :: RDF.Range ::
+    RDF.Domain :: RDF.InverseOf :: Nil
   val COMMON_NAMESPACES: List[String] = RDFNamespace.RDF :: RDFNamespace.RDF_SCHEMA :: RDFNamespace.OWL :: Nil
+  def isUriACommonOntologyThing(uri: String): Boolean = {
+    COMMON_NAMESPACES.exists(x => uri.startsWith(x))
+  }
 }

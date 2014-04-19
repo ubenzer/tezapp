@@ -16,11 +16,10 @@
                 ng-options="f.name for f in export.exportFormats"></select>
       </div>
     </div>
-    <div class="form-group">
-      <label class="col-sm-2 control-label">What to export</label>
-      <div class="col-sm-10">
-        <p class="form-control-static">Comments, labels, types, properties, class hierarchy and annotation properties are always exported.</p>
-      </div>
+    <div class="checkbox">
+      <label for="extended" class="col-sm-offset-2 col-sm-10">
+        <input type="checkbox" id="extended" ng-model="properties.extended">&nbsp;Include super class/property, range/domain and other extended information
+      </label>
     </div>
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-10">
