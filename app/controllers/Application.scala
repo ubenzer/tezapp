@@ -37,7 +37,7 @@ object Application extends Controller {
           } */
           // Update database if requested.
           (if(!offline) {
-            val timerOnline = new BasicTimer("search|fetch|all", keywords.mkString).start()
+            val timerOnline = new BasicTimer("search|fetch|all", keywords.mkString("|")).start()
             val futureList: List[Future[FetchResult]] = keywords.map {
               keyword =>
                 val timerOnlineSwoogle = new BasicTimer("search|fetch|swoogle", keyword).start()
@@ -57,7 +57,7 @@ object Application extends Controller {
           } else {
             Future.successful(List(FetchResult()))
           }).flatMap { fetchResult =>
-            val timerSearch = new BasicTimer("search|search", keywords.mkString).start()
+            val timerSearch = new BasicTimer("search|search", keywords.mkString("|")).start()
             // Do the actual search
             val searchResults = Search.findElementsByKeyword(keywords.mkString(" ")).map {
               searchResult =>
