@@ -3,21 +3,23 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
+GET         /                         controllers.Application.index
 
-POST    /search                     controllers.Application.search
-POST    /export                     controllers.Test.export
-GET     /exportFormats              controllers.Application.getExportFormats
-POST    /relation/object            controllers.Application.getRelatedElements(getBy = "object")
-POST    /relation/subject           controllers.Application.getRelatedElements(getBy = "subject")
-POST    /relation/all               controllers.Application.getRelatedElements(getBy = "all")
-POST    /relation/advanced          controllers.Application.getTriple
+POST        /search                   controllers.Application.search
+POST        /export                   controllers.Test.export
+GET         /exportFormats            controllers.Application.getExportFormats
+POST        /relation/object          controllers.Application.getRelatedElements(getBy = "object")
+POST        /relation/subject         controllers.Application.getRelatedElements(getBy = "subject")
+POST        /relation/all             controllers.Application.getRelatedElements(getBy = "all")
+POST        /relation/advanced        controllers.Application.getTriple
 
 
-GET     /test/sindice               controllers.Test.sindice(keyword)
-GET     /test/swoogle               controllers.Test.swoogle(keyword)
-GET     /test/watson                controllers.Test.watson(keyword)
-GET     /test/find                  controllers.Test.find(keyword)
+GET         /test/sindice             controllers.Test.sindice(keyword)
+GET         /test/swoogle             controllers.Test.swoogle(keyword)
+GET         /test/watson              controllers.Test.watson(keyword)
+GET         /test/find                controllers.Test.find(keyword)
+
+GET         /hood/timings             controllers.Analyze.parseLog
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET         /assets/*file             controllers.Assets.at(path="/public", file)
