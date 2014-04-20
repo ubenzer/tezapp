@@ -112,7 +112,9 @@ object OntologyTriple {
       upsert     = true)
 
     collection.db.command(command).recover {
-      case _ => None
+      case e =>
+        Logger.error(e.getMessage, e)
+        None
     }.map {
       case None => {
         Logger.error("OntologyTriple mergeSave failed for selector '" + selector + "' and update '" + update + "'.")
