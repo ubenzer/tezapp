@@ -11,7 +11,7 @@ import service.FetchResult
 import service.ontologySearch.Search
 import models.{OntologyTriple, SearchResult, DisplayableElement}
 import org.openrdf.rio.RDFFormat
-import common.RDF
+import common.{BasicTimer, RDF}
 
 object Application extends Controller {
   implicit val searchObjectRead: Reads[(List[String], Boolean)] =
@@ -31,23 +31,37 @@ object Application extends Controller {
     request =>
       request.body.validate[(List[String], Boolean)].map {
         case (keywords, offline) =>
+          val timer = new BasicTimer("search|all", keywords.mkString + "|" + offline).start()
           /*++ keywords.map {
             keyword => OntologyFetcher.WatsonFetcher.search(keyword.trim)
           } */
           // Update database if requested.
           (if(!offline) {
+            val timerOnline = new BasicTimer("search|fetch|all", keywords.mkString).start()
             val futureList: List[Future[FetchResult]] = keywords.map {
-              keyword => OntologyFetcher.SwoogleFetcher.search(keyword.trim)
+              keyword =>
+                val timerOnlineSwoogle = new BasicTimer("search|fetch|swoogle", keyword).start()
+                val swoogleFetching = OntologyFetcher.SwoogleFetcher.search(keyword.trim)
+                swoogleFetching.onComplete { _ => timerOnlineSwoogle.stop() }
+                swoogleFetching
             } ++ keywords.map {
-              keyword => OntologyFetcher.SindiceFetcher.search(keyword.trim)
+              keyword =>
+                val timerOnlineSindice = new BasicTimer("search|fetch|sindice", keyword).start()
+                val sindiceFetching = OntologyFetcher.SindiceFetcher.search(keyword.trim)
+                sindiceFetching.onComplete { _ => timerOnlineSindice.stop() }
+                sindiceFetching
             }
-            Future.sequence(futureList)
+            val fetchResult = Future.sequence(futureList)
+            fetchResult.onComplete { _ => timerOnline.stop() }
+            fetchResult
           } else {
             Future.successful(List(FetchResult()))
           }).flatMap { fetchResult =>
+            val timerSearch = new BasicTimer("search|search", keywords.mkString).start()
             // Do the actual search
-            Search.findElementsByKeyword(keywords.mkString(" ")).map {
+            val searchResults = Search.findElementsByKeyword(keywords.mkString(" ")).map {
               searchResult =>
+                timer.stop()
                 Ok {
                   JsObject(Seq(
                     "fetchResults"  -> Json.toJson(fetchResult),
@@ -55,6 +69,8 @@ object Application extends Controller {
                   ))
                 }
             }
+            searchResults.onComplete { _ => timerSearch.stop() }
+            searchResults
           }
       }.recoverTotal {
         e => Future.successful(BadRequest("Detected error:" + JsError.toFlatJson(e)))

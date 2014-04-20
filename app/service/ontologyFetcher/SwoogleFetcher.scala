@@ -6,7 +6,7 @@ import play.api.libs.ws.{Response, WS}
 import scala.math.floor
 import scala.xml.Elem
 import service.ontologyFetcher.parser.OntologyParser
-import common.ExecutionContexts
+import common.{BasicTimer, ExecutionContexts}
 import service.FetchResult
 import scala.util.{Success, Failure}
 import play.api.Play.current
@@ -19,7 +19,7 @@ class SwoogleFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
 
   def search(keyword: String): Future[FetchResult] = super.search(keyword, "swoogle")
 
-  def getOntologyList(keyword: String): Future[Set[String]] = {
+  override def getOntologyList(keyword: String): Future[Set[String]] = {
     import ExecutionContexts.internetIOOps
     def getNormalizedSearchResultCount(xml: Elem): Int = {
       val resultCount = try {(xml \\ "QueryResponse" \\ "hasSearchTotalResults").text.toInt; } catch { case e: Throwable => 0 }
@@ -35,6 +35,8 @@ class SwoogleFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
       }
     }
 
+    val timer = new BasicTimer("fetch|swoogle", "page|all").start()
+
     val firstPagePromise: Future[Response] = fetchAPage(keyword, 1)
 
     val resultCount: Future[Int] = firstPagePromise.map { response =>
@@ -42,7 +44,7 @@ class SwoogleFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
       getNormalizedSearchResultCount(xml)
     }
 
-    resultCount.flatMap {
+    val convertF = resultCount.flatMap {
       case rc if rc > 0 => {
 
         val urlListFutures: Seq[Future[Seq[String]]] =
@@ -70,6 +72,8 @@ class SwoogleFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
         Set.empty[String]
       }
     }
+    convertF.onComplete { _ => timer.stop() }
+    convertF
   }
 
   private def fetchAPage(searchQuery: String, startResult: Int): Future[Response] = {
@@ -77,7 +81,8 @@ class SwoogleFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
     Logger.info("Fetching SWOOGLE starting " + startResult)
     Logger.info(SEARCH_ONTOLOGY_API_URL + "?queryType=search_swd_ontology&key=" + ACCESS_KEY + "&searchString=" + searchQuery + "&searchStart=" + String.valueOf(startResult))
 
-    WS.url(SEARCH_ONTOLOGY_API_URL)
+    val timer = new BasicTimer("fetch|swoogle", "page|" + startResult).start()
+    val pageF = WS.url(SEARCH_ONTOLOGY_API_URL)
       .withQueryString(("queryType", "search_swd_ontology"))
       .withQueryString(("key", ACCESS_KEY))
       .withQueryString(("searchString", searchQuery))
@@ -90,5 +95,7 @@ class SwoogleFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
           Logger.info("Fetching SWOOGLE completed " + startResult)
           response
       }
+    pageF.onComplete { _ => timer.stop() }
+    pageF
   }
 }

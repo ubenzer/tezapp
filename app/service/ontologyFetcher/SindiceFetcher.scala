@@ -4,7 +4,7 @@ import play.api.{Play, Logger}
 import scala.concurrent.Future
 import play.api.libs.ws.{Response, WS}
 import service.ontologyFetcher.parser.OntologyParser
-import common.ExecutionContexts
+import common.{BasicTimer, ExecutionContexts}
 import service.FetchResult
 import scala.util.{Success, Failure}
 import play.api.Play.current
@@ -34,6 +34,8 @@ class SindiceFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
   override def getOntologyList(keyword: String): Future[Set[String]] = {
     import ExecutionContexts.internetIOOps
 
+    val timer = new BasicTimer("fetch|sindice", "page|all").start()
+
     val firstPageRequestF = fetchAPage(keyword, 1)
 
     val searchPageCountF = firstPageRequestF.map {
@@ -42,7 +44,7 @@ class SindiceFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
         getNormalizedSearchResultCount(json)
     }
 
-    searchPageCountF.flatMap {
+    val convertF = searchPageCountF.flatMap {
       case pc if pc > 0 =>
 
         val urlListResponseFutures: Seq[Future[Response]] = pc match {
@@ -74,6 +76,8 @@ class SindiceFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
         Logger.error("Search engine is totally failed.", ex)
         Set.empty[String]
     }
+    convertF.onComplete { _ => timer.stop() }
+    convertF
   }
 
   private def toUrlList(r: Response): Seq[String] = {
@@ -103,7 +107,8 @@ class SindiceFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
     Logger.info("Fetching SINDICE starting page " + page)
     Logger.info(SEARCH_ONTOLOGY_API_URL + "?fq=format:RDF&format=json&q=" + searchQuery + "&page=" + String.valueOf(page))
 
-    WS.url(SEARCH_ONTOLOGY_API_URL)
+    val timer = new BasicTimer("fetch|sindice", "page|" + page).start()
+    val pageF = WS.url(SEARCH_ONTOLOGY_API_URL)
       .withQueryString(("fq", "format:RDF"))
       .withQueryString(("format", "json"))
       .withQueryString(("q", searchQuery))
@@ -116,5 +121,7 @@ class SindiceFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
           Logger.info("Fetching SINDICE completed page " + page)
           response
       }
+    pageF.onComplete { _ => timer.stop() }
+    pageF
   }
 }

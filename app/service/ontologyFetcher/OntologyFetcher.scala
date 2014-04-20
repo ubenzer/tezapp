@@ -6,7 +6,7 @@ import play.api.{Play, Logger}
 import java.net.ConnectException
 import java.util.concurrent.TimeoutException
 import service.ontologyFetcher.parser.{RIOParser, OntologyParser}
-import common.ExecutionContexts
+import common.{BasicTimer, ExecutionContexts}
 import service.FetchResult
 import service.ontologyFetcher.storer.MongoStorageEngine
 import play.api.Play.current
@@ -42,12 +42,14 @@ abstract class OntologyFetcher(parser: OntologyParser) {
 
         serialiseFutures(ontologyList.grouped(CHUNK_SIZE).toIterable) {
           aChunk =>
-            def downloadedOntologiesFutureSeq: List[Future[(Option[Response], FetchResult)]] = downloadOntologies(aChunk)
+            def downloadedOntologiesFutureSeq: List[Future[(Option[(String, Response)], FetchResult)]] = downloadOntologies(aChunk)
             def processedOntologiesSeq: List[Future[FetchResult]] = downloadedOntologiesFutureSeq.map {
               downloadedOntologiesFuture =>
                 downloadedOntologiesFuture.flatMap {
-                  case (Some(ontologyResponse), fetchResult) =>
+                  case (Some((uri, ontologyResponse)), fetchResult) =>
+                    val timer = new BasicTimer("parse", uri).start()
                     val fetchResultF = parser.parseResponseAsOntology(ontologyResponse, source)
+                    fetchResultF.onComplete { _ => timer.stop() }
                     fetchResultF
                   case (None, fetchResult) => Future.successful(fetchResult)
                 }
@@ -62,18 +64,19 @@ abstract class OntologyFetcher(parser: OntologyParser) {
     }
   }
 
-  def downloadOntologies(urlList: List[String]): List[Future[(Option[Response], FetchResult)]] = {
+  def downloadOntologies(urlList: List[String]): List[Future[(Option[(String, Response)], FetchResult)]] = {
     import ExecutionContexts.internetIOOps
     val resultFutures = urlList.map {
       url =>
         Logger.info("Downloading ontology: " + url)
         try {
-          WS.url(url).withHeaders(("Accept", "application/rdf+xml, application/xml;q=0.6, text/xml;q=0.6")).get().map {
+          val timer = new BasicTimer("download", url).start()
+          val wsFuture = WS.url(url).withHeaders(("Accept", "application/rdf+xml, application/xml;q=0.6, text/xml;q=0.6")).get().map {
             response => response.status match {
               case num if 404 == num => (None, FetchResult(notFound = 1))
               case num if 400 until 500 contains num => (None, FetchResult(failed400x = 1))
               case num if 500 until 600 contains num => (None, FetchResult(failed500x = 1))
-              case _ => (Some(response), FetchResult(success = 1))
+              case _ => (Some(url, response), FetchResult(success = 1))
             }
           }.recover {
             case ex: TimeoutException =>
@@ -86,6 +89,8 @@ abstract class OntologyFetcher(parser: OntologyParser) {
               Logger.error("Fetch failed for url " + url, ex)
               (None, FetchResult(unknown = 1))
           }
+          wsFuture.onComplete { _ => timer.stop() }
+          wsFuture
         }
     }
     resultFutures
