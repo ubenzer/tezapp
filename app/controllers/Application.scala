@@ -31,37 +31,50 @@ object Application extends Controller {
     request =>
       request.body.validate[(List[String], Boolean)].map {
         case (keywords, offline) =>
-          val timer = new BasicTimer("search|all", keywords.mkString + "|" + offline).start()
-          /*++ keywords.map {
-            keyword => OntologyFetcher.WatsonFetcher.search(keyword.trim)
-          } */
           // Update database if requested.
           (if(!offline) {
-            val timerOnline = new BasicTimer("search|fetch|all", keywords.mkString("|")).start()
-            val futureList: List[Future[FetchResult]] = keywords.map {
-              keyword =>
-                val timerOnlineSwoogle = new BasicTimer("search|fetch|swoogle", keyword).start()
-                val swoogleFetching = OntologyFetcher.SwoogleFetcher.search(keyword.trim)
-                swoogleFetching.onComplete { _ => timerOnlineSwoogle.stop() }
-                swoogleFetching
-            } ++ keywords.map {
-              keyword =>
-                val timerOnlineSindice = new BasicTimer("search|fetch|sindice", keyword).start()
-                val sindiceFetching = OntologyFetcher.SindiceFetcher.search(keyword.trim)
-                sindiceFetching.onComplete { _ => timerOnlineSindice.stop() }
-                sindiceFetching
+            val timerKeywordAll = new BasicTimer("search|keyword|all", keywords.mkString("|")).start()
+
+            /* Get ontology list from Swoogle */
+            val timerKeywordSwoogle = new BasicTimer("search|keyword|swoogle", keywords.mkString("|")).start()
+            val ontologyListSwoogleF: Future[Seq[String]] = Future.sequence {
+              keywords.map {
+                kw => OntologyFetcher.SwoogleFetcher.getOntologyList(kw.trim)
+              }
+            }.map {
+              x => x.flatten
             }
-            val fetchResult = Future.sequence(futureList)
-            fetchResult.onComplete { _ => timerOnline.stop() }
-            fetchResult
+            ontologyListSwoogleF.onComplete { _ => timerKeywordSwoogle.stop() }
+
+            /* Get ontology list from Sindice */
+            val timerKeywordSindice = new BasicTimer("search|keyword|sindice", keywords.mkString("|")).start()
+            val ontologyListSindiceF: Future[Seq[String]] = Future.sequence {
+              keywords.map {
+                kw => OntologyFetcher.SindiceFetcher.getOntologyList(kw.trim)
+              }
+            }.map {
+              x => x.flatten.filter(x => x.startsWith("http://") || x.startsWith("https://"))
+            }
+            ontologyListSindiceF.onComplete { _ => timerKeywordSindice.stop() }
+
+            def ontologyListAllF: Future[Seq[String]] = Future.sequence(ontologyListSwoogleF :: ontologyListSindiceF :: Nil).map { x => x.flatten }
+            val ontologyListAllUniqueF: Future[Set[String]] = ontologyListAllF.map { x => x.toSet}
+            ontologyListAllUniqueF.onComplete { _ => timerKeywordAll.stop() }
+
+            /* Download and process ontologies */
+            val timerCrawl = new BasicTimer("search|crawl", keywords.mkString("|")).start()
+            val fetchResultF: Future[FetchResult] = ontologyListAllUniqueF.flatMap {
+              urlList => OntologyFetcher.crawlOntologies(urlList)
+            }
+            fetchResultF.onComplete { _ => timerCrawl.stop() }
+            fetchResultF
           } else {
-            Future.successful(List(FetchResult()))
+            Future.successful(FetchResult())
           }).flatMap { fetchResult =>
             val timerSearch = new BasicTimer("search|search", keywords.mkString("|")).start()
             // Do the actual search
             val searchResults = Search.findElementsByKeyword(keywords.mkString(" ")).map {
               searchResult =>
-                timer.stop()
                 Ok {
                   JsObject(Seq(
                     "fetchResults"  -> Json.toJson(fetchResult),

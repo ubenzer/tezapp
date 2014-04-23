@@ -9,14 +9,14 @@ import scala.concurrent.Future
 
 abstract class OntologyParser(storer: OntologyStorageEngine) {
 
-  final def parseResponseAsOntology(response: Response, source: String): Future[FetchResult] = {
+  final def parseResponseAsOntology(response: Response): Future[FetchResult] = {
     import service.ontologyFetcher.parser.OntologyParserImplicits._
     val inferredType: RDFFormat = inferType(response.header("Content-Type"))
-    parseStreamAsOntology(response.body, response.getAHCResponse.getUri, inferredType, source)
+    parseStreamAsOntology(response.body, response.getAHCResponse.getUri, inferredType)
   }
-  def parseStreamAsOntology(tbParsed: String, baseUri: String, format: RDFFormat, source: String): Future[FetchResult]
+  def parseStreamAsOntology(tbParsed: String, baseUri: String, format: RDFFormat): Future[FetchResult]
 
-  def inferType(contentType: Option[String]): RDFFormat = {
+  protected def inferType(contentType: Option[String]): RDFFormat = {
 
     for(h <- contentType) {
       val mime = h.split(';')(0)

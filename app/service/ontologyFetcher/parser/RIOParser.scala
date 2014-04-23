@@ -15,21 +15,21 @@ import scala.util.Try
 
 class RIOParser(storer: OntologyStorageEngine) extends OntologyParser(storer) {
 
-  override def parseStreamAsOntology(tbParsed: String, ontologyUri: String, format: RDFFormat, source: String): Future[FetchResult] = {
+  override def parseStreamAsOntology(tbParsed: String, ontologyUri: String, format: RDFFormat): Future[FetchResult] = {
     def string2InputStream(value: String):InputStream = new ByteArrayInputStream(value.getBytes("UTF-8"))
     lazy val md5 = CryptoUtils.md5(tbParsed)
 
     def parseAndSave(): Future[FetchResult] = {
       val ontologyAsStream = string2InputStream(tbParsed)
       try {
-        val handler = new RIOCustomHandler(storer, ontologyUri, source)
+        val handler = new RIOCustomHandler(storer, ontologyUri)
         val rdfParser = Rio.createParser(format)
         rdfParser.setRDFHandler(handler)
 
         // Save elements, triples and update document on demand. (we cant handle all list in one turn, if ontology is big.)
         rdfParser.parse(ontologyAsStream, ontologyUri)
 
-        storer.saveDocument(ontologyUri, md5, source).map {
+        storer.saveDocument(ontologyUri, md5).map {
           x => FetchResult(success = 1)
         }
       } catch {
@@ -62,7 +62,7 @@ class RIOParser(storer: OntologyStorageEngine) extends OntologyParser(storer) {
                 storer.deleteOntology(ontologyUri)
                 parseAndSave()
               case false =>
-                storer.saveDocument(ontologyUri, md5, source).map {
+                storer.saveDocument(ontologyUri, md5).map {
                   x => FetchResult(duplicate = 1)
                 }
             }
@@ -72,7 +72,7 @@ class RIOParser(storer: OntologyStorageEngine) extends OntologyParser(storer) {
 
   }
 }
-class RIOCustomHandler(storer: OntologyStorageEngine, baseUri: String, source: String) extends RDFHandlerBase {
+class RIOCustomHandler(storer: OntologyStorageEngine, baseUri: String) extends RDFHandlerBase {
 
   override def handleStatement(st: Statement):Unit = {
 
@@ -82,7 +82,7 @@ class RIOCustomHandler(storer: OntologyStorageEngine, baseUri: String, source: S
 
     val bNodeLookup = collection.mutable.Map[String, String]()
 
-    storer.saveTriple(baseUri, subject, predicate, objekt, source)(bNodeLookup)
+    storer.saveTriple(baseUri, subject, predicate, objekt)(bNodeLookup)
   }
 }
 

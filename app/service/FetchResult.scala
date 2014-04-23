@@ -8,7 +8,6 @@ case class FetchResult(
   success: Int = 0,
 
   // Fail cases
-  searchEngineFailed: Boolean = false,
   duplicate: Int = 0,
   notFound: Int = 0,
   failed400x: Int = 0,
@@ -21,7 +20,6 @@ case class FetchResult(
   def +(fr: FetchResult): FetchResult = {
     FetchResult(
       success = this.success + fr.success,
-      searchEngineFailed = this.searchEngineFailed || fr.searchEngineFailed,
       duplicate = this.duplicate + fr.duplicate,
       notFound = this.notFound + fr.notFound,
       failed400x = this.failed400x + fr.failed400x,

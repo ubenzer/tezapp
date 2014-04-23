@@ -15,7 +15,7 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.Logger
-import common.{RDF, RDFExport}
+import common.RDFExport
 import service.FetchResult
 
 object Test extends Controller {
@@ -27,8 +27,8 @@ object Test extends Controller {
     if(keyword.length < 1) {
       Future.successful(BadRequest)
     } else {
-      OntologyFetcher.SwoogleFetcher.search(keyword).map {
-        result => Ok(result.toString)
+      OntologyFetcher.SwoogleFetcher.getOntologyList(keyword).map {
+        result => Ok(Json.toJson(result))
       }
     }
   }
@@ -37,8 +37,8 @@ object Test extends Controller {
     if(keyword.length < 1) {
       Future.successful(BadRequest)
     } else {
-      OntologyFetcher.WatsonFetcher.search(keyword).map {
-        result => Ok(result.toString)
+      OntologyFetcher.WatsonFetcher.getOntologyList(keyword).map {
+        result => Ok(Json.toJson(result))
       }
     }
   }
@@ -47,8 +47,8 @@ object Test extends Controller {
     if(keyword.length < 1) {
       Future.successful(BadRequest)
     } else {
-      OntologyFetcher.SindiceFetcher.search(keyword).map {
-        result => Ok(result.toString)
+      OntologyFetcher.SindiceFetcher.getOntologyList(keyword).map {
+        result => Ok(Json.toJson(result))
       }
     }
   }

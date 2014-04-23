@@ -4,7 +4,6 @@ import scala.concurrent.Future
 import play.api.libs.ws.{Response, WS}
 import service.ontologyFetcher.parser.OntologyParser
 import common.ExecutionContexts
-import service.FetchResult
 import scala.util.{Success, Failure}
 import play.api.libs.json.JsArray
 import play.api.{Play, Logger}
@@ -14,19 +13,17 @@ class WatsonFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
   private val SEARCH_ONTOLOGY_API_URL = "http://watson.kmi.open.ac.uk/API/semanticcontent/keywords/"
   private val WATSON_MAX_RESULT = Play.configuration.getInt("watson.maxSearchResult").getOrElse(100)
 
-  def search(keyword: String): Future[FetchResult] = super.search(keyword, "watson")
-
-  override def getOntologyList(keyword: String): Future[Set[String]] = {
+  override def getOntologyList(keyword: String): Future[Seq[String]] = {
     import ExecutionContexts.internetIOOps
     val resultListResponseFuture: Future[Response] = fetchResults(keyword)
     resultListResponseFuture.map {
       response => toUrlList(response)
     }.recover {
-      case ex: Throwable => Set.empty[String]
+      case ex: Throwable => Seq.empty[String]
     }
   }
 
-  private def toUrlList(r: Response): Set[String] = {
+  private def toUrlList(r: Response): Seq[String] = {
     try {
       val json = r.json
       val elements = (json \ "SemanticContent-array" \ "SemanticContent" ).asOpt[JsArray].getOrElse(JsArray())
@@ -36,9 +33,9 @@ class WatsonFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
           link
       }.flatten.filterNot {
         x => x.contains("livejournal.com") || x.contains("deadjournal.com")
-      }.take(WATSON_MAX_RESULT).toSet
+      }.take(WATSON_MAX_RESULT)
     } catch {
-      case ex: Throwable => Set.empty[String]
+      case ex: Throwable => Seq.empty[String]
     }
   }
 

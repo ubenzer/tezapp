@@ -5,8 +5,8 @@ import reactivemongo.bson.BSONObjectID
 import scala.concurrent.Future
 
 abstract class OntologyStorageEngine() {
-  def saveDocument(uri: String, md5: String, source: String): Future[Boolean]
-  def saveTriple(sourceDocument: String, subject: Resource, predicate: URI, objekt: Value, source: String)(bNodeLookup: collection.mutable.Map[String, String]): Future[Option[BSONObjectID]]
+  def saveDocument(uri: String, md5: String): Future[Boolean]
+  def saveTriple(sourceDocument: String, subject: Resource, predicate: URI, objekt: Value)(bNodeLookup: collection.mutable.Map[String, String]): Future[Option[BSONObjectID]]
 
   def deleteOntology(ontologyUri: String): Future[Boolean]
 

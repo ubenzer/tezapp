@@ -12,12 +12,11 @@ import common.ExecutionContexts.verySlowOps
 
 class MongoStorageEngine() extends OntologyStorageEngine {
 
-  override def saveDocument(uri: String, md5: String, source: String): Future[Boolean] = {
+  override def saveDocument(uri: String, md5: String): Future[Boolean] = {
     OntologyDocument.mergeSave(
       OntologyDocument(
         uri = uri,
         md5 = md5,
-        appearsOn = Set(source),
         cDate = new DateTime
       )
     )
@@ -38,7 +37,7 @@ class MongoStorageEngine() extends OntologyStorageEngine {
     if(!maybeId.isDefined) { throw new RuntimeException("Can't generate an id") }
     maybeId.get
   }
-  override def saveTriple(sourceDocument: String, subject: Resource, predicate: URI, objekt: Value, source: String)(bNodeLookup: collection.mutable.Map[String, String]): Future[Option[BSONObjectID]] = {
+  override def saveTriple(sourceDocument: String, subject: Resource, predicate: URI, objekt: Value)(bNodeLookup: collection.mutable.Map[String, String]): Future[Option[BSONObjectID]] = {
     /* What kind of object we are face with? Blank node? Damn blank node,
       we need unique id's for them.
 
@@ -60,7 +59,6 @@ class MongoStorageEngine() extends OntologyStorageEngine {
       objekt = objectId,
       isObjectData = objectIsData,
       objectLanguage = objectLanguage,
-      appearsOn = Set(source),
       sourceOntology = Set(sourceDocument)
     )).map {
       case None => None

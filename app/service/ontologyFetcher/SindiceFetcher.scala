@@ -4,8 +4,7 @@ import play.api.{Play, Logger}
 import scala.concurrent.Future
 import play.api.libs.ws.{Response, WS}
 import service.ontologyFetcher.parser.OntologyParser
-import common.{BasicTimer, ExecutionContexts}
-import service.FetchResult
+import common.ExecutionContexts
 import scala.util.{Success, Failure}
 import play.api.Play.current
 import play.api.libs.json.{JsArray, JsValue}
@@ -14,9 +13,7 @@ class SindiceFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
   private val SEARCH_ONTOLOGY_API_URL = "http://api.sindice.com/v3/search"
   private val SINDICE_MAX_RESULT_PAGE = Play.configuration.getInt("sindice.maxSearchResultPage").getOrElse(100)
 
-  def search(keyword: String): Future[FetchResult] = super.search(keyword, "sindice")
-
-  def getNormalizedSearchResultCount(json: JsValue): Int = {
+  private def getNormalizedSearchResultCount(json: JsValue): Int = {
     val count = (json \ "totalResults").asOpt[Int].getOrElse(0)
     val itemsPerPage = (json \ "itemsPerPage").asOpt[Int].getOrElse(0)
 
@@ -31,10 +28,8 @@ class SindiceFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
       }
     }
   }
-  override def getOntologyList(keyword: String): Future[Set[String]] = {
+  override def getOntologyList(keyword: String): Future[Seq[String]] = {
     import ExecutionContexts.internetIOOps
-
-    val timer = new BasicTimer("fetch|sindice", "page|all").start()
 
     val firstPageRequestF = fetchAPage(keyword, 1)
 
@@ -66,17 +61,16 @@ class SindiceFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
           }
 
         val urlListFuture: Future[Seq[Seq[String]]] = Future.sequence(urlListFutures)
-        val urlListFlatterned: Future[Set[String]] = urlListFuture.map {
-          x => x.flatten.toSet
+        val urlListFlatterned: Future[Seq[String]] = urlListFuture.map {
+          x => x.flatten
         }
         urlListFlatterned
-      case _ => Future.successful(Set.empty[String])
+      case _ => Future.successful(Seq.empty[String])
     } recover {
       case ex: Throwable =>
         Logger.error("Search engine is totally failed.", ex)
-        Set.empty[String]
+        Seq.empty[String]
     }
-    convertF.onComplete { _ => timer.stop() }
     convertF
   }
 
@@ -107,7 +101,6 @@ class SindiceFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
     Logger.info("Fetching SINDICE starting page " + page)
     Logger.info(SEARCH_ONTOLOGY_API_URL + "?fq=format:RDF&format=json&q=" + searchQuery + "&page=" + String.valueOf(page))
 
-    val timer = new BasicTimer("fetch|sindice", "page|" + page).start()
     val pageF = WS.url(SEARCH_ONTOLOGY_API_URL)
       .withQueryString(("fq", "format:RDF"))
       .withQueryString(("format", "json"))
@@ -121,7 +114,6 @@ class SindiceFetcher(parser: OntologyParser) extends OntologyFetcher(parser) {
           Logger.info("Fetching SINDICE completed page " + page)
           response
       }
-    pageF.onComplete { _ => timer.stop() }
     pageF
   }
 }
