@@ -5,7 +5,9 @@ ngDefine "services.SearchSerializer", (module) ->
 
     api = {
       serialize: (keywords, offline = false) ->
-        return JSON.stringify({k: keywords, o: offline})
+        theArray = []
+        theArray.push(v.text) for own k,v of keywords
+        return JSON.stringify({k: theArray, o: offline})
       deserialize: (string) ->
         try
           obj = JSON.parse(string)
