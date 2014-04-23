@@ -113,11 +113,10 @@ object OntologyTriple {
 
     collection.db.command(command).recover {
       case e =>
-        Logger.error(e.getMessage, e)
+        Logger.error("OntologyTriple mergeSave failed.", e)
         None
     }.map {
       case None => {
-        Logger.error("OntologyTriple mergeSave failed for selector '" + selector + "' and update '" + update + "'.")
         None
       }
       case Some(bsonDocument) =>
