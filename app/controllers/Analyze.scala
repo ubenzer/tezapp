@@ -32,7 +32,7 @@ object Analyze extends Controller {
               None
             }
         }.flatten.mkString("\n")
-      ).as("text/csv")
+      ).as("text/csv").withHeaders("Content-Disposition" -> "attachment; filename=timings.csv")
     } catch {
       case e: Throwable =>
         BadRequest("Read failed.")
