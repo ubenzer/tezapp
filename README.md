@@ -37,7 +37,18 @@ Please note that, this is a test server with little resources. It might be down,
 3. Run MongoDB.
 4. Create a copy of `conf/secret.sample.conf` naming it `conf/secret.conf`.
 5. Edit `conf/secret.conf` and fill it with your own configuration.
-5. Run application with `run` or `start` on Play console.
+5. Run application with `run` on Play console.
+
+## Deploying
+
+1. Run `clean dist` on play console to compile application with all its dependencies into single package which is created at `target/universal/tezapp-VERSION.zip`
+2. Upload this file to the server you want to deploy it to.
+3. Extract uploaded file `unzip FILE.zip` and check permissions. _You need executable permission on `bin` folder._
+3. Prepare your config files. (Defaults configuration files which you can use as templates can be found at `conf` directory.)
+4. If you want to customize logger output, read documentation located [here](http://www.playframework.com/documentation/2.2.2/SettingsLogger).
+5. Run application with something like this. (Modify for your own needs.)
+
+`nohup sudo -u tezapp /path/to/tezapp/bin/tezapp -mem 768 -J-server -Dhttp.port=9000 -Dhttp.address=127.0.0.1 -Dconfig.file=/path/to/conf/myconf.conf -Dlogger.file=/path/to/logConf/logConfig.xml > /dev/null &`
 
 ## Contributing
 
