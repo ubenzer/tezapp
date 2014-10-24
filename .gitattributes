@@ -1,0 +1,4 @@
+public/js/lib/* linguist-vendored
+public/font/* linguist-vendored
+app/assets/css/bootstrap/* linguist-vendored
+app/assets/css/fontawesome/* linguist-vendored
