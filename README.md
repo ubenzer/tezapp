@@ -20,9 +20,7 @@ This application is developed using Play Framework 2.2 using Scala and Angular.j
 
 ## Live Application
 
-This application at [tezapp.ubenzer.com](http://tezapp.ubenzer.com)
-
-Please note that, this is a test server with little resources. It might be down, or slow from time to time.
+Due to server maintenance costs this application is not alive in anywhere.
 
 ## Screenshots
 
